@@ -40,7 +40,7 @@ namespace ModCompendiumCLI
                 Console.ForegroundColor = currentColor;
             };
 
-            var config = Config.Get< Persona4GameConfig >();
+            var config = ConfigManager.Get< Persona4GameConfig >();
             //config.EnableMod( ModDatabase.Mods.Single( x => x.Title == "Picaro Mod" ) );
 
             var merger = new TopToBottomModMerger();
@@ -76,7 +76,7 @@ namespace ModCompendiumCLI
             //    modCompiledFile = modBuilder.Build( modRoot, "ExampleModP4ModCompilerOutput" );
             //}
 
-            Config.Save();
+            ConfigManager.Save();
         }
     }
 

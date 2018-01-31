@@ -9,12 +9,12 @@ using ModCompendiumLibrary.Reflection;
 
 namespace ModCompendiumLibrary.Configuration
 {
-    public static class Config
+    public static class ConfigManager
     {
         private static readonly Dictionary<Type, IConfigurable> sConfigurableByType;
         private static readonly Dictionary<Game, GameConfig> sGameConfigByGame;
 
-        static Config()
+        static ConfigManager()
         {
             Log.Config.Info( "Initializing configs" );
 

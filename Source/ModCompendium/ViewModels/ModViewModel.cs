@@ -73,7 +73,7 @@ namespace ModCompendium.ViewModels
         public ModViewModel( Mod model )
         {
             mMod = model;
-            mConfig = Config.Get( model.Game );
+            mConfig = ConfigManager.Get( model.Game );
         }
 
         public static explicit operator ModViewModel( Mod mod ) => new ModViewModel( mod );

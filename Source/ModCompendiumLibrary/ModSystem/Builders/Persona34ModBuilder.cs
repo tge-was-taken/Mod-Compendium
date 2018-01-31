@@ -30,7 +30,7 @@ namespace ModCompendiumLibrary.ModSystem.Builders
             }
 
             // Get game config
-            var config = Config.Get( Game ) as Persona34GameConfig;
+            var config = ConfigManager.Get( Game ) as Persona34GameConfig;
             if ( config == null )
             {
                 // Unlikely

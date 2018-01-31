@@ -49,7 +49,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Configuration\Config.cs" />
+    <Compile Include="Configuration\ConfigManager.cs" />
     <Compile Include="Configuration\IConfigurable.cs" />
     <Compile Include="Configuration\SerializationHelper.cs" />
     <Compile Include="Configuration\GameConfig.cs" />

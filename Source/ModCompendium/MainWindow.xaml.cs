@@ -32,7 +32,7 @@ namespace ModCompendium
 
         public GameConfig GameConfig { get; private set; }
 
-        public MainWindowConfig WindowConfig { get; private set; }
+        public MainWindowConfig Config { get; private set; }
 
         public MainWindow()
         {
@@ -58,7 +58,7 @@ namespace ModCompendium
 
             Log.MessageBroadcasted += Log_MessageBroadcasted;
 
-            WindowConfig = Config.Get<MainWindowConfig>();
+            Config = ConfigManager.Get<MainWindowConfig>();
             InitializeGameComboBox();
         }
 
@@ -66,7 +66,7 @@ namespace ModCompendium
         {
             var enumValues = Enum.GetValues( typeof( Game ) ).Cast<Game>().ToList();
             GameComboBox.ItemsSource = enumValues;
-            GameComboBox.SelectedIndex = enumValues.IndexOf( WindowConfig.SelectedGame );
+            GameComboBox.SelectedIndex = enumValues.IndexOf( Config.SelectedGame );
         }
 
         private void RefreshMods()
@@ -77,7 +77,7 @@ namespace ModCompendium
             Mods = ModDatabase.Get( SelectedGame )
                               .OrderBy( x =>
                               {
-                                  if ( WindowConfig.ModOrder.TryGetValue( x.Id, out var order ) )
+                                  if ( Config.ModOrder.TryGetValue( x.Id, out var order ) )
                                   {
                                       shouldUpdateOrder = !uniqueOrders.Add( order ); // duplicate order
                                       return order;
@@ -85,7 +85,7 @@ namespace ModCompendium
                                   else
                                   {
                                       shouldUpdateOrder = true; // undefined order
-                                      return WindowConfig.ModOrder[x.Id] = 0;
+                                      return Config.ModOrder[x.Id] = 0;
                                   }
                               } )
                               .Select( x => new ModViewModel( x ) )
@@ -124,7 +124,7 @@ namespace ModCompendium
             for ( var i = 0; i < Mods.Count; i++ )
             {
                 var mod = Mods[i];
-                WindowConfig.ModOrder[mod.Id] = i;
+                Config.ModOrder[mod.Id] = i;
             }
         }
 
@@ -132,13 +132,13 @@ namespace ModCompendium
         {
             UpdateGameConfigEnabledMods();
             UpdateWindowConfig();
-            Config.Save();
+            ConfigManager.Save();
         }
 
         private void UpdateWindowConfig()
         {
             UpdateWindowConfigModOrder();
-            WindowConfig.SelectedGame = SelectedGame;
+            Config.SelectedGame = SelectedGame;
         }
 
         // Events
@@ -190,7 +190,7 @@ namespace ModCompendium
         private void GameComboBox_SelectionChanged( object sender, SelectionChangedEventArgs e )
         {
             SelectedGame = ( Game )GameComboBox.SelectedValue;
-            GameConfig = Config.Get( SelectedGame );
+            GameConfig = ConfigManager.Get( SelectedGame );
             RefreshMods();
         }
 
@@ -330,8 +330,8 @@ namespace ModCompendium
             var target = ( Mod )( ModViewModel )ModGrid.Items[targetIndex];
 
             // Order
-            WindowConfig.ModOrder[selectedMod.Id] = targetIndex;
-            WindowConfig.ModOrder[target.Id] = selectedIndex;
+            Config.ModOrder[selectedMod.Id] = targetIndex;
+            Config.ModOrder[target.Id] = selectedIndex;
 
             // Gui update
             Mods.Remove( selected );
@@ -351,7 +351,7 @@ namespace ModCompendium
             UpdateConfigChangesAndSave();
 
             // Reload
-            ModCompendiumLibrary.Configuration.Config.Load();
+            ModCompendiumLibrary.Configuration.ConfigManager.Load();
             RefreshModDatabase();
         }
 
