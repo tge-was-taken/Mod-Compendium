@@ -11,16 +11,17 @@ namespace ModCompendium.GuiConfig
 
         public ModOrderGuiConfig()
         {
+        }
+
+        public void Deserialize( XElement element )
+        {
             ModOrder = new Dictionary<int, int>();
 
             foreach ( var mod in ModDatabase.Mods )
             {
                 ModOrder[mod.Id] = 0;
             }
-        }
 
-        public void Deserialize( XElement element )
-        {
             var modOrderElement = element.Element( nameof( ModOrder ) );
             if ( modOrderElement != null )
             {

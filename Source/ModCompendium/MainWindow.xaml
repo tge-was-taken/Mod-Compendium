@@ -8,7 +8,7 @@
         Title="Mod Compendium" Height="667.333" Width="802">
     <Grid>
         <Grid Margin="10">
-            <Grid HorizontalAlignment="Left" Height="42" VerticalAlignment="Top" Width="582">
+            <Grid HorizontalAlignment="Left" Height="42" VerticalAlignment="Top" Width="582" Margin="10,0,0,0">
                 <Grid.RowDefinitions>
                 </Grid.RowDefinitions>
                 <Grid.ColumnDefinitions>
@@ -19,10 +19,11 @@
                     <ColumnDefinition Width="105*"></ColumnDefinition>
                     <ColumnDefinition Width="105*"></ColumnDefinition>
                 </Grid.ColumnDefinitions>
-                <ComboBox Name="GameComboBox" HorizontalAlignment="Left" VerticalAlignment="Top" Width="80" SelectionChanged="GameComboBox_SelectionChanged" Margin="10,5,0,0" Height="20">
+                <ComboBox Name="GameComboBox" HorizontalAlignment="Center" VerticalAlignment="Center" Width="80" SelectionChanged="GameComboBox_SelectionChanged" Height="20">
                 </ComboBox>
-                <Button Content="Settings" HorizontalAlignment="Left" VerticalAlignment="Top" Width="75" Grid.Column="1" Margin="10,5,0,0" Height="20" Click="SettingsButton_Click"/>
-                <Button Name="BuildButton" Content="Build" HorizontalAlignment="Left" VerticalAlignment="Top" Width="75" Margin="11,5,0,0" Grid.Column="2" Click="BuildButton_Click"/>
+                <Button Content="Settings" HorizontalAlignment="Center" VerticalAlignment="Center" Width="75" Grid.Column="1" Height="20" Click="SettingsButton_Click"/>
+                <Button Name="BuildButton" Content="_Build" HorizontalAlignment="Center" VerticalAlignment="Center" Width="75" Grid.Column="2" Click="BuildButton_Click"/>
+                <Button Content="_Refresh" Grid.Column="3" HorizontalAlignment="Center" VerticalAlignment="Center" Width="75" Click="RefreshButton_Click"/>
             </Grid>
             <Grid Margin="10,47,0,109" VerticalAlignment="Stretch">
                 <DataGrid Name="ModGrid" AlternatingRowBackground="LightGray" AutoGenerateColumns="False" Margin="0,0,15,0"

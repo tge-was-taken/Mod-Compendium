@@ -270,5 +270,18 @@ namespace ModCompendium
         {
             LogTextBox.ScrollToEnd();
         }
+
+        private void Button_Click( object sender, RoutedEventArgs e )
+        {
+
+        }
+
+        private void RefreshButton_Click( object sender, RoutedEventArgs e )
+        {
+            CommitEnabledMods();
+            //Config.Save();
+            //Config.Load();
+            RefreshModDatabase();
+        }
     }
 }
