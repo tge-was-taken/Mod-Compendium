@@ -37,29 +37,14 @@ namespace ModCompendium
         public MainWindow()
         {
             InitializeComponent();
-
-            AppDomain.CurrentDomain.UnhandledException += ( s, e ) =>
-            {
-                Application.Current.Dispatcher.Invoke(
-                    () =>
-                    {
-                        if ( e.ExceptionObject is Exception exception )
-                        {
-                            MessageBox.Show(
-                                this, $"Unhandled exception occured:\n{exception.Message}\n{exception.StackTrace}", "Error",
-                                MessageBoxButton.OK, MessageBoxImage.Error );
-                        }
-                        else
-                        {
-                            MessageBox.Show( this, "Unhandled exception occured (no info)", "Error", MessageBoxButton.OK, MessageBoxImage.Error );
-                        }
-                    } );
-            };
-
-            Log.MessageBroadcasted += Log_MessageBroadcasted;
-
             Config = ConfigManager.Get<MainWindowConfig>();
+            InitializeLog();
             InitializeGameComboBox();
+        }
+
+        private void InitializeLog()
+        {
+            Log.MessageBroadcasted += Log_MessageBroadcasted;
         }
 
         private void InitializeGameComboBox()
