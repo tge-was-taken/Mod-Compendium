@@ -37,8 +37,9 @@ namespace ModCompendium
         public MainWindow()
         {
             InitializeComponent();
-            Config = ConfigManager.Get<MainWindowConfig>();
             InitializeLog();
+
+            Config = ConfigManager.Get<MainWindowConfig>();
             InitializeGameComboBox();
         }
 
@@ -127,7 +128,6 @@ namespace ModCompendium
         }
 
         // Events
-
         private void Log_MessageBroadcasted( object sender, MessageBroadcastedEventArgs e )
         {
             // Invoke on UI thread

@@ -14,10 +14,14 @@ namespace ModCompendium
 
         private static void App_DispatcherUnhandledException( object sender, System.Windows.Threading.DispatcherUnhandledExceptionEventArgs e )
         {
+#if DEBUG
+            e.Handled = false;
+#else
             MessageBox.Show( $"Unhandled exception occured:\n{e.Exception.Message}\n{e.Exception.StackTrace}", "Error", MessageBoxButton.OK,
                              MessageBoxImage.Error );
 
             e.Handled = true;
+#endif
         }
     }
 }
