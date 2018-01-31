@@ -1,0 +1,15 @@
+﻿################################################################################
+# This .gitignore file was automatically created by Microsoft(R) Visual Studio.
+################################################################################
+
+/.vs
+/Source/.vs
+/Source/ModCompendium/bin/Debug
+/Source/ModCompendium/obj
+/Source/ModCompendiumCLI/bin
+/Source/ModCompendiumCLI/obj
+/Source/ModCompendiumLibrary/bin
+/Source/ModCompendiumLibrary/obj
+/Source/packages
+/Source/ModCompendiumLibrary.sln.DotSettings.user
+*.user

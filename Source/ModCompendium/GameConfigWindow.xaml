@@ -1,0 +1,29 @@
+﻿<Window x:Class="ModCompendium.GameConfigWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:ModCompendium"
+        mc:Ignorable="d"
+        Title="Game configuration" Height="160" Width="500" ResizeMode="NoResize">
+    <Grid>
+        <Grid Name="ConfigPropertyGrid" Width="Auto" Height="Auto" Margin="10,10,10,47">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="10*"></ColumnDefinition>
+                <ColumnDefinition Width="31*"></ColumnDefinition>
+            </Grid.ColumnDefinitions>
+            
+            <Grid.RowDefinitions>
+                <RowDefinition></RowDefinition>
+                <RowDefinition></RowDefinition>
+            </Grid.RowDefinitions>
+
+            <Label Grid.Row="0" Grid.Column="0" Content="Output Directory" HorizontalContentAlignment="Center" VerticalContentAlignment="Center" HorizontalAlignment="Center" VerticalAlignment="Center" Height="25" Width="100"/>
+            <TextBox Grid.Row="0" Grid.Column="1" VerticalContentAlignment="Center" Name="OutputDirectoryPathTextBox" Text="{Binding OutputDirectoryPath}" HorizontalAlignment="Center" VerticalAlignment="Center" Height="20" TextWrapping="Wrap" Width="291"/>
+            <Button Grid.Row="0" Grid.Column="1" HorizontalAlignment="Right" VerticalAlignment="Center" Width="20" Height="20" Click="Button_Click_1"/>
+        </Grid>
+        <Grid Margin="0,57,0,10">
+            <Button Content="OK" HorizontalAlignment="Center" VerticalAlignment="Bottom" Width="75" Click="Button_Click"/>
+        </Grid>
+    </Grid>
+</Window>

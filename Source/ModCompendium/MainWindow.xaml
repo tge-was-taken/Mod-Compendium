@@ -1,0 +1,47 @@
+﻿<Window x:Class="ModCompendium.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:ModCompendium"
+        mc:Ignorable="d"
+        Title="Mod Compendium" Height="667.333" Width="802">
+    <Grid>
+        <Grid Margin="10">
+            <Grid HorizontalAlignment="Left" Height="42" VerticalAlignment="Top" Width="582">
+                <Grid.RowDefinitions>
+                </Grid.RowDefinitions>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="105*"></ColumnDefinition>
+                    <ColumnDefinition Width="105*"></ColumnDefinition>
+                    <ColumnDefinition Width="105*"></ColumnDefinition>
+                    <ColumnDefinition Width="105*"></ColumnDefinition>
+                    <ColumnDefinition Width="105*"></ColumnDefinition>
+                    <ColumnDefinition Width="105*"></ColumnDefinition>
+                </Grid.ColumnDefinitions>
+                <ComboBox Name="GameComboBox" HorizontalAlignment="Left" VerticalAlignment="Top" Width="80" SelectionChanged="GameComboBox_SelectionChanged" Margin="10,5,0,0" Height="20">
+                </ComboBox>
+                <Button Content="Settings" HorizontalAlignment="Left" VerticalAlignment="Top" Width="75" Grid.Column="1" Margin="10,5,0,0" Height="20" Click="SettingsButton_Click"/>
+                <Button Name="BuildButton" Content="Build" HorizontalAlignment="Left" VerticalAlignment="Top" Width="75" Margin="11,5,0,0" Grid.Column="2" Click="BuildButton_Click"/>
+            </Grid>
+            <Grid Margin="10,47,0,109" VerticalAlignment="Stretch">
+                <DataGrid Name="ModGrid" AlternatingRowBackground="LightGray" AutoGenerateColumns="False" Margin="0,0,15,0"
+                          EnableColumnVirtualization="False" CanUserAddRows="False" CanUserDeleteRows="False" CanUserReorderColumns="True" 
+                          CanUserResizeColumns="True" CanUserResizeRows="True" CanUserSortColumns="False" KeyDown="ModGrid_KeyDown">
+                    <DataGrid.Columns>
+                        <DataGridCheckBoxColumn Header="Enabled" Binding="{Binding Enabled, Mode=TwoWay}" Width="52" MinWidth="52" MaxWidth="52"></DataGridCheckBoxColumn>
+                        <DataGridTextColumn Header="Title" Binding="{Binding Title}" IsReadOnly="True"></DataGridTextColumn>
+                        <DataGridTextColumn Header="Description" Binding="{Binding Description}" IsReadOnly="True"></DataGridTextColumn>
+                        <DataGridTextColumn Header="Version" Binding="{Binding Version}" IsReadOnly="True"></DataGridTextColumn>
+                        <DataGridTextColumn Header="Author" Binding="{Binding Author}" IsReadOnly="True"></DataGridTextColumn>
+                        <DataGridTextColumn Header="URL" Binding="{Binding Url}" IsReadOnly="True"></DataGridTextColumn>
+                        <DataGridTextColumn Header="Update URL" Binding="{Binding UpdateUrl}" IsReadOnly="True"></DataGridTextColumn>
+                    </DataGrid.Columns>
+                </DataGrid>
+                <Button Content="↑" HorizontalAlignment="Right" Width="10" Height="20" VerticalAlignment="Center" Margin="0,106,0,136" Click="UpButton_Click"/>
+                <Button Content="↓" HorizontalAlignment="Right" Width="10" Height="20" VerticalAlignment="Center" Margin="0,134,0,108" Click="DownButton_Click"/>
+            </Grid>
+            <TextBox Name="LogTextBox" IsReadOnly="True" IsReadOnlyCaretVisible="False" Margin="10,0,0,0" HorizontalAlignment="Stretch" Height="104" VerticalAlignment="Bottom" TextChanged="LogTextBox_TextChanged"/>
+        </Grid>
+    </Grid>
+</Window>

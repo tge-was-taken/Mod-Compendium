@@ -1,0 +1,134 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="..\packages\MSBuild.ILMerge.Task.1.0.5\build\MSBuild.ILMerge.Task.props" Condition="Exists('..\packages\MSBuild.ILMerge.Task.1.0.5\build\MSBuild.ILMerge.Task.props')" />
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{6A61C0CA-A7F0-465C-9F2E-8D352C784A64}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>ModCompendiumLibrary</RootNamespace>
+    <AssemblyName>ModCompendiumLibrary</AssemblyName>
+    <TargetFrameworkVersion>v4.7</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+    <NuGetPackageImportStamp>
+    </NuGetPackageImportStamp>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="DiscUtils, Version=0.11.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Discutils.0.11.0.2\lib\net40\DiscUtils.dll</HintPath>
+    </Reference>
+    <Reference Include="DiscUtils.Common, Version=0.11.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Discutils.0.11.0.2\lib\net40\DiscUtils.Common.dll</HintPath>
+    </Reference>
+    <Reference Include="System" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Net.Http" />
+    <Reference Include="System.Xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Configuration\Config.cs" />
+    <Compile Include="Configuration\IConfigurable.cs" />
+    <Compile Include="Configuration\SerializationHelper.cs" />
+    <Compile Include="Configuration\GameConfig.cs" />
+    <Compile Include="Configuration\GlobalConfig.cs" />
+    <Compile Include="Configuration\Persona34GameConfig.cs" />
+    <Compile Include="Configuration\Persona3GameConfig.cs" />
+    <Compile Include="Configuration\Persona4GameConfig.cs" />
+    <Compile Include="Configuration\Persona5GameConfig.cs" />
+    <Compile Include="IO\StreamView.cs" />
+    <Compile Include="Logging\Log.cs" />
+    <Compile Include="Logging\LogChannel.cs" />
+    <Compile Include="Logging\MessageBroadcastedEventArgs.cs" />
+    <Compile Include="Logging\Severity.cs" />
+    <Compile Include="ModSystem\Builders\GameModBuilder.cs" />
+    <Compile Include="ModSystem\Builders\GameModBuilderAttribute.cs" />
+    <Compile Include="ModSystem\Builders\Exceptions\InvalidConfigException.cs" />
+    <Compile Include="ModSystem\Mergers\BottomToTopModMerger.cs" />
+    <Compile Include="ModSystem\Builders\CpkModBuilder.cs" />
+    <Compile Include="ModSystem\Builders\Exceptions\MissingFileException.cs" />
+    <Compile Include="ModSystem\Builders\Persona34\CvmDirectoryInfo.cs" />
+    <Compile Include="ModSystem\Builders\Persona34\CvmFileSystemEntry.cs" />
+    <Compile Include="ModSystem\Builders\Persona34\CvmFileSystemEntryFlags.cs" />
+    <Compile Include="ModSystem\Builders\CvmModBuilder.cs" />
+    <Compile Include="ModSystem\Builders\Persona34\ExecutablePatcher.cs" />
+    <Compile Include="ModSystem\Builders\Persona34ModBuilder.cs" />
+    <Compile Include="ModSystem\Builders\Persona5CpkModBuilder.cs" />
+    <Compile Include="Game.cs" />
+    <Compile Include="ModSystem\Mergers\IModMerger.cs" />
+    <Compile Include="ModSystem\Builders\IModBuilder.cs" />
+    <Compile Include="ModSystem\Builders\Ps2IsoModBuilder.cs" />
+    <Compile Include="ModSystem\Loaders\IModLoader.cs" />
+    <Compile Include="ModSystem\Loaders\Exceptions\ModXmlFileInvalidException.cs" />
+    <Compile Include="ModSystem\Loaders\Exceptions\ModDataDirectoryMissingException.cs" />
+    <Compile Include="ModSystem\Mergers\TopToBottomModMerger.cs" />
+    <Compile Include="ModSystem\Mod.cs" />
+    <Compile Include="ModSystem\Loaders\XmlModLoader.cs" />
+    <Compile Include="ModSystem\Loaders\Exceptions\ModXmlFileMissingException.cs" />
+    <Compile Include="ModSystem\Builders\PassthroughModBuilder.cs" />
+    <Compile Include="ModSystem\ModDatabase.cs" />
+    <Compile Include="ModSystem\ModDatabaseConfig.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Reflection\TypeCache.cs" />
+    <Compile Include="VirtualFileSystem\Exceptions\FileAlreadyExistsException.cs" />
+    <Compile Include="VirtualFileSystem\VirtualDirectory.cs" />
+    <Compile Include="VirtualFileSystem\VirtualFile.cs" />
+    <Compile Include="VirtualFileSystem\VirtualFileSystemEntry.cs" />
+    <Compile Include="VirtualFileSystem\VirtualFileSystemEntryType.cs" />
+    <Compile Include="VirtualFileSystem\Exceptions\IOException.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Dependencies\PersonaPatcher\AtlusLibSharp.dll" />
+    <Content Include="Dependencies\CpkMaker\cpkmakec.exe" />
+    <Content Include="Dependencies\CpkMaker\CpkMaker.DLL" />
+    <Content Include="Dependencies\PersonaPatcher\PersonaPatcher.exe" />
+    <Content Include="ILMergeOrder.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="ILMerge.props" />
+    <None Include="packages.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Resources\" />
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <PropertyGroup>
+    <PostBuildEvent>if not exist "$(TargetDir)Resources" mkdir "$(TargetDir)Resources"
+if exist "$(TargetDir)Dependencies" rmdir "$(TargetDir)Dependencies" /s
+mkdir "$(TargetDir)Dependencies" 
+xcopy /s /y "$(ProjectDir)Dependencies" "$(TargetDir)Dependencies"
+if not exist "$(TargetDir)Config" mkdir "$(TargetDir)Config"
+if not exist "$(TargetDir)Output" mkdir "$(TargetDir)Output"
+</PostBuildEvent>
+  </PropertyGroup>
+  <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
+    <PropertyGroup>
+      <ErrorText>This project references NuGet package(s) that are missing on this computer. Use NuGet Package Restore to download them.  For more information, see http://go.microsoft.com/fwlink/?LinkID=322105. The missing file is {0}.</ErrorText>
+    </PropertyGroup>
+    <Error Condition="!Exists('..\packages\MSBuild.ILMerge.Task.1.0.5\build\MSBuild.ILMerge.Task.props')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\MSBuild.ILMerge.Task.1.0.5\build\MSBuild.ILMerge.Task.props'))" />
+    <Error Condition="!Exists('..\packages\MSBuild.ILMerge.Task.1.0.5\build\MSBuild.ILMerge.Task.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\MSBuild.ILMerge.Task.1.0.5\build\MSBuild.ILMerge.Task.targets'))" />
+  </Target>
+  <Import Project="..\packages\MSBuild.ILMerge.Task.1.0.5\build\MSBuild.ILMerge.Task.targets" Condition="Exists('..\packages\MSBuild.ILMerge.Task.1.0.5\build\MSBuild.ILMerge.Task.targets')" />
+</Project>
