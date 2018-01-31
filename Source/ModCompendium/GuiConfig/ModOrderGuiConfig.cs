@@ -12,17 +12,16 @@ namespace ModCompendium.GuiConfig
 
         public ModOrderGuiConfig()
         {
-        }
-
-        public void Deserialize( XElement element )
-        {
-            ModOrder = new Dictionary<Guid, int>();
+            ModOrder = new Dictionary< Guid, int >();
 
             foreach ( var mod in ModDatabase.Mods )
             {
                 ModOrder[mod.Id] = 0;
             }
+        }
 
+        public void Deserialize( XElement element )
+        {
             var modOrderElement = element.Element( nameof( ModOrder ) );
             if ( modOrderElement != null )
             {
@@ -30,7 +29,7 @@ namespace ModCompendium.GuiConfig
                 {
                     if ( Guid.TryParse( subElement.Attribute( "Id" ).Value, out var id ) && id != Guid.Empty )
                     {
-                        var index = int.Parse( subElement.Attribute( "Index" ).Value );
+                        var index = int.Parse( subElement.Attribute( "Order" ).Value );
                         if ( ModDatabase.Exists( id ) )
                         {
                             ModOrder[id] = index;
@@ -47,7 +46,7 @@ namespace ModCompendium.GuiConfig
             {
                 var subElement = new XElement( $"{nameof( ModOrder )}Element",
                                                new XAttribute( "Id", kvp.Key ),
-                                               new XAttribute( "Index", kvp.Value ) );
+                                               new XAttribute( "Order", kvp.Value ) );
 
                 modOrderElement.Add( subElement );
             }
