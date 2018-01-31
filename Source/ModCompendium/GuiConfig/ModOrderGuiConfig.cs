@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Xml.Linq;
 using ModCompendiumLibrary.Configuration;
 using ModCompendiumLibrary.ModSystem;
@@ -7,7 +8,7 @@ namespace ModCompendium.GuiConfig
 {
     public class ModOrderGuiConfig : IConfigurable
     {
-        public Dictionary<int, int> ModOrder { get; set; }
+        public Dictionary<Guid, int> ModOrder { get; set; }
 
         public ModOrderGuiConfig()
         {
@@ -15,7 +16,7 @@ namespace ModCompendium.GuiConfig
 
         public void Deserialize( XElement element )
         {
-            ModOrder = new Dictionary<int, int>();
+            ModOrder = new Dictionary<Guid, int>();
 
             foreach ( var mod in ModDatabase.Mods )
             {
@@ -27,11 +28,13 @@ namespace ModCompendium.GuiConfig
             {
                 foreach ( var subElement in modOrderElement.Elements() )
                 {
-                    var id = int.Parse( subElement.Attribute( "Id" ).Value );
-                    var index = int.Parse( subElement.Attribute( "Index" ).Value );
-                    if ( ModDatabase.Exists( id ) )
+                    if ( Guid.TryParse( subElement.Attribute( "Id" ).Value, out var id ) && id != Guid.Empty )
                     {
-                        ModOrder[ id ] = index;
+                        var index = int.Parse( subElement.Attribute( "Index" ).Value );
+                        if ( ModDatabase.Exists( id ) )
+                        {
+                            ModOrder[id] = index;
+                        }
                     }
                 }
             }

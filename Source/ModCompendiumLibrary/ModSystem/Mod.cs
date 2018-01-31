@@ -1,9 +1,12 @@
-﻿using ModCompendiumLibrary.VirtualFileSystem;
+﻿using System;
+using ModCompendiumLibrary.VirtualFileSystem;
 
 namespace ModCompendiumLibrary.ModSystem
 {
     public class Mod
     {
+        public Guid Id { get; set; }
+
         public Game Game { get; set; }
 
         public string Title { get; set; }
@@ -20,12 +23,20 @@ namespace ModCompendiumLibrary.ModSystem
 
         public string UpdateUrl { get; set; }
 
-        public VirtualDirectory DataDirectory { get; set; }
+        public string DataDirectory { get; set; }
 
-        public int Id { get; set; }
-
-        public Mod()
+        internal Mod( Guid id, Game game, string title, string description, string version, string date, string author, string url, string updateUrl, string dataDirectory )
         {
+            Id = id;
+            Game = game;
+            Title = title;
+            Description = description;
+            Version = version;
+            Date = date;
+            Author = author;
+            Url = url;
+            UpdateUrl = updateUrl;
+            DataDirectory = dataDirectory;
         }
     }
 }

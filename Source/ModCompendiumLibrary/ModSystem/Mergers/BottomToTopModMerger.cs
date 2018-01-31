@@ -16,7 +16,10 @@ namespace ModCompendiumLibrary.ModSystem.Mergers
 
             foreach ( var mod in mods.Reverse() )
             {
-                foreach ( var entry in mod.DataDirectory )
+                var dataDirectory = VirtualDirectory.FromHostDirectory( mod.DataDirectory );
+                dataDirectory.Name = string.Empty;
+
+                foreach ( var entry in dataDirectory )
                 {
                     if ( !entryHistory.Contains( entry.FullName ) )
                     {

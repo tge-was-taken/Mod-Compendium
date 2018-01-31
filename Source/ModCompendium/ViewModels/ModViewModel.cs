@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System;
+using System.Linq;
 using ModCompendiumLibrary.Configuration;
 using ModCompendiumLibrary.ModSystem;
 
@@ -11,7 +12,7 @@ namespace ModCompendium.ViewModels
 
         public bool Enabled
         {
-            get => mConfig.EnabledModIds.Contains( Id );
+            get => mConfig.IsModEnabled( Id );
             set
             {
                 if ( value )
@@ -39,14 +40,14 @@ namespace ModCompendium.ViewModels
 
         public string UpdateUrl => mMod.UpdateUrl;
 
-        public int Id => mMod.Id;
+        public Guid Id => mMod.Id;
 
-        public ModViewModel(Mod model)
+        public ModViewModel( Mod model )
         {
             mMod = model;
             mConfig = Config.Get( model.Game );
         }
 
-        public static explicit operator Mod(ModViewModel viewModel) => viewModel.mMod;
+        public static explicit operator Mod( ModViewModel viewModel ) => viewModel.mMod;
     }
 }

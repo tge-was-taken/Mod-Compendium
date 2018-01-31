@@ -88,6 +88,7 @@
     <Compile Include="ModSystem\Loaders\XmlModLoader.cs" />
     <Compile Include="ModSystem\Loaders\Exceptions\ModXmlFileMissingException.cs" />
     <Compile Include="ModSystem\Builders\PassthroughModBuilder.cs" />
+    <Compile Include="ModSystem\ModBuilder.cs" />
     <Compile Include="ModSystem\ModDatabase.cs" />
     <Compile Include="ModSystem\ModDatabaseConfig.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

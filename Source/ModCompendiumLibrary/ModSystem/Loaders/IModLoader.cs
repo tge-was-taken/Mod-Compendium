@@ -2,6 +2,8 @@
 {
     public interface IModLoader
     {
-        Mod Load( string path );
+        Mod Load( string basePath );
+
+        void Save( Mod mod, string path );
     }
 }

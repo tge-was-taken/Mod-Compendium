@@ -9,7 +9,7 @@ namespace ModCompendiumLibrary.ModSystem
 {
     public static class ModDatabase
     {
-        private static Dictionary<int, Mod> sModById;
+        private static Dictionary<Guid, Mod> sModById;
         private static Dictionary<Game, List<Mod>> sModsByGame;
 
         /// <summary>
@@ -29,14 +29,14 @@ namespace ModCompendiumLibrary.ModSystem
         {
             Log.ModDatabase.Info( "Initializing mod database" );
 
-            sModById = new Dictionary< int, Mod >();
-            sModsByGame = new Dictionary< Game, List< Mod > >();
-            foreach ( Game value in Enum.GetValues(typeof(Game)) )
+            sModById = new Dictionary<Guid, Mod>();
+            sModsByGame = new Dictionary<Game, List<Mod>>();
+            foreach ( Game value in Enum.GetValues( typeof( Game ) ) )
             {
-                sModsByGame[ value ] = new List< Mod >();
+                sModsByGame[value] = new List<Mod>();
             }
 
-            var config = Config.Get< ModDatabaseConfig >();
+            var config = Config.Get<ModDatabaseConfig>();
             if ( !Directory.Exists( config.ModsDirectoryPath ) )
             {
                 Log.ModDatabase.Error( "Mods directory doesn't exist; creating new directory..." );
@@ -81,20 +81,19 @@ namespace ModCompendiumLibrary.ModSystem
 
                     if ( mod != null )
                     {
-                        mod.Id = localDirectoryPath.ToLowerInvariant().GetHashCode();
                         sModById[mod.Id] = mod;
-                        sModsByGame[ mod.Game ].Add( mod );
+                        sModsByGame[mod.Game].Add( mod );
                     }
                 }
             }
         }
 
-        public static bool Exists( int id ) => sModById.ContainsKey( id );
+        public static bool Exists( Guid id ) => sModById.ContainsKey( id );
 
-        public static bool TryGet( int id, out Mod value ) => sModById.TryGetValue( id, out value );
+        public static bool TryGet( Guid id, out Mod value ) => sModById.TryGetValue( id, out value );
 
-        public static Mod Get( int id ) => sModById[ id ];
+        public static Mod Get( Guid id ) => sModById[id];
 
-        public static IEnumerable< Mod > Get( Game game ) => sModsByGame[ game ];
+        public static IEnumerable<Mod> Get( Game game ) => sModsByGame[game];
     }
 }

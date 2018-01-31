@@ -2,60 +2,62 @@ using System;
 using System.IO;
 using System.Xml.Linq;
 using ModCompendiumLibrary.Logging;
-using ModCompendiumLibrary.VirtualFileSystem;
 
 namespace ModCompendiumLibrary.ModSystem.Loaders
 {
     public class XmlModLoader : IModLoader
     {
-        public Mod Load( string path )
+        public Mod Load( string basePath )
         {
-            Log.Loader.Trace( $"Loading mod directory: {path}" );
+            Log.Loader.Trace( $"Loading mod directory: {basePath}" );
 
-            var fullPath = Path.GetFullPath( path );
+            // Check if Mod.xml exists
+            var xmlPath = Path.Combine( basePath, "Mod.xml" );
+            if ( !File.Exists( xmlPath ) )
+                throw new ModXmlFileMissingException( xmlPath );
 
-            // Deserialize mod metadata
-            var modXmlPath = Path.Combine( fullPath, "Mod.xml" );
-            if ( !File.Exists( modXmlPath ) )
-                throw new ModXmlFileMissingException( modXmlPath );
-
-            var mod = LoadModXml( modXmlPath );
-
-            // Fetch files from 'Data' directory
-            var dataDirectoryPath = Path.Combine( fullPath, "Data" );
+            // Check if Data directory exists
+            var dataDirectoryPath = Path.Combine( basePath, "Data" );
             if ( !Directory.Exists( dataDirectoryPath ) )
-                throw new ModDataDirectoryMissingException( dataDirectoryPath );
-
-            Log.Loader.Trace( $"Loading mod data directory: {dataDirectoryPath}" );
-            mod.DataDirectory = new VirtualDirectory( null, dataDirectoryPath, string.Empty );
-            foreach ( string entryPath in Directory.EnumerateFileSystemEntries( dataDirectoryPath ) )
             {
-                var fullEntryPath = Path.GetFullPath( entryPath );
-                mod.DataDirectory.Add( CreateEntryRecursively( mod.DataDirectory, fullEntryPath ) );
+                Log.Loader.Error( $"Data directory is missing: {dataDirectoryPath}" );
+                Directory.CreateDirectory( dataDirectoryPath );
             }
 
-            return mod;
+            // Set data directory
+            var modBuilder = new ModBuilder();
+            modBuilder.SetDataDirectory( dataDirectoryPath );
+
+            return LoadModXml( basePath, xmlPath, modBuilder );
         }
 
-        private Mod LoadModXml( string path )
+        private Mod LoadModXml( string basePath, string xmlPath, ModBuilder modBuilder )
         {
-            Log.Loader.Trace( $"Loading mod xml: {path}" );
-
-            var mod = new Mod();
-            var document = XDocument.Load( path, LoadOptions.None );
+            Log.Loader.Trace( $"Loading mod xml: {xmlPath}" );
+            var document = XDocument.Load( xmlPath, LoadOptions.None );
             var rootNode = document.Root;
             if ( rootNode == null )
                 throw new ModXmlFileInvalidException( "Root node is missing" );
+
+            bool hasId = false;
 
             foreach ( var element in rootNode.Elements() )
             {
                 switch ( element.Name.LocalName )
                 {
-                    case "Game":
+                    case nameof( Mod.Id ):
+                        if ( Guid.TryParse( element.Value, out var id ) && id != Guid.Empty )
                         {
-                            if ( Enum.TryParse< Game >( element.Value, true, out var game ) )
+                            modBuilder.SetId( id );
+                            hasId = true;
+                        }
+                        break;
+
+                    case nameof( Mod.Game ):
+                        {
+                            if ( Enum.TryParse<Game>( element.Value, true, out var game ) )
                             {
-                                mod.Game = game;
+                                modBuilder.SetGame( game );
                             }
                             else
                             {
@@ -64,56 +66,83 @@ namespace ModCompendiumLibrary.ModSystem.Loaders
                         }
                         break;
 
-                    case "Title":
-                        mod.Title = element.Value;
+                    case nameof( Mod.Title ):
+                        modBuilder.SetTitle( element.Value );
                         break;
 
-                    case "Description":
-                        mod.Description = element.Value;
+                    case nameof( Mod.Description ):
+                        modBuilder.SetDescription( element.Value );
                         break;
 
-                    case "Version":
-                        mod.Version = element.Value;
+                    case nameof( Mod.Version ):
+                        modBuilder.SetVersion( element.Value );
                         break;
 
-                    case "Date":
-                        mod.Date = element.Value;
+                    case nameof( Mod.Date ):
+                        modBuilder.SetDate( element.Value );
                         break;
 
-                    case "Author":
-                        mod.Author = element.Value;
+                    case nameof( Mod.Author ):
+                        modBuilder.SetAuthor( element.Value );
                         break;
 
-                    case "Url":
-                        mod.Url = element.Value;
+                    case nameof( Mod.Url ):
+                        modBuilder.SetUrl( element.Value );
                         break;
 
-                    case "UpdateUrl":
-                        mod.UpdateUrl = element.Value;
+                    case nameof( Mod.UpdateUrl ):
+                        modBuilder.SetUpdateUrl( element.Value );
                         break;
                 }
+            }
+
+            var mod = modBuilder.Build();
+
+            if ( !hasId )
+            {
+                // Save xml if GUID is missing
+                Log.Loader.Info( "Mod GUID is missing. Resaving xml..." );
+                Save( mod, basePath );
             }
 
             return mod;
         }
 
-        private VirtualFileSystemEntry CreateEntryRecursively( VirtualDirectory parent, string path )
+        public void Save( Mod mod, string path )
         {
-            var name = Path.GetFileName( path );
+            Log.Loader.Trace( $"Saving mod to directory: {path}" );
 
-            if ( File.Exists( path ) )
+            if ( !Directory.Exists( path ) )
             {
-                return new VirtualFile( parent, path, name );
+                Directory.Exists( path );
             }
-            else
-            {
-                var directory = new VirtualDirectory( parent, path, name );
-                foreach ( var entryPath in Directory.EnumerateFileSystemEntries( path ) )
-                {
-                    directory.Add( CreateEntryRecursively( directory, entryPath ) );
-                }
 
-                return directory;
+            // Serialize mod xml
+            var modXmlPath = Path.Combine( path, "Mod.xml" );
+            var document = new XDocument();
+            var rootElement = new XElement( nameof( Mod ) );
+            {
+                rootElement.Add( new XElement( nameof( mod.Id ), mod.Id ) );
+                rootElement.Add( new XElement( nameof( mod.Game ), mod.Game ) );
+                rootElement.Add( new XElement( nameof( mod.Title ), mod.Title ) );
+                rootElement.Add( new XElement( nameof( mod.Description ), mod.Description ) );
+                rootElement.Add( new XElement( nameof( mod.Version ), mod.Version ) );
+                rootElement.Add( new XElement( nameof( mod.Date ), mod.Date ) );
+                rootElement.Add( new XElement( nameof( mod.Author ), mod.Author ) );
+                rootElement.Add( new XElement( nameof( mod.Url ), mod.Url ) );
+                rootElement.Add( new XElement( nameof( mod.UpdateUrl ), mod.UpdateUrl ) );
+            }
+            document.Add( rootElement );
+            document.Save( modXmlPath );
+
+            if ( string.IsNullOrWhiteSpace( mod.DataDirectory ) )
+            {
+                mod.DataDirectory = Path.Combine( path, "Data" );
+            }
+
+            if ( !Directory.Exists( mod.DataDirectory ) )
+            {
+                Directory.CreateDirectory( mod.DataDirectory );
             }
         }
     }

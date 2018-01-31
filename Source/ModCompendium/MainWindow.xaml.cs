@@ -56,7 +56,7 @@ namespace ModCompendium
 
             Log.MessageBroadcasted += Log_MessageBroadcasted;
 
-            GameComboBox.ItemsSource = Enum.GetValues( typeof( Game ) ).Cast< Game >();
+            GameComboBox.ItemsSource = Enum.GetValues( typeof( Game ) ).Cast<Game>();
             GameComboBox.SelectedIndex = 0;
             OrderConfig = Config.Get<ModOrderGuiConfig>();
         }
@@ -117,9 +117,9 @@ namespace ModCompendium
                                   }
                                   else
                                   {
-                                      return OrderConfig.ModOrder[ x.Id ] = 0;
+                                      return OrderConfig.ModOrder[x.Id] = 0;
                                   }
-                              })
+                              } )
                               .Select( x => new ModViewModel( x ) )
                               .ToList();
 
@@ -134,7 +134,7 @@ namespace ModCompendium
 
         private void GameComboBox_SelectionChanged( object sender, SelectionChangedEventArgs e )
         {
-            Game = ( Game ) GameComboBox.SelectedValue;
+            Game = ( Game )GameComboBox.SelectedValue;
             GameConfig = Config.Get( Game );
             RefreshMods();
         }
@@ -151,19 +151,19 @@ namespace ModCompendium
                                   .Select( x => x.Id )
                                   .ToList();
 
-            GameConfig.EnabledModIds.Clear();
+            GameConfig.ClearEnabledMods();
 
             if ( enabledMods.Count == 0 )
                 return false;
 
-            GameConfig.EnabledModIds.AddRange( enabledMods );
+            enabledMods.ForEach( GameConfig.EnableMod );
 
             return true;
         }
 
         private void BuildButton_Click( object sender, RoutedEventArgs e )
         {
-            if ( string.IsNullOrWhiteSpace(GameConfig.OutputDirectoryPath) )
+            if ( string.IsNullOrWhiteSpace( GameConfig.OutputDirectoryPath ) )
             {
                 MessageBox.Show( this, "Please specify an output directory in the settings.", "Error", MessageBoxButton.OK, MessageBoxImage.Error );
                 return;
@@ -238,7 +238,7 @@ namespace ModCompendium
             {
                 Application.Current.Dispatcher.Invoke( () =>
                 {
-                    if (t.Result)
+                    if ( t.Result )
                         MessageBox.Show( this, "Done building!", "Done", MessageBoxButton.OK, MessageBoxImage.None );
                 } );
             } );
