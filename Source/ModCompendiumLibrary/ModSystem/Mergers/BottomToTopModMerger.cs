@@ -19,14 +19,23 @@ namespace ModCompendiumLibrary.ModSystem.Mergers
                 var dataDirectory = VirtualDirectory.FromHostDirectory( mod.DataDirectory );
                 dataDirectory.Name = string.Empty;
 
-                foreach ( var entry in dataDirectory )
+                void AddEntryRecursively( VirtualDirectory directory )
                 {
-                    if ( !entryHistory.Contains( entry.FullName ) )
+                    foreach ( var entry in directory )
                     {
-                        entry.CopyTo( fileDirectory );
-                        entryHistory.Add( entry.FullName );
+                        if ( !entryHistory.Contains( entry.FullName ) )
+                        {
+                            entry.CopyTo( fileDirectory );
+                            entryHistory.Add( entry.FullName );
+                        }
+                        else if (entry.EntryType == VirtualFileSystemEntryType.Directory)
+                        {
+                            AddEntryRecursively( ( VirtualDirectory ) entry );
+                        }
                     }
                 }
+
+                AddEntryRecursively( dataDirectory );
             }
 
             return fileDirectory;

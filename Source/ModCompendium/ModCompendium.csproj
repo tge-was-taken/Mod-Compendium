@@ -65,6 +65,9 @@
     <Compile Include="GameConfigWindow.xaml.cs">
       <DependentUpon>GameConfigWindow.xaml</DependentUpon>
     </Compile>
+    <Compile Include="NewModDialog.xaml.cs">
+      <DependentUpon>NewModDialog.xaml</DependentUpon>
+    </Compile>
     <Compile Include="ViewModels\ModViewModel.cs" />
     <Page Include="MainWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
@@ -79,6 +82,10 @@
       <SubType>Code</SubType>
     </Compile>
     <Page Include="GameConfigWindow.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="NewModDialog.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

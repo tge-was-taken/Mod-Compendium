@@ -26,19 +26,47 @@ namespace ModCompendium.ViewModels
             }
         }
 
-        public string Title => mMod.Title;
+        public string Title
+        {
+            get => mMod.Title;
+            set => mMod.Title = value;
+        }
 
-        public string Description => mMod.Description;
+        public string Description
+        {
+            get => mMod.Description;
+            set => mMod.Description = value;
+        }
 
-        public string Version => mMod.Version;
+        public string Version
+        {
+            get => mMod.Version;
+            set => mMod.Version = value;
+        }
 
-        public string Date => mMod.Date;
+        public string Date
+        {
+            get => mMod.Date;
+            set => mMod.Date = value;
+        }
 
-        public string Author => mMod.Author;
+        public string Author
+        {
+            get => mMod.Author;
+            set => mMod.Author = value;
+        }
 
-        public string Url => mMod.Url;
+        public string Url
+        {
+            get => mMod.Url;
+            set => mMod.Url = value;
+        }
 
-        public string UpdateUrl => mMod.UpdateUrl;
+        public string UpdateUrl
+        {
+            get => mMod.UpdateUrl;
+            set => mMod.UpdateUrl = value;
+        }
 
         public Guid Id => mMod.Id;
 

@@ -103,6 +103,52 @@ namespace ModCompendiumLibrary.VirtualFileSystem
             }
         }
 
+        private void Add( VirtualFileSystemEntry entry, bool replace, bool copy )
+        {
+            VirtualFileSystemEntry foundEntry;
+
+            if ( ( foundEntry = Find( entry.Name ) ) != null )
+            {
+                if ( replace )
+                {
+                    // Replace the found entry with the entry to add
+                    Replace( foundEntry, entry );
+                }
+                else if ( foundEntry.EntryType == VirtualFileSystemEntryType.Directory )
+                {
+                    // We're not replacing anything, but we do have clashing directories, so we just merge them
+                    if ( copy )
+                    {
+                        ( ( VirtualDirectory )foundEntry ).CopyMerge( ( VirtualDirectory )entry, false );
+                    }
+                    else
+                    {
+                        ( ( VirtualDirectory )foundEntry ).Merge( ( VirtualDirectory )entry, false );
+                    }
+                }
+                else
+                {
+                    //throw new VirtualFileSystemFileAlreadyExistsException( $"File '{entry.Name}' already exists" );
+                }
+            }
+            else
+            {
+                if ( copy )
+                {
+                    entry.CopyTo( this );
+                }
+                else
+                {
+
+                    if ( entry.Parent != null )
+                        entry.Parent.Remove( entry );
+
+                    entry.Parent = this;
+                    mEntries.AddLast( entry );
+                }
+            }
+        }
+
         public void MoveEntriesTo( VirtualDirectory other )
         {
             foreach ( var entry in this )
@@ -154,13 +200,21 @@ namespace ModCompendiumLibrary.VirtualFileSystem
         {
             foreach ( var entry in other )
             {
-                Add( entry, replace );
+                Add( entry, replace, false );
+            }
+        }
+
+        public void CopyMerge( VirtualDirectory other, bool replace )
+        {
+            foreach ( var entry in other )
+            {
+                Add( entry, replace, true );
             }
         }
 
         public static VirtualDirectory FromHostDirectory( string hostDirectoryPath, VirtualDirectory parent = null )
         {
-            var directory = new VirtualDirectory( null, hostDirectoryPath, Path.GetFileName( hostDirectoryPath ) );
+            var directory = new VirtualDirectory( parent, hostDirectoryPath, Path.GetFileName( hostDirectoryPath ) );
             foreach ( var entry in Directory.EnumerateFileSystemEntries(hostDirectoryPath) )
             {
                 if ( File.Exists( entry ) )

@@ -70,7 +70,7 @@ namespace ModCompendiumLibrary.VirtualFileSystem
                 directory.Add( this );
         }
 
-        public void CopyTo( VirtualDirectory directory )
+        public VirtualFileSystemEntry CopyTo( VirtualDirectory directory )
         {
             var copy = Copy();
 
@@ -79,6 +79,8 @@ namespace ModCompendiumLibrary.VirtualFileSystem
 
             if ( directory != null )
                 directory.Add( copy );
+
+            return copy;
         }
 
         internal abstract VirtualFileSystemEntry Copy();

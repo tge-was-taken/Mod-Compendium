@@ -114,7 +114,7 @@ namespace ModCompendiumLibrary.ModSystem.Loaders
 
             if ( !Directory.Exists( path ) )
             {
-                Directory.Exists( path );
+                Directory.CreateDirectory( path );
             }
 
             // Serialize mod xml

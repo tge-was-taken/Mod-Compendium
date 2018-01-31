@@ -17,6 +17,8 @@ namespace ModCompendiumLibrary.ModSystem
         /// </summary>
         public static IEnumerable<Mod> Mods => sModById.Values;
 
+        public static string ModDirectory { get; private set; }
+
         static ModDatabase()
         {
             Initialize();
@@ -37,19 +39,21 @@ namespace ModCompendiumLibrary.ModSystem
             }
 
             var config = Config.Get<ModDatabaseConfig>();
-            if ( !Directory.Exists( config.ModsDirectoryPath ) )
+            ModDirectory = config.ModsDirectoryPath;
+
+            if ( !Directory.Exists( ModDirectory ) )
             {
                 Log.ModDatabase.Error( "Mods directory doesn't exist; creating new directory..." );
-                Directory.CreateDirectory( config.ModsDirectoryPath );
+                Directory.CreateDirectory( ModDirectory );
             }
             else
             {
                 // Todo: Different mod types?
                 var modLoader = new XmlModLoader();
 
-                foreach ( var directory in Directory.EnumerateDirectories( config.ModsDirectoryPath ) )
+                foreach ( var directory in Directory.EnumerateDirectories( ModDirectory ) )
                 {
-                    var localDirectoryPath = directory.Remove( 0, config.ModsDirectoryPath.Length );
+                    var localDirectoryPath = directory.Remove( 0, ModDirectory.Length );
 
                     Mod mod = null;
 

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Windows;
@@ -14,6 +15,7 @@ using ModCompendiumLibrary.Configuration;
 using ModCompendiumLibrary.Logging;
 using ModCompendiumLibrary.ModSystem;
 using ModCompendiumLibrary.ModSystem.Builders;
+using ModCompendiumLibrary.ModSystem.Loaders;
 using ModCompendiumLibrary.ModSystem.Mergers;
 using MessageBox = Xceed.Wpf.Toolkit.MessageBox;
 
@@ -337,6 +339,40 @@ namespace ModCompendium
             CommitEnabledMods();
             CommitModOrder();
             Config.Save();
+        }
+
+        private void NewButton_Click( object sender, RoutedEventArgs e )
+        {
+            var newModDialog = new NewModDialog( Game ) { Owner = this };
+            var result = newModDialog.ShowDialog();
+
+            if ( !result.HasValue || !result.Value )
+                return;
+
+            // Save mod to directory
+            var mod = newModDialog.Mod;
+
+            // Get unique directory
+            string modPath = Path.Combine( ModDatabase.ModDirectory, mod.Title );
+            if ( Directory.Exists( modPath ) )
+            {
+                var newModPath = modPath;
+                int i = 0;
+
+                while ( Directory.Exists( newModPath ) )
+                {
+                    newModPath = modPath + "_" + i++;
+                }
+
+                modPath = newModPath;
+            }
+
+            // Do actual saving
+            var modLoader = new XmlModLoader();
+            modLoader.Save( mod, modPath );
+
+            // Reload
+            RefreshModDatabase();
         }
     }
 }
