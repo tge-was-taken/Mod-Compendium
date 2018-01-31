@@ -61,7 +61,7 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
-    <Compile Include="GuiConfig\ModOrderGuiConfig.cs" />
+    <Compile Include="GuiConfig\MainWindowConfig.cs" />
     <Compile Include="GameConfigWindow.xaml.cs">
       <DependentUpon>GameConfigWindow.xaml</DependentUpon>
     </Compile>

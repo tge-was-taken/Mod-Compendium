@@ -26,13 +26,13 @@ namespace ModCompendium
     /// </summary>
     public partial class MainWindow : Window
     {
-        public Game Game { get; private set; }
+        public Game SelectedGame { get; private set; }
 
         public List<ModViewModel> Mods { get; private set; }
 
         public GameConfig GameConfig { get; private set; }
 
-        public ModOrderGuiConfig OrderConfig { get; private set; }
+        public MainWindowConfig WindowConfig { get; private set; }
 
         public MainWindow()
         {
@@ -58,10 +58,90 @@ namespace ModCompendium
 
             Log.MessageBroadcasted += Log_MessageBroadcasted;
 
-            GameComboBox.ItemsSource = Enum.GetValues( typeof( Game ) ).Cast<Game>();
-            GameComboBox.SelectedIndex = 0;
-            OrderConfig = Config.Get<ModOrderGuiConfig>();
+            WindowConfig = Config.Get<MainWindowConfig>();
+            InitializeGameComboBox();
         }
+
+        private void InitializeGameComboBox()
+        {
+            var enumValues = Enum.GetValues( typeof( Game ) ).Cast<Game>().ToList();
+            GameComboBox.ItemsSource = enumValues;
+            GameComboBox.SelectedIndex = enumValues.IndexOf( WindowConfig.SelectedGame );
+        }
+
+        private void RefreshMods()
+        {
+            var shouldUpdateOrder = false;
+            var uniqueOrders = new HashSet< int >();
+
+            Mods = ModDatabase.Get( SelectedGame )
+                              .OrderBy( x =>
+                              {
+                                  if ( WindowConfig.ModOrder.TryGetValue( x.Id, out var order ) )
+                                  {
+                                      shouldUpdateOrder = !uniqueOrders.Add( order ); // duplicate order
+                                      return order;
+                                  }
+                                  else
+                                  {
+                                      shouldUpdateOrder = true; // undefined order
+                                      return WindowConfig.ModOrder[x.Id] = 0;
+                                  }
+                              } )
+                              .Select( x => new ModViewModel( x ) )
+                              .ToList();
+
+            if ( shouldUpdateOrder )
+                UpdateWindowConfigModOrder();
+
+            ModGrid.ItemsSource = Mods;
+        }
+
+        private void RefreshModDatabase()
+        {
+            ModDatabase.Initialize();
+            RefreshMods();
+        }
+
+        private bool UpdateGameConfigEnabledMods()
+        {
+            var enabledMods = Mods.Where( x => x.Enabled )
+                                  .Select( x => x.Id )
+                                  .ToList();
+
+            GameConfig.ClearEnabledMods();
+
+            if ( enabledMods.Count == 0 )
+                return false;
+
+            enabledMods.ForEach( GameConfig.EnableMod );
+
+            return true;
+        }
+
+        private void UpdateWindowConfigModOrder()
+        {
+            for ( var i = 0; i < Mods.Count; i++ )
+            {
+                var mod = Mods[i];
+                WindowConfig.ModOrder[mod.Id] = i;
+            }
+        }
+
+        private void UpdateConfigChangesAndSave()
+        {
+            UpdateGameConfigEnabledMods();
+            UpdateWindowConfig();
+            Config.Save();
+        }
+
+        private void UpdateWindowConfig()
+        {
+            UpdateWindowConfigModOrder();
+            WindowConfig.SelectedGame = SelectedGame;
+        }
+
+        // Events
 
         private void Log_MessageBroadcasted( object sender, MessageBroadcastedEventArgs e )
         {
@@ -104,47 +184,13 @@ namespace ModCompendium
 
         protected override void OnClosed( EventArgs e )
         {
-            CommitChangesAndSave();
-        }
-
-        private void RefreshMods()
-        {
-            var shouldCommitOrder = false;
-            var uniqueOrders = new HashSet< int >();
-
-            Mods = ModDatabase.Get( Game )
-                              .OrderBy( x =>
-                              {
-                                  if ( OrderConfig.ModOrder.TryGetValue( x.Id, out var order ) )
-                                  {
-                                      shouldCommitOrder = !uniqueOrders.Add( order ); // duplicate order
-                                      return order;
-                                  }
-                                  else
-                                  {
-                                      shouldCommitOrder = true; // undefined order
-                                      return OrderConfig.ModOrder[x.Id] = 0;
-                                  }
-                              } )
-                              .Select( x => new ModViewModel( x ) )
-                              .ToList();
-
-            if ( shouldCommitOrder )
-                CommitModOrder();
-
-            ModGrid.ItemsSource = Mods;
-        }
-
-        private void RefreshModDatabase()
-        {
-            ModDatabase.Initialize();
-            RefreshMods();
+            UpdateConfigChangesAndSave();
         }
 
         private void GameComboBox_SelectionChanged( object sender, SelectionChangedEventArgs e )
         {
-            Game = ( Game )GameComboBox.SelectedValue;
-            GameConfig = Config.Get( Game );
+            SelectedGame = ( Game )GameComboBox.SelectedValue;
+            GameConfig = Config.Get( SelectedGame );
             RefreshMods();
         }
 
@@ -152,31 +198,6 @@ namespace ModCompendium
         {
             var settingsWindow = new GameConfigWindow( GameConfig ) { Owner = this };
             settingsWindow.ShowDialog();
-        }
-
-        private bool CommitEnabledMods()
-        {
-            var enabledMods = Mods.Where( x => x.Enabled )
-                                  .Select( x => x.Id )
-                                  .ToList();
-
-            GameConfig.ClearEnabledMods();
-
-            if ( enabledMods.Count == 0 )
-                return false;
-
-            enabledMods.ForEach( GameConfig.EnableMod );
-
-            return true;
-        }
-
-        private void CommitModOrder()
-        {
-            for ( var i = 0; i < Mods.Count; i++ )
-            {
-                var mod = Mods[ i ];
-                OrderConfig.ModOrder[mod.Id] = i;
-            }
         }
 
         private void BuildButton_Click( object sender, RoutedEventArgs e )
@@ -193,7 +214,7 @@ namespace ModCompendium
                 return;
             }
 
-            if ( !CommitEnabledMods() )
+            if ( !UpdateGameConfigEnabledMods() )
             {
                 MessageBox.Show( this, "No mods are enabled.", "Error", MessageBoxButton.OK, MessageBoxImage.Error );
                 return;
@@ -212,7 +233,7 @@ namespace ModCompendium
 
                 var merger = new TopToBottomModMerger();
                 var merged = merger.Merge( enabledMods );
-                var builder = GameModBuilder.Get( Game );
+                var builder = GameModBuilder.Get( SelectedGame );
 
                 try
                 {
@@ -221,7 +242,7 @@ namespace ModCompendium
                 catch ( InvalidConfigException exception )
                 {
                     Application.Current.Dispatcher.Invoke(
-                        () => MessageBox.Show( this, $"Game configuration is invalid.\n{exception.Message}", "Error",
+                        () => MessageBox.Show( this, $"SelectedGame configuration is invalid.\n{exception.Message}", "Error",
                                                MessageBoxButton.OK, MessageBoxImage.Error ) );
 
                     return false;
@@ -309,8 +330,8 @@ namespace ModCompendium
             var target = ( Mod )( ModViewModel )ModGrid.Items[targetIndex];
 
             // Order
-            OrderConfig.ModOrder[selectedMod.Id] = targetIndex;
-            OrderConfig.ModOrder[target.Id] = selectedIndex;
+            WindowConfig.ModOrder[selectedMod.Id] = targetIndex;
+            WindowConfig.ModOrder[target.Id] = selectedIndex;
 
             // Gui update
             Mods.Remove( selected );
@@ -327,18 +348,11 @@ namespace ModCompendium
         private void RefreshButton_Click( object sender, RoutedEventArgs e )
         {
             // Save
-            CommitChangesAndSave();
+            UpdateConfigChangesAndSave();
 
             // Reload
-            Config.Load();
+            ModCompendiumLibrary.Configuration.Config.Load();
             RefreshModDatabase();
-        }
-
-        private void CommitChangesAndSave()
-        {
-            CommitEnabledMods();
-            CommitModOrder();
-            Config.Save();
         }
 
         private void NewButton_Click( object sender, RoutedEventArgs e )
@@ -366,7 +380,7 @@ namespace ModCompendium
 
             // Build mod
             var mod = new ModBuilder()
-                .SetGame( Game )
+                .SetGame( SelectedGame )
                 .SetTitle( newMod.ModTitle )
                 .SetDescription( newMod.Description )
                 .SetVersion( newMod.Version )

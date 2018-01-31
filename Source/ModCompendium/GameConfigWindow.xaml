@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:ModCompendium"
         mc:Ignorable="d"
-        Title="Game configuration" Height="160" Width="500" ResizeMode="NoResize">
+        Title="SelectedGame configuration" Height="160" Width="500" ResizeMode="NoResize">
     <Grid>
         <Grid Name="ConfigPropertyGrid" Width="Auto" Height="Auto" Margin="10,10,10,47">
             <Grid.ColumnDefinitions>
