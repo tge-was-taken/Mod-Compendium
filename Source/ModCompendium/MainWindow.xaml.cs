@@ -102,26 +102,33 @@ namespace ModCompendium
 
         protected override void OnClosed( EventArgs e )
         {
-            CommitEnabledMods();
-            Config.Save();
+            CommitChangesAndSave();
         }
 
         private void RefreshMods()
         {
+            var shouldCommitOrder = false;
+            var uniqueOrders = new HashSet< int >();
+
             Mods = ModDatabase.Get( Game )
                               .OrderBy( x =>
                               {
                                   if ( OrderConfig.ModOrder.TryGetValue( x.Id, out var order ) )
                                   {
+                                      shouldCommitOrder = !uniqueOrders.Add( order ); // duplicate order
                                       return order;
                                   }
                                   else
                                   {
+                                      shouldCommitOrder = true; // undefined order
                                       return OrderConfig.ModOrder[x.Id] = 0;
                                   }
                               } )
                               .Select( x => new ModViewModel( x ) )
                               .ToList();
+
+            if ( shouldCommitOrder )
+                CommitModOrder();
 
             ModGrid.ItemsSource = Mods;
         }
@@ -159,6 +166,15 @@ namespace ModCompendium
             enabledMods.ForEach( GameConfig.EnableMod );
 
             return true;
+        }
+
+        private void CommitModOrder()
+        {
+            for ( var i = 0; i < Mods.Count; i++ )
+            {
+                var mod = Mods[ i ];
+                OrderConfig.ModOrder[mod.Id] = i;
+            }
         }
 
         private void BuildButton_Click( object sender, RoutedEventArgs e )
@@ -308,10 +324,19 @@ namespace ModCompendium
 
         private void RefreshButton_Click( object sender, RoutedEventArgs e )
         {
-            CommitEnabledMods();
-            Config.Save();
+            // Save
+            CommitChangesAndSave();
+
+            // Reload
             Config.Load();
             RefreshModDatabase();
+        }
+
+        private void CommitChangesAndSave()
+        {
+            CommitEnabledMods();
+            CommitModOrder();
+            Config.Save();
         }
     }
 }
