@@ -59,7 +59,7 @@ namespace ModCompendiumLibrary.ModSystem.Builders
 
                 // Iso file found, convert it to our virtual file system
                 isoFileSystem = new CDReader( File.OpenRead( config.DvdRootPath ), false );
-                dvdRootDirectory = ( VirtualDirectory ) ConvertEntryRecursively( isoFileSystem, null, isoFileSystem.Root.FullName );
+                dvdRootDirectory = ( VirtualDirectory ) ConvertEntryRecursively( isoFileSystem, isoFileSystem.Root.FullName );
             }
             else
             {
@@ -185,7 +185,7 @@ namespace ModCompendiumLibrary.ModSystem.Builders
             return dvdRootDirectory;
         }
 
-        private VirtualFileSystemEntry ConvertEntryRecursively( CDReader isoFileSystem, VirtualDirectory parent, string path )
+        private VirtualFileSystemEntry ConvertEntryRecursively( CDReader isoFileSystem, string path )
         {
             if ( isoFileSystem.FileExists( path ) )
             {
@@ -195,17 +195,23 @@ namespace ModCompendiumLibrary.ModSystem.Builders
                     fileName = fileName.Substring( 0, fileName.Length - 2 );
                 }
 
-                return new VirtualFile( parent, isoFileSystem.OpenFile( path, FileMode.Open ), fileName );
+                return new VirtualFile( null, isoFileSystem.OpenFile( path, FileMode.Open ), fileName );
             }
             else
             {
-                var directory = new VirtualDirectory( parent, Path.GetFileName( path ) );
+                var directory = new VirtualDirectory( null, Path.GetFileName( path ) );
 
-                foreach ( var file in isoFileSystem.GetFiles(path) )
-                    directory.Add( ConvertEntryRecursively( isoFileSystem, directory, file ) );
+                foreach ( var file in isoFileSystem.GetFiles( path ) )
+                {
+                    var entry = ConvertEntryRecursively( isoFileSystem, file );
+                    entry.MoveTo( directory );
+                }
 
                 foreach ( var subDirectory in isoFileSystem.GetDirectories( path ) )
-                    directory.Add( ConvertEntryRecursively( isoFileSystem, directory, subDirectory ) );
+                {
+                    var entry = ConvertEntryRecursively( isoFileSystem, subDirectory );
+                    entry.MoveTo( directory );
+                }
 
                 return directory;
             }
@@ -217,7 +223,7 @@ namespace ModCompendiumLibrary.ModSystem.Builders
             var streamView = new StreamView( stream, 0x1800, stream.Length - 0x1800 );
             var cvmIsoFilesystem = new CDReader( streamView, false );
 
-            var directory = ( VirtualDirectory )ConvertEntryRecursively( cvmIsoFilesystem, null, cvmIsoFilesystem.Root.FullName );
+            var directory = ( VirtualDirectory )ConvertEntryRecursively( cvmIsoFilesystem, cvmIsoFilesystem.Root.FullName );
             directory.Name = Path.GetFileNameWithoutExtension(cvmFile.Name);
 
             return directory;

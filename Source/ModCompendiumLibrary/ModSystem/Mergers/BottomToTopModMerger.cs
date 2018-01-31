@@ -12,30 +12,11 @@ namespace ModCompendiumLibrary.ModSystem.Mergers
             Log.Merger.Info( "Merging mods from bottom to top" );
 
             var fileDirectory = new VirtualDirectory();
-            var entryHistory = new HashSet<string>();
 
             foreach ( var mod in mods.Reverse() )
             {
                 var dataDirectory = VirtualDirectory.FromHostDirectory( mod.DataDirectory );
-                dataDirectory.Name = string.Empty;
-
-                void AddEntryRecursively( VirtualDirectory directory )
-                {
-                    foreach ( var entry in directory )
-                    {
-                        if ( !entryHistory.Contains( entry.FullName ) )
-                        {
-                            entry.CopyTo( fileDirectory );
-                            entryHistory.Add( entry.FullName );
-                        }
-                        else if (entry.EntryType == VirtualFileSystemEntryType.Directory)
-                        {
-                            AddEntryRecursively( ( VirtualDirectory ) entry );
-                        }
-                    }
-                }
-
-                AddEntryRecursively( dataDirectory );
+                fileDirectory.Merge( dataDirectory, false );
             }
 
             return fileDirectory;

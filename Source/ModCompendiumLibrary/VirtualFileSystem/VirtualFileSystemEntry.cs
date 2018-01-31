@@ -42,20 +42,24 @@ namespace ModCompendiumLibrary.VirtualFileSystem
                 throw new ArgumentNullException( nameof( name ) );
             }
 
-            if ( !Enum.IsDefined( typeof( VirtualFileSystemEntryType ), entryType ) )
-            {
-                throw new InvalidEnumArgumentException( nameof( entryType ), ( int ) entryType, typeof( VirtualFileSystemEntryType ) );
-            }
-
             Parent = parent;
             HostPath = hostPath;
             Name = name;
             EntryType = entryType;
         }
 
+        /// <summary>
+        /// Saves the entry to the host filesystem.
+        /// </summary>
+        /// <param name="destinationHostPath"></param>
+        /// <returns>Returns the path to which the entry was saved.</returns>
         public abstract string SaveToHost( string destinationHostPath );
 
-        public void MoveTo( VirtualDirectory directory )
+        /// <summary>
+        /// Moves this entry from it's parent directory to the specified directory.
+        /// </summary>
+        /// <param name="directory"></param>
+        public void MoveTo( VirtualDirectory directory, bool replace = false )
         {
             // Remove file from parent directory
             if ( Parent != null )
@@ -67,9 +71,16 @@ namespace ModCompendiumLibrary.VirtualFileSystem
             Parent = directory;
 
             if ( directory != null )
-                directory.Add( this );
+            {
+                directory.InternalAddOrReplace( this, replace );
+            }
         }
 
+        /// <summary>
+        /// Makes a copy of this entry and moves the copy to the specified directory.
+        /// </summary>
+        /// <param name="directory"></param>
+        /// <returns>The copy.</returns>
         public VirtualFileSystemEntry CopyTo( VirtualDirectory directory )
         {
             var copy = Copy();
@@ -78,12 +89,18 @@ namespace ModCompendiumLibrary.VirtualFileSystem
             copy.Parent = directory;
 
             if ( directory != null )
-                directory.Add( copy );
+            {
+                copy.MoveTo( directory );
+            }
 
             return copy;
         }
 
-        internal abstract VirtualFileSystemEntry Copy();
+        /// <summary>
+        /// Shallow copy.
+        /// </summary>
+        /// <returns></returns>
+        public abstract VirtualFileSystemEntry Copy();
 
         public override string ToString()
         {
