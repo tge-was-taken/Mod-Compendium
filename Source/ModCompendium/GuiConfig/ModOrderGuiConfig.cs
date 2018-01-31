@@ -23,19 +23,20 @@ namespace ModCompendium.GuiConfig
         public void Deserialize( XElement element )
         {
             var modOrderElement = element.Element( nameof( ModOrder ) );
-            if ( modOrderElement != null )
+            if ( modOrderElement == null )
+                return;
+
+            foreach ( var subElement in modOrderElement.Elements() )
             {
-                foreach ( var subElement in modOrderElement.Elements() )
-                {
-                    if ( Guid.TryParse( subElement.Attribute( "Id" ).Value, out var id ) && id != Guid.Empty )
-                    {
-                        var index = int.Parse( subElement.Attribute( "Order" ).Value );
-                        if ( ModDatabase.Exists( id ) )
-                        {
-                            ModOrder[id] = index;
-                        }
-                    }
-                }
+                var idAttribute = subElement.Attribute( nameof( Mod.Id ) );
+                if ( idAttribute == null || !Guid.TryParse( idAttribute.Value, out var id ) || id == Guid.Empty || !ModDatabase.Exists( id ) )
+                    return;
+
+                var orderAttribute = subElement.Attribute( "Order" );
+                if ( orderAttribute == null || !int.TryParse( orderAttribute.Value, out var order ) )
+                    return;
+
+                ModOrder[id] = order;
             }
         }
 

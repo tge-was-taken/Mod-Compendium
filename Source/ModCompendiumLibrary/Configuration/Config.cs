@@ -43,8 +43,18 @@ namespace ModCompendiumLibrary.Configuration
 
         private static void InitializeConfigurable( Type type )
         {
-            var instance = ( IConfigurable )Activator.CreateInstance( type, null, null );
+            IConfigurable instance;
 
+            try
+            {
+                instance = ( IConfigurable )Activator.CreateInstance( type, null, null );
+            }
+            catch ( Exception e )
+            {
+                Log.Config.Fatal( $"Failed to create instance of config: {type}" );
+                Log.Config.Trace( e.Message );
+                return;
+            }
 
             if ( type.IsSubclassOf( typeof( GameConfig ) ) )
             {
@@ -83,9 +93,17 @@ namespace ModCompendiumLibrary.Configuration
             {
                 Log.Config.Trace( $"Loading config file: {configPath}" );
 
-                var document = XDocument.Load( configPath );
-                if ( document.Root != null )
-                    configurable.Deserialize( document.Root );
+                try
+                {
+                    var document = XDocument.Load( configPath );
+                    if ( document.Root != null )
+                        configurable.Deserialize( document.Root );
+                }
+                catch ( Exception e )
+                {
+                    Log.Config.Error( $"Failed to load config file: {configPath}" );
+                    Log.Config.Trace( e.Message );
+                }
             }
         }
 
@@ -113,15 +131,23 @@ namespace ModCompendiumLibrary.Configuration
             var configPath = $"Config\\{type.Name}.xml";
             Log.Config.Trace( $"Saving config file: {configPath}" );
 
-            // Serialize config
-            var document = new XDocument();
+            try
             {
-                var rootElement = new XElement( type.Name );
-                configurable.Serialize( rootElement );
-                document.Add( rootElement );
-            }
+                // Serialize config
+                var document = new XDocument();
+                {
+                    var rootElement = new XElement( type.Name );
+                    configurable.Serialize( rootElement );
+                    document.Add( rootElement );
+                }
 
-            document.Save( configPath );
+                document.Save( configPath );
+            }
+            catch ( Exception e )
+            {
+                Log.Config.Error( $"Failed to save config file: {configPath}" );
+                Log.Config.Trace( e.Message );
+            }
         }
 
         public static T Get< T >() where T : class

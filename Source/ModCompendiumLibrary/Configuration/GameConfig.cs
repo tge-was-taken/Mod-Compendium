@@ -62,7 +62,10 @@ namespace ModCompendiumLibrary.Configuration
         // Serialization
         void IConfigurable.Deserialize( XElement element )
         {
-            OutputDirectoryPath = SerializationHelper.GetValueOrEmpty( element, nameof( OutputDirectoryPath ) );
+            var outputDirectoryElement = element.Element( nameof( OutputDirectoryPath ) );
+            if ( outputDirectoryElement != null )
+                OutputDirectoryPath = outputDirectoryElement.Value;
+
             var enabledModsElement = element.Element( nameof( EnabledModIds ) );
             if ( enabledModsElement != null )
                 DeserializeEnabledMods( enabledModsElement );
@@ -74,12 +77,9 @@ namespace ModCompendiumLibrary.Configuration
         {
             foreach ( var enabledModElement in element.Elements() )
             {
-                if ( enabledModElement.Name == "EnabledMod" )
+                if ( Guid.TryParse( enabledModElement.Value, out var id ) && id != Guid.Empty && ModDatabase.Exists( id ) )
                 {
-                    if ( Guid.TryParse( enabledModElement.Value, out var id ) && id != Guid.Empty && ModDatabase.Exists( id ) )
-                    {
-                        mEnabledModIds.Add( id );
-                    }
+                    mEnabledModIds.Add( id );
                 }
             }
         }
@@ -99,7 +99,7 @@ namespace ModCompendiumLibrary.Configuration
             var enabledModsElement = new XElement( nameof( EnabledModIds ) );
             foreach ( var modId in EnabledModIds )
             {
-                enabledModsElement.Add( new XElement( "EnabledMod", modId ) );
+                enabledModsElement.Add( new XElement( "EnabledModId", modId ) );
             }
 
             return enabledModsElement;
