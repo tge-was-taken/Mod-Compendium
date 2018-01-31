@@ -44,16 +44,16 @@ namespace ModCompendium.ViewModels
             set => mMod.Version = value;
         }
 
-        public string Date
-        {
-            get => mMod.Date;
-            set => mMod.Date = value;
-        }
-
         public string Author
         {
             get => mMod.Author;
             set => mMod.Author = value;
+        }
+
+        public string Date
+        {
+            get => mMod.Date;
+            set => mMod.Date = value;
         }
 
         public string Url
@@ -75,6 +75,8 @@ namespace ModCompendium.ViewModels
             mMod = model;
             mConfig = Config.Get( model.Game );
         }
+
+        public static explicit operator ModViewModel( Mod mod ) => new ModViewModel( mod );
 
         public static explicit operator Mod( ModViewModel viewModel ) => viewModel.mMod;
     }

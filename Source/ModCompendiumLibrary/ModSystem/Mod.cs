@@ -23,9 +23,11 @@ namespace ModCompendiumLibrary.ModSystem
 
         public string UpdateUrl { get; set; }
 
+        public string BaseDirectory { get; set; }
+
         public string DataDirectory { get; set; }
 
-        internal Mod( Guid id, Game game, string title, string description, string version, string date, string author, string url, string updateUrl, string dataDirectory )
+        internal Mod( Guid id, Game game, string title, string description, string version, string date, string author, string url, string updateUrl, string baseDirectory, string dataDirectory )
         {
             Id = id;
             Game = game;
@@ -36,6 +38,7 @@ namespace ModCompendiumLibrary.ModSystem
             Author = author;
             Url = url;
             UpdateUrl = updateUrl;
+            BaseDirectory = baseDirectory;
             DataDirectory = dataDirectory;
         }
     }

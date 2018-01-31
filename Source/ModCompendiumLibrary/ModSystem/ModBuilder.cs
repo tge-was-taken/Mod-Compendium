@@ -1,4 +1,5 @@
 ﻿using System;
+using System.IO;
 using ModCompendiumLibrary.VirtualFileSystem;
 
 namespace ModCompendiumLibrary.ModSystem
@@ -14,6 +15,7 @@ namespace ModCompendiumLibrary.ModSystem
         private string mAuthor;
         private string mUrl;
         private string mUpdateUrl;
+        private string mBaseDirectory;
         private string mDataDirectory;
 
         public ModBuilder()
@@ -28,6 +30,7 @@ namespace ModCompendiumLibrary.ModSystem
             mUrl = string.Empty;
             mUpdateUrl = string.Empty;
             mDataDirectory = null;
+            mBaseDirectory = null;
         }
 
         public ModBuilder SetId( Guid id )
@@ -84,7 +87,13 @@ namespace ModCompendiumLibrary.ModSystem
             return this;
         }
 
-        public ModBuilder SetDataDirectory( string path )
+        public ModBuilder SetBaseDirectoryPath( string path )
+        {
+            mBaseDirectory = path;
+            return this;
+        }
+
+        public ModBuilder SetDataDirectoryPath( string path )
         {
             mDataDirectory = path;
             return this;
@@ -92,7 +101,21 @@ namespace ModCompendiumLibrary.ModSystem
 
         public Mod Build()
         {
-            return new Mod( mId, mGame, mTitle, mDescription, mVersion, mDate, mAuthor, mUrl, mUpdateUrl, mDataDirectory );
+            if ( mGame == 0 )
+                throw new InvalidOperationException( "Game isn't set" );
+
+            if ( string.IsNullOrWhiteSpace( mTitle ) )
+                throw new InvalidOperationException( "Title isn't set" );
+
+            if ( string.IsNullOrWhiteSpace( mBaseDirectory ) )
+                throw new InvalidOperationException( "Base directory isn't set" );
+
+            if ( string.IsNullOrWhiteSpace( mDataDirectory ) )
+            {
+                mDataDirectory = Path.Combine( mBaseDirectory, "Data" );
+            }
+
+            return new Mod( mId, mGame, mTitle, mDescription, mVersion, mDate, mAuthor, mUrl, mUpdateUrl, mBaseDirectory, mDataDirectory );
         }
     }
 }

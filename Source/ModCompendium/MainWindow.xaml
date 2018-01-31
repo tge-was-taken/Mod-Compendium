@@ -32,20 +32,22 @@
                 <Button Content="Settings" HorizontalAlignment="Center" VerticalAlignment="Center" Width="75" Grid.Column="1" Height="20" Click="SettingsButton_Click"/>
                 <Button Name="BuildButton" Content="_Build" HorizontalAlignment="Center" VerticalAlignment="Center" Width="75" Grid.Column="2" Click="BuildButton_Click"/>
                 <Button Content="_Refresh" Grid.Column="3" HorizontalAlignment="Center" VerticalAlignment="Center" Width="75" Click="RefreshButton_Click"/>
-                <Button Content="_New" HorizontalAlignment="Center" VerticalAlignment="Center" Width="75" Grid.Column="7" Click="NewButton_Click"/>
+                <Button Content="_New" HorizontalAlignment="Center" VerticalAlignment="Center" Width="75" Grid.Column="6" Click="NewButton_Click"/>
+                <Button Content="_Delete" HorizontalAlignment="Center" VerticalAlignment="Center" Width="75" Grid.Column="7" Click="DeleteButton_Click"/>
             </Grid>
             <Grid Grid.Row="1" VerticalAlignment="Stretch" HorizontalAlignment="Stretch">
                 <DataGrid Name="ModGrid" AlternatingRowBackground="LightGray" AutoGenerateColumns="False" Margin="0,0,15,0"
                           EnableColumnVirtualization="False" CanUserAddRows="False" CanUserDeleteRows="False" CanUserReorderColumns="True" 
                           CanUserResizeColumns="True" CanUserResizeRows="True" CanUserSortColumns="False" KeyDown="ModGrid_KeyDown">
                     <DataGrid.Columns>
-                        <DataGridCheckBoxColumn Header="Enabled" Binding="{Binding Enabled, Mode=TwoWay}" Width="52" MinWidth="52" MaxWidth="52"></DataGridCheckBoxColumn>
-                        <DataGridTextColumn Header="Title" Binding="{Binding Title}" IsReadOnly="True"></DataGridTextColumn>
-                        <DataGridTextColumn Header="Description" Binding="{Binding Description}" IsReadOnly="True"></DataGridTextColumn>
-                        <DataGridTextColumn Header="Version" Binding="{Binding Version}" IsReadOnly="True"></DataGridTextColumn>
-                        <DataGridTextColumn Header="Author" Binding="{Binding Author}" IsReadOnly="True"></DataGridTextColumn>
-                        <DataGridTextColumn Header="URL" Binding="{Binding Url}" IsReadOnly="True"></DataGridTextColumn>
-                        <DataGridTextColumn Header="Update URL" Binding="{Binding UpdateUrl}" IsReadOnly="True"></DataGridTextColumn>
+                        <DataGridCheckBoxColumn Header="Enabled" Binding="{Binding Enabled, Mode=TwoWay}"  IsReadOnly="False" Width="52" MinWidth="52" MaxWidth="52"></DataGridCheckBoxColumn>
+                        <DataGridTextColumn Header="Title" Binding="{Binding Title, Mode=TwoWay}" IsReadOnly="False"></DataGridTextColumn>
+                        <DataGridTextColumn Header="Description" Binding="{Binding Description, Mode=TwoWay}" IsReadOnly="False"></DataGridTextColumn>
+                        <DataGridTextColumn Header="Version" Binding="{Binding Version, Mode=TwoWay}" IsReadOnly="False"></DataGridTextColumn>
+                        <DataGridTextColumn Header="Author" Binding="{Binding Author, Mode=TwoWay}" IsReadOnly="False"></DataGridTextColumn>
+                        <DataGridTextColumn Header="Date" Binding="{Binding Date, Mode=TwoWay}" IsReadOnly="False"></DataGridTextColumn>
+                        <DataGridTextColumn Header="URL" Binding="{Binding Url, Mode=TwoWay}" IsReadOnly="False"></DataGridTextColumn>
+                        <DataGridTextColumn Header="Update URL" Binding="{Binding UpdateUrl, Mode=TwoWay}" IsReadOnly="False"></DataGridTextColumn>
                     </DataGrid.Columns>
                 </DataGrid>
                 <Button Content="↑" HorizontalAlignment="Right" Width="12" Height="24" VerticalAlignment="Center" Margin="0,106,0,136" Click="UpButton_Click"/>

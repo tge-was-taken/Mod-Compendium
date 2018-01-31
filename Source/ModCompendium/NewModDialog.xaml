@@ -33,12 +33,12 @@
             <Label Grid.Column="0" Grid.Row="5" Content="Update URL:" HorizontalContentAlignment="Right"  VerticalAlignment="Center" Height="26" Margin="0,2,0,0"/>
 
             <!--Text boxes-->
-            <TextBox Name="TitleTextBox" Grid.Column="1" Grid.Row="0" Margin="10,2" TextChanged="TitleTextBox_TextChanged"/>
-            <TextBox Name="DescriptionTextBox" Grid.Column="1" Grid.Row="1" Margin="10,2"/>
-            <TextBox Name="VersionTextBox" Grid.Column="1" Grid.Row="2" Margin="10,2"/>
-            <TextBox Name="AuthorTextBox" Grid.Column="1" Grid.Row="3" Margin="10,2"/>
-            <TextBox Name="URLTextBox" Grid.Column="1" Grid.Row="4" Margin="10,2"/>
-            <TextBox Name="UpdateURLTextBox" Grid.Column="1" Grid.Row="5" Margin="10,2"/>
+            <TextBox Name="TitleTextBox" Grid.Column="1" Grid.Row="0" Margin="10,2" VerticalContentAlignment="Center" TextChanged="TitleTextBox_TextChanged"/>
+            <TextBox Name="DescriptionTextBox" Grid.Column="1" Grid.Row="1" Margin="10,2" VerticalContentAlignment="Center" />
+            <TextBox Name="VersionTextBox" Grid.Column="1" Grid.Row="2" Margin="10,2" VerticalContentAlignment="Center" />
+            <TextBox Name="AuthorTextBox" Grid.Column="1" Grid.Row="3" Margin="10,2" VerticalContentAlignment="Center" />
+            <TextBox Name="URLTextBox" Grid.Column="1" Grid.Row="4" Margin="10,2" VerticalContentAlignment="Center" />
+            <TextBox Name="UpdateURLTextBox" Grid.Column="1" Grid.Row="5" Margin="10,2" VerticalContentAlignment="Center" />
         </Grid>
         <Grid Margin="0,0,0,10" Height="28" VerticalAlignment="Bottom">
             <Grid.ColumnDefinitions>
@@ -46,8 +46,8 @@
                 <ColumnDefinition/>
             </Grid.ColumnDefinitions>
 
-            <Button Name="OkButton" IsEnabled="False" Grid.Column="0" Content="OK" Width="54" Height="20" Click="OkButton_Click" Margin="83,4,10,4"/>
-            <Button Grid.Column="1" Content="Cancel" Width="54" Height="20" Click="CancelButton_Click" Margin="10,4,83,4"/>
+            <Button Name="OkButton" IsEnabled="False" Grid.Column="0" Content="OK" Width="54" Height="20" Click="OkButton_Click" Margin="78,4,10,4"/>
+            <Button Grid.Column="1" Content="Cancel" Width="54" Height="20" Click="CancelButton_Click" Margin="10,4,78,4"/>
         </Grid>
     </Grid>
 </Window>

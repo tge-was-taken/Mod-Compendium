@@ -343,17 +343,14 @@ namespace ModCompendium
 
         private void NewButton_Click( object sender, RoutedEventArgs e )
         {
-            var newModDialog = new NewModDialog( Game ) { Owner = this };
-            var result = newModDialog.ShowDialog();
+            var newMod = new NewModDialog() { Owner = this };
+            var result = newMod.ShowDialog();
 
             if ( !result.HasValue || !result.Value )
                 return;
 
-            // Save mod to directory
-            var mod = newModDialog.Mod;
-
             // Get unique directory
-            string modPath = Path.Combine( ModDatabase.ModDirectory, mod.Title );
+            string modPath = Path.Combine( ModDatabase.ModDirectory, newMod.Title );
             if ( Directory.Exists( modPath ) )
             {
                 var newModPath = modPath;
@@ -367,12 +364,37 @@ namespace ModCompendium
                 modPath = newModPath;
             }
 
+            // Build mod
+            var mod = new ModBuilder()
+                .SetGame( Game )
+                .SetTitle( newMod.ModTitle )
+                .SetDescription( newMod.Description )
+                .SetVersion( newMod.Version )
+                .SetDate( DateTime.UtcNow.ToShortDateString() )
+                .SetAuthor( newMod.Author )
+                .SetUrl( newMod.Url )
+                .SetUpdateUrl( newMod.UpdateUrl )
+                .SetBaseDirectoryPath(modPath)
+                .Build();
+
             // Do actual saving
             var modLoader = new XmlModLoader();
-            modLoader.Save( mod, modPath );
+            modLoader.Save( mod );
 
             // Reload
             RefreshModDatabase();
+        }
+
+        private void DeleteButton_Click( object sender, RoutedEventArgs e )
+        {
+            if ( MessageBox.Show( this, "Are you sure you want to delete this mod? The data will be lost forever.", "Warning",
+                                  MessageBoxButton.OKCancel,
+                                  MessageBoxImage.Exclamation ) == MessageBoxResult.OK )
+            {
+                var mod = ( Mod )( ModViewModel )ModGrid.SelectedValue;
+                Directory.Delete( mod.BaseDirectory, true );
+                RefreshModDatabase();
+            }
         }
     }
 }

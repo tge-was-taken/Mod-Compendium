@@ -7,17 +7,17 @@ namespace ModCompendiumLibrary.ModSystem.Loaders
 {
     public class XmlModLoader : IModLoader
     {
-        public Mod Load( string basePath )
+        public Mod Load( string baseDirectoryPath )
         {
-            Log.Loader.Trace( $"Loading mod directory: {basePath}" );
+            Log.Loader.Trace( $"Loading mod directory: {baseDirectoryPath}" );
 
             // Check if Mod.xml exists
-            var xmlPath = Path.Combine( basePath, "Mod.xml" );
+            var xmlPath = Path.Combine( baseDirectoryPath, "Mod.xml" );
             if ( !File.Exists( xmlPath ) )
                 throw new ModXmlFileMissingException( xmlPath );
 
             // Check if Data directory exists
-            var dataDirectoryPath = Path.Combine( basePath, "Data" );
+            var dataDirectoryPath = Path.Combine( baseDirectoryPath, "Data" );
             if ( !Directory.Exists( dataDirectoryPath ) )
             {
                 Log.Loader.Error( $"Data directory is missing: {dataDirectoryPath}" );
@@ -26,12 +26,13 @@ namespace ModCompendiumLibrary.ModSystem.Loaders
 
             // Set data directory
             var modBuilder = new ModBuilder();
-            modBuilder.SetDataDirectory( dataDirectoryPath );
+            modBuilder.SetBaseDirectoryPath( baseDirectoryPath );
+            modBuilder.SetDataDirectoryPath( dataDirectoryPath );
 
-            return LoadModXml( basePath, xmlPath, modBuilder );
+            return LoadModXml( xmlPath, modBuilder );
         }
 
-        private Mod LoadModXml( string basePath, string xmlPath, ModBuilder modBuilder )
+        private Mod LoadModXml( string xmlPath, ModBuilder modBuilder )
         {
             Log.Loader.Trace( $"Loading mod xml: {xmlPath}" );
             var document = XDocument.Load( xmlPath, LoadOptions.None );
@@ -102,23 +103,23 @@ namespace ModCompendiumLibrary.ModSystem.Loaders
             {
                 // Save xml if GUID is missing
                 Log.Loader.Info( "Mod GUID is missing. Resaving xml..." );
-                Save( mod, basePath );
+                Save( mod );
             }
 
             return mod;
         }
 
-        public void Save( Mod mod, string path )
+        public void Save( Mod mod )
         {
-            Log.Loader.Trace( $"Saving mod to directory: {path}" );
+            Log.Loader.Trace( $"Saving mod to directory: {mod.BaseDirectory}" );
 
-            if ( !Directory.Exists( path ) )
+            if ( !Directory.Exists( mod.BaseDirectory ) )
             {
-                Directory.CreateDirectory( path );
+                Directory.CreateDirectory( mod.BaseDirectory );
             }
 
             // Serialize mod xml
-            var modXmlPath = Path.Combine( path, "Mod.xml" );
+            var modXmlPath = Path.Combine( mod.BaseDirectory, "Mod.xml" );
             var document = new XDocument();
             var rootElement = new XElement( nameof( Mod ) );
             {
@@ -137,7 +138,7 @@ namespace ModCompendiumLibrary.ModSystem.Loaders
 
             if ( string.IsNullOrWhiteSpace( mod.DataDirectory ) )
             {
-                mod.DataDirectory = Path.Combine( path, "Data" );
+                mod.DataDirectory = Path.Combine( mod.BaseDirectory, "Data" );
             }
 
             if ( !Directory.Exists( mod.DataDirectory ) )

@@ -11,54 +11,38 @@ namespace ModCompendium
     /// </summary>
     public partial class NewModDialog : Window
     {
-        private Game mGame;
+        public string ModTitle => TitleTextBox.Text;
 
-        public Mod Mod { get; private set; }
+        public string Description => DescriptionTextBox.Text;
 
-        public NewModDialog(Game game)
+        public string Version => VersionTextBox.Text;
+
+        public string Author => AuthorTextBox.Text;
+
+        public string Url => URLTextBox.Text;
+
+        public string UpdateUrl => UpdateURLTextBox.Text;
+
+        public NewModDialog()
         {
             InitializeComponent();
-            mGame = game;
         }
 
         private void OkButton_Click( object sender, RoutedEventArgs e )
         {
-            try
-            {
-                Mod = new ModBuilder()
-                    .SetGame(mGame)
-                    .SetTitle( TitleTextBox.Text )
-                    .SetDescription( DescriptionTextBox.Text )
-                    .SetVersion( VersionTextBox.Text )
-                    .SetDate( DateTime.UtcNow.ToShortDateString() )
-                    .SetAuthor( AuthorTextBox.Text )
-                    .SetUrl( URLTextBox.Text )
-                    .SetUpdateUrl( UpdateURLTextBox.Text )
-                    .Build();
-            }
-            catch ( Exception exception )
-            {
-                DialogResult = false;
-                return;
-            }
-
             DialogResult = true;
             Close();
         }
 
         private void CancelButton_Click( object sender, RoutedEventArgs e )
         {
-            Mod = null;
             DialogResult = false;
             Close();
         }
 
         private void TitleTextBox_TextChanged( object sender, TextChangedEventArgs e )
         {
-            if ( TitleTextBox.Text.Length != 0 )
-            {
-                OkButton.IsEnabled = true;
-            }
+            OkButton.IsEnabled = TitleTextBox.Text.Length != 0;
         }
     }
 }
