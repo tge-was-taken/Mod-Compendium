@@ -4,7 +4,9 @@ using System.Linq;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Documents;
 using System.Windows.Input;
+using System.Windows.Media;
 using ModCompendium.GuiConfig;
 using ModCompendium.ViewModels;
 using ModCompendiumLibrary;
@@ -39,9 +41,7 @@ namespace ModCompendium
                 Application.Current.Dispatcher.Invoke(
                     () =>
                     {
-                        var exception = e.ExceptionObject as Exception;
-
-                        if ( exception != null )
+                        if ( e.ExceptionObject is Exception exception )
                         {
                             MessageBox.Show(
                                 this, $"Unhandled exception occured:\n{exception.Message}\n{exception.StackTrace}", "Error",
@@ -54,39 +54,50 @@ namespace ModCompendium
                     } );
             };
 
-            Log.MessageBroadcasted += ( s, e ) =>
-            {
-                // Invoke on UI thread
-                Application.Current.Dispatcher.Invoke( () =>
-                {
-                    /*
-                    switch ( e.Severity )
-                    {
-                        case Severity.Trace:
-                            LogTextBox.Foreground = Brushes.Gray;
-                            break;
-                        case Severity.Info:
-                            LogTextBox.Foreground = Brushes.Black;
-                            break;
-                        case Severity.Warning:
-                            LogTextBox.Foreground = Brushes.Yellow;
-                            break;
-                        case Severity.Error:
-                            LogTextBox.Foreground = Brushes.Red;
-                            break;
-                        case Severity.Fatal:
-                            LogTextBox.Foreground = Brushes.Magenta;
-                            break;
-                    }
-                    */
-
-                    LogTextBox.AppendText( $"[{e.Channel.Name}] {e.Severity}: {e.Message}\n" );
-                } );
-            };
+            Log.MessageBroadcasted += Log_MessageBroadcasted;
 
             GameComboBox.ItemsSource = Enum.GetValues( typeof( Game ) ).Cast< Game >();
             GameComboBox.SelectedIndex = 0;
             OrderConfig = Config.Get<ModOrderGuiConfig>();
+        }
+
+        private void Log_MessageBroadcasted( object sender, MessageBroadcastedEventArgs e )
+        {
+            // Invoke on UI thread
+            Application.Current.Dispatcher.Invoke( () =>
+            {
+                SolidColorBrush color;
+
+                switch ( e.Severity )
+                {
+                    case Severity.Trace:
+                        color = Brushes.Gray;
+                        break;
+                    case Severity.Info:
+                        color = Brushes.Black;
+                        break;
+                    case Severity.Warning:
+                        color = Brushes.Yellow;
+                        break;
+                    case Severity.Error:
+                        color = Brushes.Red;
+                        break;
+                    case Severity.Fatal:
+                        color = Brushes.Magenta;
+                        break;
+
+                    default:
+                        color = Brushes.Black;
+                        break;
+                }
+
+                var textRange = new TextRange( LogTextBox.Document.ContentEnd, LogTextBox.Document.ContentEnd )
+                {
+                    Text = $"[{e.Channel.Name}] {e.Severity}: {e.Message}\n"
+                };
+
+                textRange.ApplyPropertyValue( TextElement.ForegroundProperty, color );
+            } );
         }
 
         protected override void OnClosed( EventArgs e )
@@ -98,7 +109,17 @@ namespace ModCompendium
         private void RefreshMods()
         {
             Mods = ModDatabase.Get( Game )
-                              .OrderBy( x => OrderConfig.ModOrder[x.Id] )
+                              .OrderBy( x =>
+                              {
+                                  if ( OrderConfig.ModOrder.TryGetValue( x.Id, out var order ) )
+                                  {
+                                      return order;
+                                  }
+                                  else
+                                  {
+                                      return OrderConfig.ModOrder[ x.Id ] = 0;
+                                  }
+                              })
                               .Select( x => new ModViewModel( x ) )
                               .ToList();
 
@@ -124,14 +145,20 @@ namespace ModCompendium
             settingsWindow.ShowDialog();
         }
 
-        private void CommitEnabledMods()
+        private bool CommitEnabledMods()
         {
             var enabledMods = Mods.Where( x => x.Enabled )
-                                  .Select( x => ( Mod )x )
+                                  .Select( x => x.Id )
                                   .ToList();
 
-            GameConfig.EnabledMods.Clear();
-            GameConfig.EnabledMods.AddRange( enabledMods );
+            GameConfig.EnabledModIds.Clear();
+
+            if ( enabledMods.Count == 0 )
+                return false;
+
+            GameConfig.EnabledModIds.AddRange( enabledMods );
+
+            return true;
         }
 
         private void BuildButton_Click( object sender, RoutedEventArgs e )
@@ -148,9 +175,7 @@ namespace ModCompendium
                 return;
             }
 
-            CommitEnabledMods();
-
-            if ( GameConfig.EnabledMods.Count == 0 )
+            if ( !CommitEnabledMods() )
             {
                 MessageBox.Show( this, "No mods are enabled.", "Error", MessageBoxButton.OK, MessageBoxImage.Error );
                 return;
@@ -158,8 +183,17 @@ namespace ModCompendium
 
             var task = Task.Factory.StartNew( () =>
             {
+                var enabledMods = GameConfig.EnabledModIds.Select( ModDatabase.Get )
+                                            .ToList();
+
+                Log.General.Info( "Building mods:" );
+                foreach ( var enabledMod in enabledMods )
+                {
+                    Log.General.Info( $"\t{enabledMod.Title}" );
+                }
+
                 var merger = new TopToBottomModMerger();
-                var merged = merger.Merge( GameConfig.EnabledMods );
+                var merged = merger.Merge( enabledMods );
                 var builder = GameModBuilder.Get( Game );
 
                 try
@@ -192,7 +226,9 @@ namespace ModCompendium
                     throw;
 #endif
 
+#pragma warning disable 162
                     return false;
+#pragma warning restore 162
                 }
 
                 return true;
@@ -224,34 +260,33 @@ namespace ModCompendium
 
         private void UpButton_Click( object sender, RoutedEventArgs e )
         {
-            var selected = ( ModViewModel ) ModGrid.SelectedValue;
-            var selectedMod = ( Mod ) selected;
-            var selectedIndex = ModGrid.SelectedIndex;
-            var targetIndex = selectedIndex - 1;
-            if ( targetIndex < 0 )
-                return;
-
-            var target = ( Mod )(ModViewModel)ModGrid.Items[ targetIndex ];
-
-            // Order
-            OrderConfig.ModOrder[ selectedMod.Id ] = targetIndex;
-            OrderConfig.ModOrder[ target.Id] = selectedIndex;
-
-            // Gui update
-            Mods.Remove( selected );
-            Mods.Insert( targetIndex, selected );
-            ModGrid.Items.Refresh();
-            ModGrid.SelectedIndex = targetIndex;
+            UpOrDownButtonClick( true );
         }
 
         private void DownButton_Click( object sender, RoutedEventArgs e )
         {
+            UpOrDownButtonClick( false );
+        }
+
+        private void UpOrDownButtonClick( bool isUp )
+        {
             var selected = ( ModViewModel )ModGrid.SelectedValue;
             var selectedMod = ( Mod )selected;
             var selectedIndex = ModGrid.SelectedIndex;
-            var targetIndex = selectedIndex + 1;
-            if ( targetIndex >= ModGrid.Items.Count )
-                return;
+            int targetIndex;
+
+            if ( isUp )
+            {
+                targetIndex = selectedIndex - 1;
+                if ( targetIndex < 0 )
+                    return;
+            }
+            else
+            {
+                targetIndex = selectedIndex + 1;
+                if ( targetIndex >= ModGrid.Items.Count )
+                    return;
+            }
 
             var target = ( Mod )( ModViewModel )ModGrid.Items[targetIndex];
 
@@ -271,16 +306,11 @@ namespace ModCompendium
             LogTextBox.ScrollToEnd();
         }
 
-        private void Button_Click( object sender, RoutedEventArgs e )
-        {
-
-        }
-
         private void RefreshButton_Click( object sender, RoutedEventArgs e )
         {
             CommitEnabledMods();
-            //Config.Save();
-            //Config.Load();
+            Config.Save();
+            Config.Load();
             RefreshModDatabase();
         }
     }

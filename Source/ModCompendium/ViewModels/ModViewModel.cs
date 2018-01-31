@@ -1,4 +1,5 @@
-﻿using ModCompendiumLibrary.Configuration;
+﻿using System.Linq;
+using ModCompendiumLibrary.Configuration;
 using ModCompendiumLibrary.ModSystem;
 
 namespace ModCompendium.ViewModels
@@ -10,16 +11,16 @@ namespace ModCompendium.ViewModels
 
         public bool Enabled
         {
-            get => mConfig.EnabledMods.Contains( mMod );
+            get => mConfig.EnabledModIds.Contains( Id );
             set
             {
                 if ( value )
                 {
-                    mConfig.EnableMod( mMod );
+                    mConfig.EnableMod( Id );
                 }
                 else
                 {
-                    mConfig.DisableMod( mMod );
+                    mConfig.DisableMod( Id );
                 }
             }
         }
@@ -37,6 +38,8 @@ namespace ModCompendium.ViewModels
         public string Url => mMod.Url;
 
         public string UpdateUrl => mMod.UpdateUrl;
+
+        public int Id => mMod.Id;
 
         public ModViewModel(Mod model)
         {

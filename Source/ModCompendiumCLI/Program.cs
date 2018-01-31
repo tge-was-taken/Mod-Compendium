@@ -41,10 +41,10 @@ namespace ModCompendiumCLI
             };
 
             var config = Config.Get< Persona4GameConfig >();
-            config.EnableMod( ModDatabase.Mods.Single( x => x.Title == "Picaro Mod" ) );
+            //config.EnableMod( ModDatabase.Mods.Single( x => x.Title == "Picaro Mod" ) );
 
             var merger = new TopToBottomModMerger();
-            var merged = merger.Merge( config.EnabledMods );
+            //var merged = merger.Merge( config.EnabledModIds );
             var builder = GameModBuilder.Get( config.Game );
             //var task = builder.Build( merged, config.OutputDirectoryPath );
             foreach ( var mod in ModDatabase.Get(config.Game) )

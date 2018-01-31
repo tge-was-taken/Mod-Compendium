@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Xml.Linq;
 using ModCompendiumLibrary.ModSystem;
 
@@ -7,55 +8,53 @@ namespace ModCompendiumLibrary.Configuration
 {
     public abstract class GameConfig : IConfigurable
     {
-        private readonly List< Mod > mEnabledMods;
-
         public abstract Game Game { get; }
 
         public string OutputDirectoryPath { get; set; }
 
-        public List<Mod> EnabledMods => mEnabledMods;
+        public List<int> EnabledModIds { get; private set; }
 
         protected GameConfig()
         {
             OutputDirectoryPath = $"Output\\{Game}";
-            mEnabledMods = new List< Mod >();
+            EnabledModIds = new List< int >();
         }
 
-        public void SetModPriority( Mod mod, int priority )
+        public void SetModPriority( int modId, int priority )
         {
-            if ( !mEnabledMods.Contains( mod ) )
-                throw new ArgumentException( "Mod isn't enabled", nameof( mod ) );
+            if ( !EnabledModIds.Contains( modId ) )
+                throw new ArgumentException( "Mod isn't enabled", nameof( modId ) );
 
-            mEnabledMods.Remove( mod );
-            mEnabledMods.Insert( priority, mod );
+            EnabledModIds.Remove( modId );
+            EnabledModIds.Insert( priority, modId );
         }
 
-        public int GetModPriority( Mod mod )
+        public int GetModPriority( int modId )
         {
-            if ( !mEnabledMods.Contains( mod ) )
-                throw new ArgumentException( "Mod isn't enabled", nameof( mod ) );
+            if ( !EnabledModIds.Contains( modId ) )
+                throw new ArgumentException( "Mod isn't enabled", nameof( modId ) );
 
-            return mEnabledMods.IndexOf( mod );
+            return EnabledModIds.IndexOf( modId );
         }
 
-        public void EnableMod( Mod mod )
+        public void EnableMod( int modId )
         {
-            if ( !mEnabledMods.Contains( mod ) )
+            if ( !EnabledModIds.Contains(modId) )
             {
-                mEnabledMods.Add( mod );
+                EnabledModIds.Add( modId );
             }
         }
 
-        public void DisableMod( Mod mod )
+        public void DisableMod( int modId )
         {
-            mEnabledMods.Remove( mod );
+            EnabledModIds.Remove( modId );
         }
 
         // Serialization
         void IConfigurable.Deserialize( XElement element )
         {
             OutputDirectoryPath = SerializationHelper.GetValueOrEmpty( element, nameof( OutputDirectoryPath ) );
-            var enabledModsElement = element.Element( nameof( EnabledMods ) );
+            var enabledModsElement = element.Element( nameof( EnabledModIds ) );
             if ( enabledModsElement != null )
                 DeserializeEnabledMods( enabledModsElement );
 
@@ -70,9 +69,9 @@ namespace ModCompendiumLibrary.Configuration
                 {
                     int id = int.Parse( enabledModElement.Value );
 
-                    if ( ModDatabase.TryGet( id, out var value ) )
+                    if ( ModDatabase.Exists( id ) )
                     {
-                        mEnabledMods.Add( value );
+                        EnabledModIds.Add( id );
                     }
                 }
             }
@@ -90,10 +89,10 @@ namespace ModCompendiumLibrary.Configuration
 
         private XElement SerializeEnabledMods()
         {
-            var enabledModsElement = new XElement( nameof( EnabledMods ) );
-            foreach ( var enabledMod in EnabledMods )
+            var enabledModsElement = new XElement( nameof( EnabledModIds ) );
+            foreach ( var modId in EnabledModIds )
             {
-                enabledModsElement.Add( new XElement( "EnabledMod", enabledMod.Id ) );
+                enabledModsElement.Add( new XElement( "EnabledMod", modId ) );
             }
 
             return enabledModsElement;

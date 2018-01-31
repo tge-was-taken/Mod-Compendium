@@ -8,7 +8,13 @@
         Title="Mod Compendium" Height="667.333" Width="802">
     <Grid>
         <Grid Margin="10">
-            <Grid HorizontalAlignment="Left" Height="42" VerticalAlignment="Top" Width="582" Margin="10,0,0,0">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="2*"></RowDefinition>
+                <RowDefinition Height="21*"></RowDefinition>
+                <RowDefinition Height="5"></RowDefinition>
+                <RowDefinition Height="5*"></RowDefinition>
+            </Grid.RowDefinitions>
+            <Grid Grid.Row="0" HorizontalAlignment="Left" Height="42" VerticalAlignment="Top" Width="582">
                 <Grid.RowDefinitions>
                 </Grid.RowDefinitions>
                 <Grid.ColumnDefinitions>
@@ -25,7 +31,7 @@
                 <Button Name="BuildButton" Content="_Build" HorizontalAlignment="Center" VerticalAlignment="Center" Width="75" Grid.Column="2" Click="BuildButton_Click"/>
                 <Button Content="_Refresh" Grid.Column="3" HorizontalAlignment="Center" VerticalAlignment="Center" Width="75" Click="RefreshButton_Click"/>
             </Grid>
-            <Grid Margin="10,47,0,109" VerticalAlignment="Stretch">
+            <Grid Grid.Row="1" VerticalAlignment="Stretch" HorizontalAlignment="Stretch">
                 <DataGrid Name="ModGrid" AlternatingRowBackground="LightGray" AutoGenerateColumns="False" Margin="0,0,15,0"
                           EnableColumnVirtualization="False" CanUserAddRows="False" CanUserDeleteRows="False" CanUserReorderColumns="True" 
                           CanUserResizeColumns="True" CanUserResizeRows="True" CanUserSortColumns="False" KeyDown="ModGrid_KeyDown">
@@ -39,10 +45,17 @@
                         <DataGridTextColumn Header="Update URL" Binding="{Binding UpdateUrl}" IsReadOnly="True"></DataGridTextColumn>
                     </DataGrid.Columns>
                 </DataGrid>
-                <Button Content="↑" HorizontalAlignment="Right" Width="10" Height="20" VerticalAlignment="Center" Margin="0,106,0,136" Click="UpButton_Click"/>
-                <Button Content="↓" HorizontalAlignment="Right" Width="10" Height="20" VerticalAlignment="Center" Margin="0,134,0,108" Click="DownButton_Click"/>
+                <Button Content="↑" HorizontalAlignment="Right" Width="12" Height="24" VerticalAlignment="Center" Margin="0,106,0,136" Click="UpButton_Click"/>
+                <Button Content="↓" HorizontalAlignment="Right" Width="12" Height="24" VerticalAlignment="Center" Margin="0,136,0,106" Click="DownButton_Click"/>
             </Grid>
-            <TextBox Name="LogTextBox" IsReadOnly="True" IsReadOnlyCaretVisible="False" Margin="10,0,0,0" HorizontalAlignment="Stretch" Height="104" VerticalAlignment="Bottom" TextChanged="LogTextBox_TextChanged"/>
+            <GridSplitter Grid.Row="2" VerticalAlignment="Stretch" HorizontalAlignment="Stretch"></GridSplitter>
+            <RichTextBox Grid.Row="3" Name="LogTextBox" IsReadOnly="True" IsReadOnlyCaretVisible="False" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Height="auto" TextChanged="LogTextBox_TextChanged">
+                <RichTextBox.Resources>
+                    <Style TargetType="{x:Type Paragraph}">
+                        <Setter Property="Margin" Value="0" />
+                    </Style>
+                </RichTextBox.Resources>
+            </RichTextBox>
         </Grid>
     </Grid>
 </Window>
