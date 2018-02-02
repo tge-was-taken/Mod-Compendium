@@ -3,7 +3,7 @@ using System.Runtime.Serialization;
 
 namespace ModCompendiumLibrary.ModSystem.Loaders
 {
-    [ Serializable ]
+    [Serializable]
     public class ModDataDirectoryMissingException : Exception
     {
         public ModDataDirectoryMissingException()

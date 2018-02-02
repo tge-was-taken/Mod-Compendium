@@ -5,9 +5,9 @@ using System.IO;
 
 namespace ModCompendiumLibrary.FileParsers
 {
-    public class Ps2SystemConfig : IDictionary< string, string >
+    public class Ps2SystemConfig : IDictionary<string, string>
     {
-        private IDictionary< string, string > mValueDictionary;
+        private IDictionary<string, string> mValueDictionary;
 
         public Ps2SystemConfig( string path )
         {
@@ -28,53 +28,43 @@ namespace ModCompendiumLibrary.FileParsers
 
             while ( !reader.EndOfStream )
             {
-                string line = reader.ReadLine();
+                var line = reader.ReadLine();
                 if ( line == null )
-                {
                     break;
-                }
 
                 var kvpString = line.Split( '=' );
-                mValueDictionary[ kvpString[ 0 ].Trim() ] = kvpString[ 1 ].Trim();
+                mValueDictionary[kvpString[0].Trim()] = kvpString[1].Trim();
             }
 
             if ( !leaveOpen )
-            {
                 reader.Dispose();
-            }
         }
 
         /// <summary>
-        ///     Utility method that gets the path to the executable.
+        /// Utility method that gets the path to the executable.
         /// </summary>
         /// <param name="normalize"></param>
         /// <returns></returns>
-        public string GetExecutablePath( bool normalize )
+        public string GetExecutablePath(bool normalize)
         {
             if ( !mValueDictionary.TryGetValue( "BOOT2", out var executablePath ) )
-            {
                 return null;
-            }
 
             if ( normalize )
             {
                 // Normalize executable path
                 if ( executablePath.StartsWith( "cdrom0:\\" ) )
-                {
                     executablePath = executablePath.Substring( 8 );
-                }
 
                 if ( executablePath.EndsWith( ";1" ) )
-                {
                     executablePath = executablePath.Substring( 0, executablePath.Length - 2 );
-                }
             }
 
             return executablePath;
         }
 
         /// <summary>
-        ///     Utility method that gets the path to the executable from a stream containing system configurationd ata.
+        /// Utility method that gets the path to the executable from a stream containing system configurationd ata.
         /// </summary>
         /// <param name="stream"></param>
         /// <param name="leaveOpen"></param>
@@ -87,7 +77,6 @@ namespace ModCompendiumLibrary.FileParsers
         }
 
         #region IDictionary implementation
-
         public IEnumerator< KeyValuePair< string, string > > GetEnumerator()
         {
             return mValueDictionary.GetEnumerator();
@@ -123,9 +112,15 @@ namespace ModCompendiumLibrary.FileParsers
             return mValueDictionary.Remove( item );
         }
 
-        public int Count => mValueDictionary.Count;
+        public int Count
+        {
+            get { return mValueDictionary.Count; }
+        }
 
-        public bool IsReadOnly => mValueDictionary.IsReadOnly;
+        public bool IsReadOnly
+        {
+            get { return mValueDictionary.IsReadOnly; }
+        }
 
         public bool ContainsKey( string key )
         {
@@ -149,14 +144,19 @@ namespace ModCompendiumLibrary.FileParsers
 
         public string this[ string key ]
         {
-            get => mValueDictionary[ key ];
-            set => mValueDictionary[ key ] = value;
+            get { return mValueDictionary[ key ]; }
+            set { mValueDictionary[ key ] = value; }
         }
 
-        public ICollection< string > Keys => mValueDictionary.Keys;
+        public ICollection< string > Keys
+        {
+            get { return mValueDictionary.Keys; }
+        }
 
-        public ICollection< string > Values => mValueDictionary.Values;
-
+        public ICollection< string > Values
+        {
+            get { return mValueDictionary.Values; }
+        }
         #endregion
     }
 }

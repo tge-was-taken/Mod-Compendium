@@ -8,8 +8,8 @@ namespace ModCompendiumLibrary.VirtualFileSystem
     {
         private readonly Stream mStream;
 
-        public VirtualFile( VirtualDirectory parent, string hostPath, string name )
-            : base( parent, hostPath, name, VirtualFileSystemEntryType.File )
+        public VirtualFile( VirtualDirectory parent, string hostPath, string name ) 
+            : base(parent, hostPath, name, VirtualFileSystemEntryType.File)
         {
         }
 
@@ -20,22 +20,21 @@ namespace ModCompendiumLibrary.VirtualFileSystem
         }
 
         /// <summary>
-        ///     Opens the file for reading.
+        /// Opens the file for reading.
         /// </summary>
         /// <returns></returns>
         public Stream Open()
         {
             if ( StoredInMemory )
-            {
                 return new UncloseableStream( mStream );
-            }
-            return File.OpenRead( HostPath );
+            else
+                return File.OpenRead( HostPath );
         }
 
         /// <inheritdoc />
         public override string SaveToHost( string destinationHostPath )
         {
-            string path = Path.Combine( destinationHostPath, FullName );
+            var path = Path.Combine( destinationHostPath, FullName );
 
             if ( StoredInMemory )
             {
@@ -45,32 +44,32 @@ namespace ModCompendiumLibrary.VirtualFileSystem
                     mStream.Position = 0;
                 }
             }
-            else if ( !HostPath.Equals( path, StringComparison.InvariantCultureIgnoreCase ) )
+            else if (!HostPath.Equals(path, StringComparison.InvariantCultureIgnoreCase))
             {
-                using ( var inStream = Open() )
-                using ( var outStream = File.Open( path, FileMode.Create, FileAccess.Write, FileShare.ReadWrite ) )
+                using ( var inStream = Open())
+                using ( var outStream = File.Open(path, FileMode.Create, FileAccess.Write, FileShare.ReadWrite) )
+                {
                     inStream.CopyTo( outStream );
+                }
             }
 
             return path;
         }
 
         /// <summary>
-        ///     Creates a copy of this virtual file. Do not that this is a shallow copy and does not copy the backing store of the
-        ///     file.
+        /// Creates a copy of this virtual file. Do not that this is a shallow copy and does not copy the backing store of the file.
         /// </summary>
         /// <returns></returns>
         public override VirtualFileSystemEntry Copy()
         {
             if ( StoredInMemory )
-            {
                 return new VirtualFile( null, mStream, Name );
-            }
-            return new VirtualFile( null, HostPath, Name );
+            else
+                return new VirtualFile( null, HostPath, Name );
         }
 
         /// <summary>
-        ///     Creates a new virtual file from a file on the host filesystem.
+        /// Creates a new virtual file from a file on the host filesystem.
         /// </summary>
         /// <param name="path"></param>
         /// <param name="parent"></param>
@@ -83,9 +82,7 @@ namespace ModCompendiumLibrary.VirtualFileSystem
         public void Dispose()
         {
             if ( StoredInMemory )
-            {
                 mStream.Dispose();
-            }
         }
     }
 }

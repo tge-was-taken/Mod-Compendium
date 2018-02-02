@@ -11,8 +11,8 @@ namespace ModCompendiumLibrary.Configuration
 {
     public static class ConfigManager
     {
-        private static readonly Dictionary< Type, IConfigurable > sConfigurableByType;
-        private static readonly Dictionary< Game, GameConfig > sGameConfigByGame;
+        private static readonly Dictionary<Type, IConfigurable> sConfigurableByType;
+        private static readonly Dictionary<Game, GameConfig> sGameConfigByGame;
 
         static ConfigManager()
         {
@@ -47,7 +47,7 @@ namespace ModCompendiumLibrary.Configuration
 
             try
             {
-                instance = ( IConfigurable ) Activator.CreateInstance( type, null, null );
+                instance = ( IConfigurable )Activator.CreateInstance( type, null, null );
             }
             catch ( Exception e )
             {
@@ -58,8 +58,8 @@ namespace ModCompendiumLibrary.Configuration
 
             if ( type.IsSubclassOf( typeof( GameConfig ) ) )
             {
-                var gameConfigInstance = ( GameConfig ) instance;
-                sGameConfigByGame[ gameConfigInstance.Game ] = gameConfigInstance;
+                var gameConfigInstance = ( GameConfig )instance;
+                sGameConfigByGame[gameConfigInstance.Game] = gameConfigInstance;
             }
 
             sConfigurableByType[ type ] = instance;
@@ -88,7 +88,7 @@ namespace ModCompendiumLibrary.Configuration
         private static void LoadConfig( Type type, IConfigurable configurable )
         {
             // Deserialize config
-            string configPath = $"Config\\{type.Name}.xml";
+            var configPath = $"Config\\{type.Name}.xml";
             if ( File.Exists( configPath ) )
             {
                 Log.Config.Trace( $"Loading config file: {configPath}" );
@@ -97,9 +97,7 @@ namespace ModCompendiumLibrary.Configuration
                 {
                     var document = XDocument.Load( configPath );
                     if ( document.Root != null )
-                    {
                         configurable.Deserialize( document.Root );
-                    }
                 }
                 catch ( Exception e )
                 {
@@ -130,7 +128,7 @@ namespace ModCompendiumLibrary.Configuration
 
         private static void SaveConfig( Type type, IConfigurable configurable )
         {
-            string configPath = $"Config\\{type.Name}.xml";
+            var configPath = $"Config\\{type.Name}.xml";
             Log.Config.Trace( $"Saving config file: {configPath}" );
 
             try

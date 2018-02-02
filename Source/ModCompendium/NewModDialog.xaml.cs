@@ -1,10 +1,13 @@
-﻿using System.Windows;
+﻿using System;
+using System.Windows;
 using System.Windows.Controls;
+using ModCompendiumLibrary;
+using ModCompendiumLibrary.ModSystem;
 
 namespace ModCompendium
 {
     /// <summary>
-    ///     Interaction logic for NewModDialog.xaml
+    /// Interaction logic for NewModDialog.xaml
     /// </summary>
     public partial class NewModDialog : Window
     {

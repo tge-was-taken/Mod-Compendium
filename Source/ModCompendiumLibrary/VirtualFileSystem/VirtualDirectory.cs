@@ -1,19 +1,16 @@
-﻿using System;
-using System.Collections;
+﻿using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 
 namespace ModCompendiumLibrary.VirtualFileSystem
 {
-    public class VirtualDirectory : VirtualFileSystemEntry, IEnumerable< VirtualFileSystemEntry >
+    public class VirtualDirectory : VirtualFileSystemEntry, IEnumerable<VirtualFileSystemEntry>
     {
-        private readonly LinkedList< VirtualFileSystemEntry > mEntries;
-
-        public VirtualFileSystemEntry this[ string name ] => Find( name );
+        private readonly LinkedList<VirtualFileSystemEntry> mEntries;
 
         public VirtualDirectory( VirtualDirectory parent, string hostPath, string name )
-            : base( parent, hostPath, name, VirtualFileSystemEntryType.Directory )
+            : base(parent, hostPath, name, VirtualFileSystemEntryType.Directory)
         {
             mEntries = new LinkedList< VirtualFileSystemEntry >();
         }
@@ -21,22 +18,26 @@ namespace ModCompendiumLibrary.VirtualFileSystem
         public VirtualDirectory( VirtualDirectory parent, string name )
             : base( parent, null, name, VirtualFileSystemEntryType.Directory )
         {
-            mEntries = new LinkedList< VirtualFileSystemEntry >();
+            mEntries = new LinkedList<VirtualFileSystemEntry>();
         }
 
-        public VirtualDirectory() : base( null, null, string.Empty, VirtualFileSystemEntryType.Directory )
+        public VirtualDirectory() : base(null, null, string.Empty, VirtualFileSystemEntryType.Directory)
         {
-            mEntries = new LinkedList< VirtualFileSystemEntry >();
+            mEntries = new LinkedList<VirtualFileSystemEntry>();
         }
+
+        public VirtualFileSystemEntry this[string name] => Find( name );
 
         /// <inheritdoc />
         public override string SaveToHost( string destinationHostPath )
         {
-            string path = Path.Combine( destinationHostPath, FullName );
+            var path = Path.Combine( destinationHostPath, FullName );
             Directory.CreateDirectory( path );
 
             foreach ( var entry in this )
+            {
                 entry.SaveToHost( destinationHostPath );
+            }
 
             return path;
         }
@@ -56,17 +57,17 @@ namespace ModCompendiumLibrary.VirtualFileSystem
 
         // Todo: recurse?
         /// <summary>
-        ///     Finds an entry in the directory.
+        /// Finds an entry in the directory.
         /// </summary>
         /// <param name="name"></param>
         /// <returns></returns>
         public VirtualFileSystemEntry Find( string name )
         {
-            return mEntries.SingleOrDefault( x => x.Name.Equals( name, StringComparison.InvariantCultureIgnoreCase ) );
+            return mEntries.SingleOrDefault( x => x.Name.Equals( name, System.StringComparison.InvariantCultureIgnoreCase ) );
         }
 
         /// <summary>
-        ///     Returns whether or not the directory contains the specified entry.
+        /// Returns whether or not the directory contains the specified entry.
         /// </summary>
         /// <param name="entry"></param>
         /// <returns></returns>
@@ -76,17 +77,17 @@ namespace ModCompendiumLibrary.VirtualFileSystem
         }
 
         /// <summary>
-        ///     Returns whether or not the directory an entry with the specified name.
+        /// Returns whether or not the directory an entry with the specified name.
         /// </summary>
         /// <param name="name"></param>
         /// <returns></returns>
         public bool Contains( string name )
         {
-            return mEntries.Any( x => x.Name.Equals( name, StringComparison.InvariantCultureIgnoreCase ) );
+            return mEntries.Any( x => x.Name.Equals( name, System.StringComparison.InvariantCultureIgnoreCase ) );
         }
 
         /// <summary>
-        ///     Removes the entry from the directory.
+        /// Removes the entry from the directory.
         /// </summary>
         /// <param name="entry"></param>
         /// <returns>Whether the entry was removed or not.</returns>
@@ -103,7 +104,7 @@ namespace ModCompendiumLibrary.VirtualFileSystem
         }
 
         /// <summary>
-        ///     Removes the entry from the directory.
+        /// Removes the entry from the directory.
         /// </summary>
         /// <param name="name"></param>
         /// <returns>Whether the entry was removed or not.</returns>
@@ -111,20 +112,21 @@ namespace ModCompendiumLibrary.VirtualFileSystem
         {
             var entry = Find( name );
             if ( entry != null )
-            {
                 return Remove( entry );
-            }
-            return false;
+            else
+                return false;
         }
 
         /// <summary>
-        ///     Move the contents of this directory to another directory.
+        /// Move the contents of this directory to another directory.
         /// </summary>
         /// <param name="other"></param>
         public void MoveContentsTo( VirtualDirectory other )
         {
             foreach ( var entry in this )
+            {
                 entry.MoveTo( other );
+            }
         }
 
         public void Merge( VirtualDirectory other, bool replaceExisting )
@@ -134,7 +136,7 @@ namespace ModCompendiumLibrary.VirtualFileSystem
         }
 
         /// <summary>
-        ///     Creates a new virtual directory from a directory on the host filesystem.
+        /// Creates a new virtual directory from a directory on the host filesystem.
         /// </summary>
         /// <param name="hostDirectoryPath"></param>
         /// <param name="parent"></param>
@@ -142,11 +144,11 @@ namespace ModCompendiumLibrary.VirtualFileSystem
         public static VirtualDirectory FromHostDirectory( string hostDirectoryPath, VirtualDirectory parent = null )
         {
             var directory = new VirtualDirectory( parent, hostDirectoryPath, Path.GetFileName( hostDirectoryPath ) );
-            foreach ( string entry in Directory.EnumerateFileSystemEntries( hostDirectoryPath ) )
+            foreach ( var entry in Directory.EnumerateFileSystemEntries(hostDirectoryPath) )
             {
                 if ( File.Exists( entry ) )
                 {
-                    directory.mEntries.AddLast( VirtualFile.FromHostFile( entry, directory ) );
+                    directory.mEntries.AddLast( VirtualFile.FromHostFile(entry, directory) );
                 }
                 else
                 {
@@ -166,20 +168,22 @@ namespace ModCompendiumLibrary.VirtualFileSystem
                 if ( foundEntry.EntryType == VirtualFileSystemEntryType.Directory && entry.EntryType == VirtualFileSystemEntryType.Directory )
                 {
                     // Merge directories
-                    ( ( VirtualDirectory ) foundEntry ).Merge( ( VirtualDirectory ) entry, replace );
+                    ( ( VirtualDirectory )foundEntry ).Merge( ( VirtualDirectory )entry, replace );
                 }
                 else if ( replace )
                 {
                     // Replace the found entry with the entry to add
                     Replace( foundEntry, entry );
                 }
+                else
+                {
+                    // Todo: what now?
+                }
             }
             else
             {
                 if ( entry.Parent != null )
-                {
                     entry.Parent.Remove( entry );
-                }
 
                 entry.Parent = this;
                 mEntries.AddLast( entry );
@@ -189,17 +193,13 @@ namespace ModCompendiumLibrary.VirtualFileSystem
         private void Replace( VirtualFileSystemEntry original, VirtualFileSystemEntry replacement )
         {
             if ( original.EntryType != replacement.EntryType )
-            {
                 throw new IOException( "File system entry types must match" );
-            }
 
-            bool isDirectory = original.EntryType == VirtualFileSystemEntryType.Directory;
+            var isDirectory = original.EntryType == VirtualFileSystemEntryType.Directory;
 
             // Reparent replacement
             if ( replacement.Parent != null )
-            {
                 replacement.Parent.Remove( replacement );
-            }
 
             replacement.Parent = this;
 
@@ -215,12 +215,12 @@ namespace ModCompendiumLibrary.VirtualFileSystem
             if ( isDirectory )
             {
                 // Merge
-                ( ( VirtualDirectory ) replacement ).Merge( ( VirtualDirectory ) original, false );
+                ( ( VirtualDirectory )replacement ).Merge( ( VirtualDirectory )original, false );
             }
         }
 
         // IEnumerator implementation
-        public IEnumerator< VirtualFileSystemEntry > GetEnumerator()
+        public IEnumerator<VirtualFileSystemEntry> GetEnumerator()
         {
             var entry = mEntries.First;
             while ( entry != null )

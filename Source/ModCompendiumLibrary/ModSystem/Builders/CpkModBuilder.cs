@@ -6,7 +6,7 @@ using ModCompendiumLibrary.VirtualFileSystem;
 
 namespace ModCompendiumLibrary.ModSystem.Builders
 {
-    [ ModBuilder( "CPK Mod Builder" ) ]
+    [ModBuilder("CPK Mod Builder")]
     public class CpkModBuilder : IModBuilder
     {
         private const string CSV_PATH = "cpkmaker.out.csv";
@@ -31,14 +31,14 @@ namespace ModCompendiumLibrary.ModSystem.Builders
 
             // SerializeCore files to temporary directory
             // This is so the builder can put them in the cpk
-            string tempDirectoryPath = Path.Combine( Path.GetTempPath(), "CpkModCompilerTemp_" + Path.GetRandomFileName() );
+            var tempDirectoryPath = Path.Combine( Path.GetTempPath(), "CpkModCompilerTemp_" + Path.GetRandomFileName() );
 
             // Copy mod directory to temp directory     
             Log.Builder.Trace( $"Copying mod files to temp directory: {tempDirectoryPath}" );
-            string modDirectoryPath = root.SaveToHost( tempDirectoryPath );
+            var modDirectoryPath = root.SaveToHost( tempDirectoryPath );
 
             // Get meta file info for CPK
-            string cpkName = root.Name + ".cpk";
+            var cpkName = root.Name + ".cpk";
 
             string cpkPath;
             if ( hostOutputPath == null )
@@ -51,7 +51,7 @@ namespace ModCompendiumLibrary.ModSystem.Builders
             }
 
             // Build cpk
-            string arguments = $"\"{modDirectoryPath}\" \"{cpkPath}\" -align={Alignment} -code={CodePage} -mode={Mode}";
+            var arguments = $"\"{modDirectoryPath}\" \"{cpkPath}\" -align={Alignment} -code={CodePage} -mode={Mode}";
             Log.Builder.Trace( $"Running cpkmakec: {arguments}" );
             var processStartInfo = new ProcessStartInfo( "Dependencies\\CpkMaker\\cpkmakec.exe",
                                                          arguments );

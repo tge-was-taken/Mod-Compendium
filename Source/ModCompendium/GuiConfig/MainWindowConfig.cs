@@ -11,24 +11,22 @@ namespace ModCompendium.GuiConfig
     {
         public Game SelectedGame { get; set; }
 
-        public Dictionary< Guid, int > ModOrder { get; set; }
+        public Dictionary<Guid, int> ModOrder { get; set; }
 
         public MainWindowConfig()
         {
             SelectedGame = Game.Persona5;
             ModOrder = new Dictionary< Guid, int >();
             foreach ( var mod in ModDatabase.Mods )
-                ModOrder[ mod.Id ] = 0;
+                ModOrder[mod.Id] = 0;
         }
 
         public void Deserialize( XElement element )
         {
             // Deserialize selected game
             var selectedGameElement = element.Element( nameof( SelectedGame ) );
-            if ( selectedGameElement != null && Enum.TryParse< Game >( selectedGameElement.Value, out var game ) )
-            {
+            if ( selectedGameElement != null && Enum.TryParse<Game>( selectedGameElement.Value, out var game ) )
                 SelectedGame = game;
-            }
 
             // Deserialize mod order
             var modOrderElement = element.Element( nameof( ModOrder ) );
@@ -38,17 +36,13 @@ namespace ModCompendium.GuiConfig
                 {
                     var idAttribute = subElement.Attribute( nameof( Mod.Id ) );
                     if ( idAttribute == null || !Guid.TryParse( idAttribute.Value, out var id ) || id == Guid.Empty || !ModDatabase.Exists( id ) )
-                    {
                         return;
-                    }
 
                     var orderAttribute = subElement.Attribute( "Order" );
                     if ( orderAttribute == null || !int.TryParse( orderAttribute.Value, out var order ) )
-                    {
                         return;
-                    }
 
-                    ModOrder[ id ] = order;
+                    ModOrder[id] = order;
                 }
             }
         }

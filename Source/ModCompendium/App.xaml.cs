@@ -1,10 +1,9 @@
 ﻿using System.Windows;
-using System.Windows.Threading;
 
 namespace ModCompendium
 {
     /// <summary>
-    ///     Interaction logic for App.xaml
+    /// Interaction logic for App.xaml
     /// </summary>
     public partial class App : Application
     {
@@ -13,7 +12,7 @@ namespace ModCompendium
             DispatcherUnhandledException += App_DispatcherUnhandledException;
         }
 
-        private static void App_DispatcherUnhandledException( object sender, DispatcherUnhandledExceptionEventArgs e )
+        private static void App_DispatcherUnhandledException( object sender, System.Windows.Threading.DispatcherUnhandledExceptionEventArgs e )
         {
 #if DEBUG
             e.Handled = false;

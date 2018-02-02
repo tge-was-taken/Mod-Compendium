@@ -4,15 +4,15 @@ namespace ModCompendiumLibrary.Logging
 {
     public class LogChannel
     {
-        public string Name { get; }
-
-        public LogChannel( string name )
+        public LogChannel(string name)
         {
             Name = name;
             Log.RegisterChannel( this );
         }
 
-        public event EventHandler< MessageBroadcastedEventArgs > MessageBroadcasted;
+        public string Name { get; }
+
+        public event EventHandler<MessageBroadcastedEventArgs> MessageBroadcasted;
 
         public void Trace( string message )
         {

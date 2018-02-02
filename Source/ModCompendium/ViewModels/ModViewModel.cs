@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using ModCompendiumLibrary.Configuration;
 using ModCompendiumLibrary.ModSystem;
 
@@ -6,8 +7,8 @@ namespace ModCompendium.ViewModels
 {
     public class ModViewModel
     {
-        private readonly GameConfig mConfig;
         private readonly Mod mMod;
+        private readonly GameConfig mConfig;
 
         public bool Enabled
         {
@@ -75,14 +76,8 @@ namespace ModCompendium.ViewModels
             mConfig = ConfigManager.Get( model.Game );
         }
 
-        public static explicit operator ModViewModel( Mod mod )
-        {
-            return new ModViewModel( mod );
-        }
+        public static explicit operator ModViewModel( Mod mod ) => new ModViewModel( mod );
 
-        public static explicit operator Mod( ModViewModel viewModel )
-        {
-            return viewModel.mMod;
-        }
+        public static explicit operator Mod( ModViewModel viewModel ) => viewModel.mMod;
     }
 }

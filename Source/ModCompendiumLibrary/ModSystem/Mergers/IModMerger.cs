@@ -5,6 +5,6 @@ namespace ModCompendiumLibrary.ModSystem.Mergers
 {
     public interface IModMerger
     {
-        VirtualDirectory Merge( IEnumerable< Mod > mods );
+        VirtualDirectory Merge( IEnumerable<Mod> mods );
     }
 }

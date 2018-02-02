@@ -6,36 +6,20 @@ namespace ModCompendiumLibrary.IO
     public class StreamView : Stream
     {
         private readonly Stream mSourceStream;
+        private long mSourcePositionSave;
         private readonly long mStartPosition;
         private long mLength;
-        private long mSourcePositionSave;
 
-        public override bool CanRead => mSourceStream.CanRead;
-
-        public override bool CanSeek => mSourceStream.CanSeek;
-
-        public override bool CanWrite => false;
-
-        public override long Length => mLength;
-
-        public override long Position { get; set; }
-
-        public StreamView( Stream source, long startPosition, long length )
+        public StreamView(Stream source, long startPosition, long length)
         {
-            if ( source == null )
-            {
-                throw new ArgumentNullException( nameof( source ) );
-            }
+            if (source == null)
+                throw new ArgumentNullException(nameof(source));
 
-            if ( startPosition < 0 || startPosition >= source.Length || startPosition + length > source.Length )
-            {
-                throw new ArgumentOutOfRangeException( nameof( startPosition ) );
-            }
+            if (startPosition < 0 || startPosition >= source.Length || (startPosition + length) > source.Length)
+                throw new ArgumentOutOfRangeException(nameof(startPosition));
 
-            if ( length <= 0 )
-            {
-                throw new ArgumentOutOfRangeException( nameof( length ) );
-            }
+            if (length <= 0)
+                throw new ArgumentOutOfRangeException(nameof(length));
 
             mSourceStream = source;
             mStartPosition = startPosition;
@@ -48,89 +32,85 @@ namespace ModCompendiumLibrary.IO
             mSourceStream.Flush();
         }
 
-        public override long Seek( long offset, SeekOrigin origin )
+        public override long Seek(long offset, SeekOrigin origin)
         {
-            switch ( origin )
+            switch (origin)
             {
                 case SeekOrigin.Begin:
                     {
-                        if ( offset > mLength || offset > mSourceStream.Length )
-                        {
-                            throw new ArgumentOutOfRangeException( nameof( offset ) );
-                        }
+                        if (offset > mLength || offset > mSourceStream.Length)
+                            throw new ArgumentOutOfRangeException(nameof(offset));
 
                         Position = offset;
                     }
                     break;
                 case SeekOrigin.Current:
                     {
-                        if ( Position + offset > mLength || Position + offset > mSourceStream.Length )
-                        {
-                            throw new ArgumentOutOfRangeException( nameof( offset ) );
-                        }
+                        if ((Position + offset) > mLength || (Position + offset) > mSourceStream.Length)
+                            throw new ArgumentOutOfRangeException(nameof(offset));
 
                         Position += offset;
                     }
                     break;
                 case SeekOrigin.End:
                     {
-                        Position = mStartPosition + mLength - offset;
+                        Position = (mStartPosition + mLength) - offset;
                     }
                     break;
                 default:
-                    throw new ArgumentOutOfRangeException( nameof( origin ), origin, null );
+                    throw new ArgumentOutOfRangeException(nameof(origin), origin, null);
             }
 
             return Position;
         }
 
-        public override void SetLength( long value )
+        public override void SetLength(long value)
         {
-            if ( value < 0 )
-            {
-                throw new ArgumentOutOfRangeException( nameof( value ) );
-            }
+            if (value < 0)
+                throw new ArgumentOutOfRangeException(nameof(value));
 
-            if ( value > mSourceStream.Length )
-            {
-                throw new ArgumentOutOfRangeException( nameof( value ) );
-            }
+            if (value > mSourceStream.Length)
+                throw new ArgumentOutOfRangeException(nameof(value));
 
             mLength = value;
         }
 
-        public override int Read( byte[] buffer, int offset, int count )
+        public override int Read(byte[] buffer, int offset, int count)
         {
-            if ( Position == mLength )
-            {
+            if (Position == mLength)
                 return 0;
-            }
 
-            if ( Position + count > mLength )
-            {
-                count = ( int ) ( mLength - Position );
-            }
+            if ((Position + count) > mLength)
+                count = (int)(mLength - Position);
 
             SaveSourcePosition();
             SetSourcePositionForSubstream();
-            int result = mSourceStream.Read( buffer, offset, count );
+            int result = mSourceStream.Read(buffer, offset, count);
             Position += count;
             RestoreSourcePosition();
 
             return result;
         }
 
-        public override void Write( byte[] buffer, int offset, int count )
+        public override void Write(byte[] buffer, int offset, int count)
         {
             throw new NotImplementedException();
         }
 
+        public override bool CanRead => mSourceStream.CanRead;
+
+        public override bool CanSeek => mSourceStream.CanSeek;
+
+        public override bool CanWrite => false;
+
+        public override long Length => mLength;
+
+        public override long Position { get; set; }
+
         public override int ReadByte()
         {
-            if ( Position == mLength )
-            {
+            if (Position == mLength)
                 return -1;
-            }
 
             SaveSourcePosition();
             SetSourcePositionForSubstream();
@@ -141,7 +121,7 @@ namespace ModCompendiumLibrary.IO
             return value;
         }
 
-        public override void WriteByte( byte value )
+        public override void WriteByte(byte value)
         {
             throw new NotImplementedException();
         }
@@ -222,7 +202,7 @@ namespace ModCompendiumLibrary.IO
 
         protected void SetSourcePositionForSubstream()
         {
-            mSourceStream.Position = mStartPosition + Position;
+            mSourceStream.Position = (mStartPosition + Position);
         }
 
         protected void RestoreSourcePosition()

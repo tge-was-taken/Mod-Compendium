@@ -1,33 +1,110 @@
 ﻿using System;
 using System.IO;
+using ModCompendiumLibrary.VirtualFileSystem;
 using DiscUtils.Iso9660;
 using ModCompendiumLibrary.Logging;
-using ModCompendiumLibrary.VirtualFileSystem;
 
 namespace ModCompendiumLibrary.ModSystem.Builders
 {
-    [ ModBuilder( "CVM Mod Builder" ) ]
+    [ModBuilder("CVM Mod Builder")]
     public class CvmModBuilder : IModBuilder
     {
         private static readonly byte[] sDummyCvmHeader = GenerateDummyCvmHeader();
+
+        /// <inheritdoc />
+        public VirtualFileSystemEntry Build( VirtualDirectory root, string hostOutputPath = null )
+        {
+            if ( root == null )
+            {
+                throw new ArgumentNullException( nameof( root ) );
+            }
+
+            Log.Builder.Info( $"Building CVM: {root.Name}" );
+
+            // Create temp directory 
+            var tempDirectoryPath = Path.Combine( Path.GetTempPath(), "CvmModCompilerTemp_" + Path.GetRandomFileName() );
+            Log.Builder.Trace( $"Creating temp directory: {tempDirectoryPath}" );
+            Directory.CreateDirectory( tempDirectoryPath );
+
+            // Make ISO
+            Log.Builder.Info( "Creating ISO filesystem" );
+            var isoBuilder = new CDBuilder()
+            {
+                UpdateIsolinuxBootTable = false,
+                UseJoliet = false,
+                VolumeIdentifier = "AMICITIA"
+            };
+
+            foreach ( var entry in root )
+            {
+                AddToBuilderRecursively( isoBuilder, entry, root.FullName );
+            }
+
+            // Build ISO
+            Log.Builder.Info( "Building ISO" );
+            var isoPath = Path.Combine( tempDirectoryPath, root.Name + ".iso" );
+            isoBuilder.Build( isoPath );
+
+            var cvmName = root.Name + ".cvm";
+            var cvmPath = hostOutputPath == null ? Path.Combine( tempDirectoryPath, cvmName ) : hostOutputPath;
+
+            // Write CVM file
+            Log.Builder.Info( "Writing CVM" );
+            using ( var cvmStream = File.Create( cvmPath ) )
+            using ( var isoStream = File.OpenRead( isoPath ) )
+            {
+                // Dummy header first
+                cvmStream.Write( sDummyCvmHeader, 0, sDummyCvmHeader.Length );
+                
+                // Aand then the ISO contents
+                isoStream.CopyTo( cvmStream );
+            }
+
+            // Create virtual cvm file entry
+            VirtualFile cvmFile;
+
+            if ( hostOutputPath == null )
+            {
+                // Copy CVM to memory
+                var memoryStream = new MemoryStream();
+                using ( var fileStream = File.OpenRead( cvmPath ) )
+                {
+                    fileStream.CopyTo( memoryStream );
+                }
+
+                cvmFile = new VirtualFile( null, memoryStream, cvmName );
+            }
+            else
+            {
+                cvmFile = new VirtualFile( null, cvmPath, cvmName );
+            }
+
+            // Delete temp directory
+            Log.Builder.Trace( $"Deleting temp directory: {tempDirectoryPath}" );
+            Directory.Delete( tempDirectoryPath, true );
+
+            return cvmFile;
+        }
 
         private void AddToBuilderRecursively( CDBuilder isoBuilder, VirtualFileSystemEntry entry, string rootPrefix )
         {
             if ( entry.EntryType == VirtualFileSystemEntryType.File )
             {
-                isoBuilder.AddFile( entry.FullName.Remove( 0, rootPrefix.Length ), ( ( VirtualFile ) entry ).Open() );
+                isoBuilder.AddFile( entry.FullName.Remove(0, rootPrefix.Length), ( ( VirtualFile ) entry ).Open() );
             }
             else
             {
                 isoBuilder.AddDirectory( entry.FullName.Remove( 0, rootPrefix.Length ) );
-                foreach ( var directoryEntry in ( VirtualDirectory ) entry )
+                foreach ( var directoryEntry in ((VirtualDirectory)entry) )
+                {
                     AddToBuilderRecursively( isoBuilder, directoryEntry, rootPrefix );
+                }
             }
         }
 
         private static byte[] GenerateDummyCvmHeader()
         {
-            var bytes = new byte[0x1800];
+            byte[] bytes = new byte[0x1800];
             bytes[ 0x0000 ] = 0x43;
             bytes[ 0x0001 ] = 0x56;
             bytes[ 0x0002 ] = 0x4D;
@@ -42,77 +119,6 @@ namespace ModCompendiumLibrary.ModSystem.Builders
             bytes[ 0x082F ] = 0x03;
 
             return bytes;
-        }
-
-        /// <inheritdoc />
-        public VirtualFileSystemEntry Build( VirtualDirectory root, string hostOutputPath = null )
-        {
-            if ( root == null )
-            {
-                throw new ArgumentNullException( nameof( root ) );
-            }
-
-            Log.Builder.Info( $"Building CVM: {root.Name}" );
-
-            // Create temp directory 
-            string tempDirectoryPath = Path.Combine( Path.GetTempPath(), "CvmModCompilerTemp_" + Path.GetRandomFileName() );
-            Log.Builder.Trace( $"Creating temp directory: {tempDirectoryPath}" );
-            Directory.CreateDirectory( tempDirectoryPath );
-
-            // Make ISO
-            Log.Builder.Info( "Creating ISO filesystem" );
-            var isoBuilder = new CDBuilder
-            {
-                UpdateIsolinuxBootTable = false,
-                UseJoliet = false,
-                VolumeIdentifier = "AMICITIA"
-            };
-
-            foreach ( var entry in root )
-                AddToBuilderRecursively( isoBuilder, entry, root.FullName );
-
-            // Build ISO
-            Log.Builder.Info( "Building ISO" );
-            string isoPath = Path.Combine( tempDirectoryPath, root.Name + ".iso" );
-            isoBuilder.Build( isoPath );
-
-            string cvmName = root.Name + ".cvm";
-            string cvmPath = hostOutputPath == null ? Path.Combine( tempDirectoryPath, cvmName ) : hostOutputPath;
-
-            // Write CVM file
-            Log.Builder.Info( "Writing CVM" );
-            using ( var cvmStream = File.Create( cvmPath ) )
-            using ( var isoStream = File.OpenRead( isoPath ) )
-            {
-                // Dummy header first
-                cvmStream.Write( sDummyCvmHeader, 0, sDummyCvmHeader.Length );
-
-                // Aand then the ISO contents
-                isoStream.CopyTo( cvmStream );
-            }
-
-            // Create virtual cvm file entry
-            VirtualFile cvmFile;
-
-            if ( hostOutputPath == null )
-            {
-                // Copy CVM to memory
-                var memoryStream = new MemoryStream();
-                using ( var fileStream = File.OpenRead( cvmPath ) )
-                    fileStream.CopyTo( memoryStream );
-
-                cvmFile = new VirtualFile( null, memoryStream, cvmName );
-            }
-            else
-            {
-                cvmFile = new VirtualFile( null, cvmPath, cvmName );
-            }
-
-            // Delete temp directory
-            Log.Builder.Trace( $"Deleting temp directory: {tempDirectoryPath}" );
-            Directory.Delete( tempDirectoryPath, true );
-
-            return cvmFile;
         }
     }
 }

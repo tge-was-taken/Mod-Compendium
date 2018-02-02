@@ -3,7 +3,7 @@ using System.Runtime.Serialization;
 
 namespace ModCompendiumLibrary.VirtualFileSystem
 {
-    [ Serializable ]
+    [Serializable]
     public class IOException : Exception
     {
         public IOException()

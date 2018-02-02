@@ -4,7 +4,7 @@ using ModCompendiumLibrary.VirtualFileSystem;
 
 namespace ModCompendiumLibrary.ModSystem.Builders
 {
-    [ ModBuilder( "Passthrough Mod Builder" ) ]
+    [ModBuilder( "Passthrough Mod Builder" )]
     public class PassthroughModBuilder : IModBuilder
     {
         /// <inheritdoc />

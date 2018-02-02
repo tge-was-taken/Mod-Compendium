@@ -11,7 +11,11 @@ namespace ModCompendiumLibrary.Configuration
             {
                 return string.Empty;
             }
-            return element.Value;
+            else
+            {
+                return element.Value;
+            }
         }
+
     }
 }
