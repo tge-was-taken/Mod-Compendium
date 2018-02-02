@@ -46,7 +46,11 @@ namespace ModCompendiumLibrary.VirtualFileSystem
             }
             else if (!HostPath.Equals(path, StringComparison.InvariantCultureIgnoreCase))
             {
-                File.Copy( HostPath, path, true );
+                using ( var inStream = Open())
+                using ( var outStream = File.Open(path, FileMode.Create, FileAccess.Write, FileShare.ReadWrite) )
+                {
+                    inStream.CopyTo( outStream );
+                }
             }
 
             return path;

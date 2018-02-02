@@ -5,7 +5,7 @@ using ModCompendiumLibrary.VirtualFileSystem;
 
 namespace ModCompendiumLibrary.ModSystem.Builders
 {
-    [ModBuilder("Persona 5 mod.cpk Builder")]
+    [ModBuilder("Persona 5 mod.cpk Builder", Game = Game.Persona5)]
     public class Persona5CpkModBuilder : IModBuilder
     {
         /// <inheritdoc />

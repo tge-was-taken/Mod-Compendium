@@ -225,6 +225,8 @@ namespace ModCompendium
                 // Todo
                 var builder = ModBuilderManager.GetCompatibleModBuilders( SelectedGame ).First().Create();
 
+                Log.General.Info( $"Output path: {GameConfig.OutputDirectoryPath}" );
+
                 try
                 {
                     builder.Build( merged, GameConfig.OutputDirectoryPath );
