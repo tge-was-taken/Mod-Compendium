@@ -2,35 +2,35 @@
 using System.Windows.Controls;
 using System.Windows.Data;
 using Microsoft.WindowsAPICodePack.Dialogs;
-using ModCompendiumLibrary.Configuration;
 using ModCompendiumLibrary;
+using ModCompendiumLibrary.Configuration;
 
 namespace ModCompendium
 {
     /// <summary>
-    /// Interaction logic for GameConfigWindow.xaml
+    ///     Interaction logic for GameConfigWindow.xaml
     /// </summary>
     public partial class GameConfigWindow : Window
     {
-        private GameConfig mConfig;
+        private readonly GameConfig mConfig;
 
-        public GameConfigWindow(GameConfig config)
+        public GameConfigWindow( GameConfig config )
         {
             InitializeComponent();
-            this.DataContext = config;
+            DataContext = config;
             mConfig = config;
 
             // Add game specific settings
             if ( config.Game == Game.Persona3 || config.Game == Game.Persona4 )
             {
                 var p34Config = ( Persona34GameConfig ) config;
-                
+
                 // Add extra row
                 ConfigPropertyGrid.RowDefinitions.Add( new RowDefinition() );
 
                 // Dvd root directory path label
                 {
-                    var dvdRootPathLabel = new Label()
+                    var dvdRootPathLabel = new Label
                     {
                         Content = "ISO Path",
                         HorizontalContentAlignment = HorizontalAlignment.Center,
@@ -49,14 +49,14 @@ namespace ModCompendium
                 // Dvd root directory textg box
                 TextBox dvdRootPathTextBox;
                 {
-                    dvdRootPathTextBox = new TextBox()
+                    dvdRootPathTextBox = new TextBox
                     {
                         VerticalContentAlignment = VerticalAlignment.Center,
                         HorizontalAlignment = HorizontalAlignment.Center,
                         VerticalAlignment = VerticalAlignment.Center,
                         Height = 20,
                         TextWrapping = TextWrapping.Wrap,
-                        Width = 291,
+                        Width = 291
                     };
 
                     dvdRootPathTextBox.SetBinding( TextBox.TextProperty, new Binding( "DvdRootPath" ) );
@@ -68,7 +68,7 @@ namespace ModCompendium
 
                 // Dvd root directory text box button
                 {
-                    var dvdRootPathTextBoxButton = new Button()
+                    var dvdRootPathTextBoxButton = new Button
                     {
                         HorizontalAlignment = HorizontalAlignment.Right,
                         VerticalAlignment = VerticalAlignment.Center,
@@ -78,7 +78,7 @@ namespace ModCompendium
 
                     dvdRootPathTextBoxButton.Click += ( s, e ) =>
                     {
-                        var file = SelectFile();
+                        string file = SelectFile();
                         if ( file != null )
                         {
                             p34Config.DvdRootPath = file;
@@ -100,7 +100,7 @@ namespace ModCompendium
 
         private void Button_Click_1( object sender, RoutedEventArgs e )
         {
-            var directory = SelectDirectory();
+            string directory = SelectDirectory();
             if ( directory != null )
             {
                 mConfig.OutputDirectoryPath = directory;
@@ -125,6 +125,7 @@ namespace ModCompendium
 
             return null;
         }
+
         private string SelectFile()
         {
             var dialog = new CommonOpenFileDialog();

@@ -9,9 +9,9 @@ namespace ModCompendiumLibrary.ModSystem.Builders
     {
         private readonly Stream mExecutableStream;
         private readonly Game mGame;
-        private byte[] mExecutableHeader;
-        private List<CvmDirectoryInfo> mRootDirectories;
         private byte[] mExecutableFooter;
+        private byte[] mExecutableHeader;
+        private List< CvmDirectoryInfo > mRootDirectories;
 
         public ExecutablePatcher( Stream executableStream, Game game )
         {
@@ -38,9 +38,7 @@ namespace ModCompendiumLibrary.ModSystem.Builders
             using ( var writer = new BinaryWriter( stream, Encoding.Default, true ) )
             {
                 foreach ( var cvmRootDir in mRootDirectories )
-                {
                     cvmRootDir.Write( writer );
-                }
             }
 
             // write footer
@@ -52,21 +50,19 @@ namespace ModCompendiumLibrary.ModSystem.Builders
 
         private int FindCvmRootDirsStart()
         {
-            byte[] magic = new byte[8];
+            var magic = new byte[8];
 
-            while ( ( mExecutableStream.Position < mExecutableStream.Length ) && ( mExecutableStream.Position + magic.Length < mExecutableStream.Length ) )
+            while ( mExecutableStream.Position < mExecutableStream.Length && mExecutableStream.Position + magic.Length < mExecutableStream.Length )
             {
                 mExecutableStream.Read( magic, 0, magic.Length );
 
-                if ( magic[0] == '#' && magic[1] == 'D' && magic[2] == 'i' && magic[3] == 'r' && magic[4] == 'L' && magic[5] == 's' && magic[6] == 't' && magic[7] == '#' )
+                if ( magic[ 0 ] == '#' && magic[ 1 ] == 'D' && magic[ 2 ] == 'i' && magic[ 3 ] == 'r' && magic[ 4 ] == 'L' && magic[ 5 ] == 's' &&
+                     magic[ 6 ] == 't' && magic[ 7 ] == '#' )
                 {
-                    return ( int )( mExecutableStream.Position - 20 );
+                    return ( int ) ( mExecutableStream.Position - 20 );
                 }
-                else
-                {
-                    // Read every 4 bytes
-                    mExecutableStream.Position -= 4;
-                }
+                // Read every 4 bytes
+                mExecutableStream.Position -= 4;
             }
 
             return -1;
@@ -74,13 +70,15 @@ namespace ModCompendiumLibrary.ModSystem.Builders
 
         private void ReadCvmRootDirs()
         {
-            mRootDirectories = new List<CvmDirectoryInfo>();
+            mRootDirectories = new List< CvmDirectoryInfo >();
 
             // find start of dir lists
             Console.WriteLine( "Scanning for cvm directory lists in executable..." );
             int dirListStart = FindCvmRootDirsStart();
             if ( dirListStart == -1 )
+            {
                 throw new InvalidDataException( "No #DirLst# signature found in executable. Bad file." );
+            }
 
             Console.WriteLine( "Reading executable cvm directory lists..." );
 
@@ -93,11 +91,13 @@ namespace ModCompendiumLibrary.ModSystem.Builders
             mExecutableStream.Position = dirListStart;
             using ( var reader = new BinaryReader( mExecutableStream, Encoding.Default, true ) )
             {
-                int rootDirectoryCount = 3;
+                var rootDirectoryCount = 3;
                 if ( mGame == Game.Persona4 )
+                {
                     rootDirectoryCount = 4;
+                }
 
-                for ( int i = 0; i < rootDirectoryCount; i++ )
+                for ( var i = 0; i < rootDirectoryCount; i++ )
                 {
                     var directory = new CvmDirectoryInfo( null );
                     directory.Read( reader );

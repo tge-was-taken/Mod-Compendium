@@ -7,40 +7,17 @@ namespace ModCompendiumLibrary.ModSystem.Loaders
 {
     public class XmlModLoader : IModLoader
     {
-        public Mod Load( string baseDirectoryPath )
-        {
-            Log.Loader.Trace( $"Loading mod directory: {baseDirectoryPath}" );
-
-            // Check if Mod.xml exists
-            var xmlPath = Path.Combine( baseDirectoryPath, "Mod.xml" );
-            if ( !File.Exists( xmlPath ) )
-                throw new ModXmlFileMissingException( xmlPath );
-
-            // Check if Data directory exists
-            var dataDirectoryPath = Path.Combine( baseDirectoryPath, "Data" );
-            if ( !Directory.Exists( dataDirectoryPath ) )
-            {
-                Log.Loader.Error( $"Data directory is missing: {dataDirectoryPath}" );
-                Directory.CreateDirectory( dataDirectoryPath );
-            }
-
-            // Set data directory
-            var modBuilder = new ModBuilder();
-            modBuilder.SetBaseDirectoryPath( baseDirectoryPath );
-            modBuilder.SetDataDirectoryPath( dataDirectoryPath );
-
-            return LoadModXml( xmlPath, modBuilder );
-        }
-
         private Mod LoadModXml( string xmlPath, ModBuilder modBuilder )
         {
             Log.Loader.Trace( $"Loading mod xml: {xmlPath}" );
             var document = XDocument.Load( xmlPath, LoadOptions.None );
             var rootNode = document.Root;
             if ( rootNode == null )
+            {
                 throw new ModXmlFileInvalidException( "Root node is missing" );
+            }
 
-            bool hasId = false;
+            var hasId = false;
 
             foreach ( var element in rootNode.Elements() )
             {
@@ -56,7 +33,7 @@ namespace ModCompendiumLibrary.ModSystem.Loaders
 
                     case nameof( Mod.Game ):
                         {
-                            if ( Enum.TryParse<Game>( element.Value, true, out var game ) )
+                            if ( Enum.TryParse< Game >( element.Value, true, out var game ) )
                             {
                                 modBuilder.SetGame( game );
                             }
@@ -109,6 +86,33 @@ namespace ModCompendiumLibrary.ModSystem.Loaders
             return mod;
         }
 
+        public Mod Load( string baseDirectoryPath )
+        {
+            Log.Loader.Trace( $"Loading mod directory: {baseDirectoryPath}" );
+
+            // Check if Mod.xml exists
+            string xmlPath = Path.Combine( baseDirectoryPath, "Mod.xml" );
+            if ( !File.Exists( xmlPath ) )
+            {
+                throw new ModXmlFileMissingException( xmlPath );
+            }
+
+            // Check if Data directory exists
+            string dataDirectoryPath = Path.Combine( baseDirectoryPath, "Data" );
+            if ( !Directory.Exists( dataDirectoryPath ) )
+            {
+                Log.Loader.Error( $"Data directory is missing: {dataDirectoryPath}" );
+                Directory.CreateDirectory( dataDirectoryPath );
+            }
+
+            // Set data directory
+            var modBuilder = new ModBuilder();
+            modBuilder.SetBaseDirectoryPath( baseDirectoryPath );
+            modBuilder.SetDataDirectoryPath( dataDirectoryPath );
+
+            return LoadModXml( xmlPath, modBuilder );
+        }
+
         public void Save( Mod mod )
         {
             Log.Loader.Trace( $"Saving mod to directory: {mod.BaseDirectory}" );
@@ -119,7 +123,7 @@ namespace ModCompendiumLibrary.ModSystem.Loaders
             }
 
             // Serialize mod xml
-            var modXmlPath = Path.Combine( mod.BaseDirectory, "Mod.xml" );
+            string modXmlPath = Path.Combine( mod.BaseDirectory, "Mod.xml" );
             var document = new XDocument();
             var rootElement = new XElement( nameof( Mod ) );
             {

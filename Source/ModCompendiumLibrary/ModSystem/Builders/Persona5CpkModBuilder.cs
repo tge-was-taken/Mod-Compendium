@@ -5,9 +5,24 @@ using ModCompendiumLibrary.VirtualFileSystem;
 
 namespace ModCompendiumLibrary.ModSystem.Builders
 {
-    [ModBuilder("Persona 5 mod.cpk Builder", Game = Game.Persona5)]
+    [ ModBuilder( "Persona 5 mod.cpk Builder", Game = Game.Persona5 ) ]
     public class Persona5CpkModBuilder : IModBuilder
     {
+        private void LogModFilesInDirectory( VirtualDirectory directory )
+        {
+            foreach ( var entry in directory )
+            {
+                if ( entry.EntryType == VirtualFileSystemEntryType.File )
+                {
+                    Log.Builder.Trace( $"Adding mod file: {entry.FullName}" );
+                }
+                else
+                {
+                    LogModFilesInDirectory( ( VirtualDirectory ) entry );
+                }
+            }
+        }
+
         /// <inheritdoc />
         public VirtualFileSystemEntry Build( VirtualDirectory root, string hostOutputPath = null )
         {
@@ -25,8 +40,8 @@ namespace ModCompendiumLibrary.ModSystem.Builders
             {
                 if ( entry.EntryType == VirtualFileSystemEntryType.Directory )
                 {
-                    var directory = ( VirtualDirectory )entry;
-                    var name = directory.Name.ToLowerInvariant();
+                    var directory = ( VirtualDirectory ) entry;
+                    string name = directory.Name.ToLowerInvariant();
 
                     switch ( name )
                     {
@@ -44,9 +59,7 @@ namespace ModCompendiumLibrary.ModSystem.Builders
                                 LogModFilesInDirectory( directory );
 
                                 foreach ( var modFileEntry in directory )
-                                {
                                     modFileEntry.CopyTo( modFilesDirectory );
-                                }
                             }
                             break;
 
@@ -68,23 +81,12 @@ namespace ModCompendiumLibrary.ModSystem.Builders
             // Build mod cpk
             Log.Builder.Info( "Building mod.cpk" );
             var cpkModCompiler = new CpkModBuilder();
-            var cpkFilePath = hostOutputPath != null ? Path.Combine( hostOutputPath, "mod.cpk" ) : null;
+            string cpkFilePath = hostOutputPath != null ? Path.Combine( hostOutputPath, "mod.cpk" ) : null;
             var cpkFile = cpkModCompiler.Build( modFilesDirectory, cpkFilePath );
 
             Log.Builder.Info( "Done!" );
 
             return cpkFile;
-        }
-
-        private void LogModFilesInDirectory( VirtualDirectory directory )
-        {
-            foreach ( var entry in directory )
-            {
-                if ( entry.EntryType == VirtualFileSystemEntryType.File )
-                    Log.Builder.Trace( $"Adding mod file: {entry.FullName}" );
-                else
-                    LogModFilesInDirectory( (VirtualDirectory)entry );
-            }
         }
     }
 }

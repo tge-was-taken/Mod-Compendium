@@ -7,7 +7,7 @@ namespace ModCompendiumLibrary.ModSystem.Mergers
 {
     public class BottomToTopModMerger : IModMerger
     {
-        public VirtualDirectory Merge( IEnumerable<Mod> mods )
+        public VirtualDirectory Merge( IEnumerable< Mod > mods )
         {
             Log.Merger.Info( "Merging mods from bottom to top" );
 

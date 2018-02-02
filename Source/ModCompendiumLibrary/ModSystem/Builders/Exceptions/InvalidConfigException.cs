@@ -3,7 +3,7 @@ using System.Runtime.Serialization;
 
 namespace ModCompendiumLibrary.ModSystem.Builders
 {
-    [Serializable]
+    [ Serializable ]
     public class InvalidConfigException : Exception
     {
         public InvalidConfigException()

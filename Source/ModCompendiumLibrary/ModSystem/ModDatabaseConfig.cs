@@ -16,7 +16,9 @@ namespace ModCompendiumLibrary.ModSystem
         {
             var modsDirectoryPathElement = element.Element( nameof( ModsDirectoryPath ) );
             if ( modsDirectoryPathElement != null )
+            {
                 ModsDirectoryPath = modsDirectoryPathElement.Value;
+            }
         }
 
         void IConfigurable.Serialize( XElement element )

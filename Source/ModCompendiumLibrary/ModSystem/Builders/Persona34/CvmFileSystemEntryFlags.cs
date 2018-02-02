@@ -2,7 +2,7 @@
 
 namespace ModCompendiumLibrary.ModSystem.Builders
 {
-    [Flags]
+    [ Flags ]
     public enum CvmFileSystemEntryFlags : byte
     {
         FileRecord = 1 << 0,

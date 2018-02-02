@@ -50,19 +50,21 @@ namespace ModCompendiumLibrary.ModSystem.Builders
 
             // 0x10 - 0x30
             Name = string.Empty;
-            for ( int i = 0; i < 32; ++i )
+            for ( var i = 0; i < 32; ++i )
             {
-                var b = reader.ReadByte();
+                byte b = reader.ReadByte();
                 if ( b != 0 )
+                {
                     Name += ( char ) b;
+                }
             }
 
 #if DEBUG
-            Debug.Assert( ( reader.BaseStream.Position - start ) == 48 );
+            Debug.Assert( reader.BaseStream.Position - start == 48 );
 #endif
         }
 
-        public void Write( BinaryWriter writer)
+        public void Write( BinaryWriter writer )
         {
 #if DEBUG
             long start = writer.BaseStream.Position;
@@ -87,13 +89,11 @@ namespace ModCompendiumLibrary.ModSystem.Builders
             writer.Write( Field0F );
 
             // 0x10 - 0x30
-            for ( int i = 0; i < 32; i++ )
-            {
+            for ( var i = 0; i < 32; i++ )
                 writer.Write( i < Name.Length ? ( byte ) Name[ i ] : ( byte ) 0 );
-            }
 
 #if DEBUG
-            Debug.Assert( (writer.BaseStream.Position - start) == 48 );
+            Debug.Assert( writer.BaseStream.Position - start == 48 );
 #endif
         }
     }

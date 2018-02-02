@@ -1,22 +1,21 @@
 ﻿using System;
 using System.IO;
-using ModCompendiumLibrary.VirtualFileSystem;
 
 namespace ModCompendiumLibrary.ModSystem
 {
     public class ModBuilder
     {
-        private Guid mId;
-        private Game mGame;
-        private string mTitle;
-        private string mDescription;
-        private string mVersion;
-        private string mDate;
         private string mAuthor;
-        private string mUrl;
-        private string mUpdateUrl;
         private string mBaseDirectory;
         private string mDataDirectory;
+        private string mDate;
+        private string mDescription;
+        private Game mGame;
+        private Guid mId;
+        private string mTitle;
+        private string mUpdateUrl;
+        private string mUrl;
+        private string mVersion;
 
         public ModBuilder()
         {
@@ -102,13 +101,19 @@ namespace ModCompendiumLibrary.ModSystem
         public Mod Build()
         {
             if ( mGame == 0 )
+            {
                 throw new InvalidOperationException( "Game isn't set" );
+            }
 
             if ( string.IsNullOrWhiteSpace( mTitle ) )
+            {
                 throw new InvalidOperationException( "Title isn't set" );
+            }
 
             if ( string.IsNullOrWhiteSpace( mBaseDirectory ) )
+            {
                 throw new InvalidOperationException( "Base directory isn't set" );
+            }
 
             if ( string.IsNullOrWhiteSpace( mDataDirectory ) )
             {

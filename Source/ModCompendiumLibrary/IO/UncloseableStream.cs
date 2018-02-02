@@ -1,15 +1,25 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace ModCompendiumLibrary.IO
 {
     public class UncloseableStream : Stream, IDisposable
     {
         private readonly Stream mStream;
+
+        public override bool CanRead => mStream.CanRead;
+
+        public override bool CanSeek => mStream.CanSeek;
+
+        public override bool CanWrite => mStream.CanWrite;
+
+        public override long Length => mStream.Length;
+
+        public override long Position
+        {
+            get => mStream.Position;
+            set => mStream.Position = value;
+        }
 
         public UncloseableStream( Stream stream )
         {
@@ -41,20 +51,6 @@ namespace ModCompendiumLibrary.IO
             mStream.Write( buffer, offset, count );
         }
 
-        public override bool CanRead => mStream.CanRead;
-
-        public override bool CanSeek => mStream.CanSeek;
-
-        public override bool CanWrite => mStream.CanWrite;
-
-        public override long Length => mStream.Length;
-
-        public override long Position
-        {
-            get => mStream.Position;
-            set => mStream.Position = value;
-        }
-
         public override void Close()
         {
             //if ( mStream is MemoryStream )
@@ -63,17 +59,17 @@ namespace ModCompendiumLibrary.IO
             //base.Close();
         }
 
+        public void ForceDispose()
+        {
+            base.Dispose();
+        }
+
         public new void Dispose()
         {
             //if ( mStream is MemoryStream )
             //    return;
 
             //base.Dispose();
-        }
-
-        public void ForceDispose()
-        {
-            base.Dispose();
         }
     }
 }

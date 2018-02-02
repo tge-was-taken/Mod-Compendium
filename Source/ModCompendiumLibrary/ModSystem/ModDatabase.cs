@@ -9,13 +9,13 @@ namespace ModCompendiumLibrary.ModSystem
 {
     public static class ModDatabase
     {
-        private static Dictionary<Guid, Mod> sModById;
-        private static Dictionary<Game, List<Mod>> sModsByGame;
+        private static Dictionary< Guid, Mod > sModById;
+        private static Dictionary< Game, List< Mod > > sModsByGame;
 
         /// <summary>
-        /// Gets the mods in the database.
+        ///     Gets the mods in the database.
         /// </summary>
-        public static IEnumerable<Mod> Mods => sModById.Values;
+        public static IEnumerable< Mod > Mods => sModById.Values;
 
         public static string ModDirectory { get; private set; }
 
@@ -25,20 +25,18 @@ namespace ModCompendiumLibrary.ModSystem
         }
 
         /// <summary>
-        /// Initialize, or re-initialize the mod database.
+        ///     Initialize, or re-initialize the mod database.
         /// </summary>
         public static void Initialize()
         {
             Log.ModDatabase.Info( "Initializing mod database" );
 
-            sModById = new Dictionary<Guid, Mod>();
-            sModsByGame = new Dictionary<Game, List<Mod>>();
+            sModById = new Dictionary< Guid, Mod >();
+            sModsByGame = new Dictionary< Game, List< Mod > >();
             foreach ( Game value in Enum.GetValues( typeof( Game ) ) )
-            {
-                sModsByGame[value] = new List<Mod>();
-            }
+                sModsByGame[ value ] = new List< Mod >();
 
-            var config = ConfigManager.Get<ModDatabaseConfig>();
+            var config = ConfigManager.Get< ModDatabaseConfig >();
             ModDirectory = config.ModsDirectoryPath;
 
             if ( !Directory.Exists( ModDirectory ) )
@@ -51,9 +49,9 @@ namespace ModCompendiumLibrary.ModSystem
                 // Todo: Different mod types?
                 var modLoader = new XmlModLoader();
 
-                foreach ( var directory in Directory.EnumerateDirectories( ModDirectory ) )
+                foreach ( string directory in Directory.EnumerateDirectories( ModDirectory ) )
                 {
-                    var localDirectoryPath = directory.Remove( 0, ModDirectory.Length );
+                    string localDirectoryPath = directory.Remove( 0, ModDirectory.Length );
 
                     Mod mod = null;
 
@@ -85,19 +83,31 @@ namespace ModCompendiumLibrary.ModSystem
 
                     if ( mod != null )
                     {
-                        sModById[mod.Id] = mod;
-                        sModsByGame[mod.Game].Add( mod );
+                        sModById[ mod.Id ] = mod;
+                        sModsByGame[ mod.Game ].Add( mod );
                     }
                 }
             }
         }
 
-        public static bool Exists( Guid id ) => sModById.ContainsKey( id );
+        public static bool Exists( Guid id )
+        {
+            return sModById.ContainsKey( id );
+        }
 
-        public static bool TryGet( Guid id, out Mod value ) => sModById.TryGetValue( id, out value );
+        public static bool TryGet( Guid id, out Mod value )
+        {
+            return sModById.TryGetValue( id, out value );
+        }
 
-        public static Mod Get( Guid id ) => sModById[id];
+        public static Mod Get( Guid id )
+        {
+            return sModById[ id ];
+        }
 
-        public static IEnumerable<Mod> Get( Game game ) => sModsByGame[game];
+        public static IEnumerable< Mod > Get( Game game )
+        {
+            return sModsByGame[ game ];
+        }
     }
 }

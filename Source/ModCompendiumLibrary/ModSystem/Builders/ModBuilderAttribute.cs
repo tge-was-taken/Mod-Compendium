@@ -10,8 +10,12 @@ namespace ModCompendiumLibrary.ModSystem.Builders
 
         public Game Game
         {
-            get { return mGame; }
-            set { mGame = value; IsGeneric = false; }
+            get => mGame;
+            set
+            {
+                mGame = value;
+                IsGeneric = false;
+            }
         }
 
         public bool IsGeneric { get; private set; } = true;

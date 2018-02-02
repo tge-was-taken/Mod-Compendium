@@ -22,24 +22,24 @@ using MessageBox = Xceed.Wpf.Toolkit.MessageBox;
 namespace ModCompendium
 {
     /// <summary>
-    /// Interaction logic for MainWindow.xaml
+    ///     Interaction logic for MainWindow.xaml
     /// </summary>
     public partial class MainWindow : Window
     {
         public Game SelectedGame { get; private set; }
 
-        public List<ModViewModel> Mods { get; private set; }
+        public List< ModViewModel > Mods { get; private set; }
 
         public GameConfig GameConfig { get; private set; }
 
-        public MainWindowConfig Config { get; private set; }
+        public MainWindowConfig Config { get; }
 
         public MainWindow()
         {
             InitializeComponent();
             InitializeLog();
 
-            Config = ConfigManager.Get<MainWindowConfig>();
+            Config = ConfigManager.Get< MainWindowConfig >();
             InitializeGameComboBox();
         }
 
@@ -50,7 +50,7 @@ namespace ModCompendium
 
         private void InitializeGameComboBox()
         {
-            var enumValues = Enum.GetValues( typeof( Game ) ).Cast<Game>().ToList();
+            var enumValues = Enum.GetValues( typeof( Game ) ).Cast< Game >().ToList();
             GameComboBox.ItemsSource = enumValues;
             GameComboBox.SelectedIndex = enumValues.IndexOf( Config.SelectedGame );
         }
@@ -68,17 +68,16 @@ namespace ModCompendium
                                       shouldUpdateOrder = !uniqueOrders.Add( order ); // duplicate order
                                       return order;
                                   }
-                                  else
-                                  {
-                                      shouldUpdateOrder = true; // undefined order
-                                      return Config.ModOrder[x.Id] = 0;
-                                  }
+                                  shouldUpdateOrder = true; // undefined order
+                                  return Config.ModOrder[ x.Id ] = 0;
                               } )
                               .Select( x => new ModViewModel( x ) )
                               .ToList();
 
             if ( shouldUpdateOrder )
+            {
                 UpdateWindowConfigModOrder();
+            }
 
             ModGrid.ItemsSource = Mods;
         }
@@ -98,7 +97,9 @@ namespace ModCompendium
             GameConfig.ClearEnabledMods();
 
             if ( enabledMods.Count == 0 )
+            {
                 return false;
+            }
 
             enabledMods.ForEach( GameConfig.EnableMod );
 
@@ -109,8 +110,8 @@ namespace ModCompendium
         {
             for ( var i = 0; i < Mods.Count; i++ )
             {
-                var mod = Mods[i];
-                Config.ModOrder[mod.Id] = i;
+                var mod = Mods[ i ];
+                Config.ModOrder[ mod.Id ] = i;
             }
         }
 
@@ -177,7 +178,7 @@ namespace ModCompendium
 
         private void GameComboBox_SelectionChanged( object sender, SelectionChangedEventArgs e )
         {
-            SelectedGame = ( Game )GameComboBox.SelectedValue;
+            SelectedGame = ( Game ) GameComboBox.SelectedValue;
             GameConfig = ConfigManager.Get( SelectedGame );
             RefreshMods();
         }
@@ -215,9 +216,7 @@ namespace ModCompendium
 
                 Log.General.Info( "Building mods:" );
                 foreach ( var enabledMod in enabledMods )
-                {
                     Log.General.Info( $"\t{enabledMod.Title}" );
-                }
 
                 var merger = new TopToBottomModMerger();
                 var merged = merger.Merge( enabledMods );
@@ -242,7 +241,8 @@ namespace ModCompendium
                 catch ( MissingFileException exception )
                 {
                     Application.Current.Dispatcher.Invoke(
-                        () => MessageBox.Show( this, $"A file is missing:\n{exception.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error ) );
+                        () => MessageBox.Show( this, $"A file is missing:\n{exception.Message}", "Error", MessageBoxButton.OK,
+                                               MessageBoxImage.Error ) );
 
                     return false;
                 }
@@ -265,12 +265,14 @@ namespace ModCompendium
                 return true;
             }, TaskCreationOptions.LongRunning );
 
-            task.ContinueWith( ( t ) =>
+            task.ContinueWith( t =>
             {
                 Application.Current.Dispatcher.Invoke( () =>
                 {
                     if ( t.Result )
+                    {
                         MessageBox.Show( this, "Done building!", "Done", MessageBoxButton.OK, MessageBoxImage.None );
+                    }
                 } );
             } );
         }
@@ -301,29 +303,33 @@ namespace ModCompendium
 
         private void UpOrDownButtonClick( bool isUp )
         {
-            var selected = ( ModViewModel )ModGrid.SelectedValue;
-            var selectedMod = ( Mod )selected;
-            var selectedIndex = ModGrid.SelectedIndex;
+            var selected = ( ModViewModel ) ModGrid.SelectedValue;
+            var selectedMod = ( Mod ) selected;
+            int selectedIndex = ModGrid.SelectedIndex;
             int targetIndex;
 
             if ( isUp )
             {
                 targetIndex = selectedIndex - 1;
                 if ( targetIndex < 0 )
+                {
                     return;
+                }
             }
             else
             {
                 targetIndex = selectedIndex + 1;
                 if ( targetIndex >= ModGrid.Items.Count )
+                {
                     return;
+                }
             }
 
-            var target = ( Mod )( ModViewModel )ModGrid.Items[targetIndex];
+            var target = ( Mod ) ( ModViewModel ) ModGrid.Items[ targetIndex ];
 
             // Order
-            Config.ModOrder[selectedMod.Id] = targetIndex;
-            Config.ModOrder[target.Id] = selectedIndex;
+            Config.ModOrder[ selectedMod.Id ] = targetIndex;
+            Config.ModOrder[ target.Id ] = selectedIndex;
 
             // Gui update
             Mods.Remove( selected );
@@ -343,29 +349,29 @@ namespace ModCompendium
             UpdateConfigChangesAndSave();
 
             // Reload
-            ModCompendiumLibrary.Configuration.ConfigManager.Load();
+            ConfigManager.Load();
             RefreshModDatabase();
         }
 
         private void NewButton_Click( object sender, RoutedEventArgs e )
         {
-            var newMod = new NewModDialog() { Owner = this };
+            var newMod = new NewModDialog { Owner = this };
             var result = newMod.ShowDialog();
 
             if ( !result.HasValue || !result.Value )
+            {
                 return;
+            }
 
             // Get unique directory
             string modPath = Path.Combine( ModDatabase.ModDirectory, newMod.ModTitle );
             if ( Directory.Exists( modPath ) )
             {
-                var newModPath = modPath;
-                int i = 0;
+                string newModPath = modPath;
+                var i = 0;
 
                 while ( Directory.Exists( newModPath ) )
-                {
                     newModPath = modPath + "_" + i++;
-                }
 
                 modPath = newModPath;
             }
@@ -380,7 +386,7 @@ namespace ModCompendium
                 .SetAuthor( newMod.Author )
                 .SetUrl( newMod.Url )
                 .SetUpdateUrl( newMod.UpdateUrl )
-                .SetBaseDirectoryPath(modPath)
+                .SetBaseDirectoryPath( modPath )
                 .Build();
 
             // Do actual saving
@@ -397,7 +403,7 @@ namespace ModCompendium
                                   MessageBoxButton.OKCancel,
                                   MessageBoxImage.Exclamation ) == MessageBoxResult.OK )
             {
-                var mod = ( Mod )( ModViewModel )ModGrid.SelectedValue;
+                var mod = ( Mod ) ( ModViewModel ) ModGrid.SelectedValue;
                 Log.General.Warning( $"Deleting mod directory: {mod.BaseDirectory}" );
                 Directory.Delete( mod.BaseDirectory, true );
                 RefreshModDatabase();

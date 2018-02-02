@@ -2,9 +2,9 @@
 using System.Diagnostics;
 using System.IO;
 using DiscUtils.Iso9660;
-using ModCompendiumLibrary.IO;
 using ModCompendiumLibrary.Configuration;
 using ModCompendiumLibrary.FileParsers;
+using ModCompendiumLibrary.IO;
 using ModCompendiumLibrary.Logging;
 using ModCompendiumLibrary.VirtualFileSystem;
 
@@ -15,6 +15,106 @@ namespace ModCompendiumLibrary.ModSystem.Builders
         protected abstract Game Game { get; }
 
         public bool OutputUnmodifiedFiles { get; } = false;
+
+        private VirtualFileSystemEntry ConvertEntryRecursively( CDReader isoFileSystem, string path )
+        {
+            if ( isoFileSystem.FileExists( path ) )
+            {
+                string fileName = Path.GetFileName( path );
+                if ( fileName.EndsWith( ";1" ) )
+                {
+                    fileName = fileName.Substring( 0, fileName.Length - 2 );
+                }
+
+                return new VirtualFile( null, isoFileSystem.OpenFile( path, FileMode.Open ), fileName );
+            }
+            var directory = new VirtualDirectory( null, Path.GetFileName( path ) );
+
+            foreach ( string file in isoFileSystem.GetFiles( path ) )
+            {
+                var entry = ConvertEntryRecursively( isoFileSystem, file );
+                entry.MoveTo( directory );
+            }
+
+            foreach ( string subDirectory in isoFileSystem.GetDirectories( path ) )
+            {
+                var entry = ConvertEntryRecursively( isoFileSystem, subDirectory );
+                entry.MoveTo( directory );
+            }
+
+            return directory;
+        }
+
+        private VirtualDirectory ConvertCvmToVirtualDirectory( VirtualFile cvmFile )
+        {
+            using ( var stream = cvmFile.Open() )
+            {
+                var streamView = new StreamView( stream, 0x1800, stream.Length - 0x1800 );
+                var cvmIsoFilesystem = new CDReader( streamView, false );
+
+                var directory = ( VirtualDirectory ) ConvertEntryRecursively( cvmIsoFilesystem, cvmIsoFilesystem.Root.FullName );
+                directory.Name = Path.GetFileNameWithoutExtension( cvmFile.Name );
+
+                return directory;
+            }
+        }
+
+        private VirtualFile UpdateAndRecompileCvm( VirtualFile cvmFile, VirtualDirectory directory, string hostOutputPath )
+        {
+            // Deserialize cvm
+            Log.Builder.Trace( $"Mounting CVM filesystem: {cvmFile.Name}" );
+            var cvmDirectory = ConvertCvmToVirtualDirectory( cvmFile );
+
+            // Merge contents
+            LogModFilesInDirectory( directory );
+            cvmDirectory.Merge( directory, true );
+
+            // Recompile cvm
+            var cvmModCompiler = new CvmModBuilder();
+
+            Log.Builder.Trace( $"Building new CVM: {cvmFile.Name} to {hostOutputPath}" );
+            return ( VirtualFile ) cvmModCompiler.Build( cvmDirectory, hostOutputPath );
+        }
+
+        private void LogModFilesInDirectory( VirtualDirectory directory )
+        {
+            foreach ( var entry in directory )
+            {
+                if ( entry.EntryType == VirtualFileSystemEntryType.File )
+                {
+                    Log.Builder.Trace( $"Adding mod file: {entry.FullName}" );
+                }
+                else
+                {
+                    LogModFilesInDirectory( ( VirtualDirectory ) entry );
+                }
+            }
+        }
+
+        private void PatchExecutable( string executableFilePath, string cvmFilePath )
+        {
+            Log.Builder.Trace( $"Patching executable for CVM: {cvmFilePath}" );
+
+            var processStartInfo = new ProcessStartInfo( "Dependencies\\PersonaPatcher\\PersonaPatcher.exe",
+                                                         $"\"{executableFilePath}\" \"{cvmFilePath}\"" );
+
+            processStartInfo.UseShellExecute = false;
+            processStartInfo.CreateNoWindow = true;
+
+            try
+            {
+                var process = Process.Start( processStartInfo );
+                if ( process != null && !process.WaitForExit( 2000 ) && !process.HasExited )
+                {
+                    process.Kill();
+                    process.WaitForExit();
+                }
+            }
+            catch ( Exception )
+            {
+                // There's a possible condition where between HasExited returning false and Kill() the process might've exited already
+            }
+        }
 
         /// <inheritdoc />
         public VirtualFileSystemEntry Build( VirtualDirectory root, string hostOutputPath = null )
@@ -49,7 +149,7 @@ namespace ModCompendiumLibrary.ModSystem.Builders
 
             Log.Builder.Trace( $"DvdRootPath = {config.DvdRootPath}" );
 
-            if ( config.DvdRootPath.EndsWith(".iso") )
+            if ( config.DvdRootPath.EndsWith( ".iso" ) )
             {
                 Log.Builder.Info( $"Mounting ISO: {config.DvdRootPath}" );
 
@@ -88,7 +188,7 @@ namespace ModCompendiumLibrary.ModSystem.Builders
             {
                 executablePath = Ps2SystemConfig.GetExecutablePath( systemConfigStream, hostOutputPath == null, true );
                 systemConfigStream.Position = 0;
-            }          
+            }
 
             if ( executablePath == null )
             {
@@ -96,7 +196,7 @@ namespace ModCompendiumLibrary.ModSystem.Builders
             }
 
             Log.Builder.Info( $"Executable path: {executablePath}" );
-            
+
             var executableFile = ( VirtualFile ) dvdRootDirectory[ executablePath ];
             if ( executableFile == null )
             {
@@ -104,7 +204,7 @@ namespace ModCompendiumLibrary.ModSystem.Builders
             }
 
             // Some basic checks have been done, let's start generating the cvms
-            var dvdRootDirectoryPath = hostOutputPath == null
+            string dvdRootDirectoryPath = hostOutputPath == null
                 ? Path.Combine( Path.GetTempPath(), "Persona34ModCompilerTemp_" + Path.GetRandomFileName() )
                 : hostOutputPath;
 
@@ -129,7 +229,7 @@ namespace ModCompendiumLibrary.ModSystem.Builders
             {
                 if ( entry.EntryType == VirtualFileSystemEntryType.Directory )
                 {
-                    var name = entry.Name.ToLowerInvariant();
+                    string name = entry.Name.ToLowerInvariant();
                     var directory = ( VirtualDirectory ) entry;
 
                     switch ( name )
@@ -184,22 +284,30 @@ namespace ModCompendiumLibrary.ModSystem.Builders
             }
 
             // Patch executable
-            var executableFilePath = executableFile.SaveToHost( dvdRootDirectoryPath );
+            string executableFilePath = executableFile.SaveToHost( dvdRootDirectoryPath );
 
             Log.Builder.Info( $"Patching executable" );
             Log.Builder.Trace( $"Executable file path: {executableFilePath}" );
 
             if ( bgmCvmModified )
+            {
                 PatchExecutable( executableFilePath, bgmCvmFile.HostPath );
+            }
 
             if ( btlCvmModified )
+            {
                 PatchExecutable( executableFilePath, btlCvmFile.HostPath );
+            }
 
             if ( dataCvmModified )
+            {
                 PatchExecutable( executableFilePath, dataCvmFile.HostPath );
+            }
 
             if ( envCvmModified )
+            {
                 PatchExecutable( executableFilePath, envCvmFile.HostPath );
+            }
 
             executableFile = VirtualFile.FromHostFile( executableFilePath );
             executableFile.MoveTo( newDvdRootDirectory, true );
@@ -219,118 +327,19 @@ namespace ModCompendiumLibrary.ModSystem.Builders
                 isoFileSystem.Dispose();
             }
 
-            Log.Builder.Info($"Done" );
+            Log.Builder.Info( $"Done" );
 
             return newDvdRootDirectory;
         }
-
-        private VirtualFileSystemEntry ConvertEntryRecursively( CDReader isoFileSystem, string path )
-        {
-            if ( isoFileSystem.FileExists( path ) )
-            {
-                var fileName = Path.GetFileName( path );
-                if ( fileName.EndsWith( ";1" ) )
-                {
-                    fileName = fileName.Substring( 0, fileName.Length - 2 );
-                }
-
-                return new VirtualFile( null, isoFileSystem.OpenFile( path, FileMode.Open ), fileName );
-            }
-            else
-            {
-                var directory = new VirtualDirectory( null, Path.GetFileName( path ) );
-
-                foreach ( var file in isoFileSystem.GetFiles( path ) )
-                {
-                    var entry = ConvertEntryRecursively( isoFileSystem, file );
-                    entry.MoveTo( directory );
-                }
-
-                foreach ( var subDirectory in isoFileSystem.GetDirectories( path ) )
-                {
-                    var entry = ConvertEntryRecursively( isoFileSystem, subDirectory );
-                    entry.MoveTo( directory );
-                }
-
-                return directory;
-            }
-        }
-
-        private VirtualDirectory ConvertCvmToVirtualDirectory( VirtualFile cvmFile )
-        {
-            using ( var stream = cvmFile.Open() )
-            {
-                var streamView = new StreamView( stream, 0x1800, stream.Length - 0x1800 );
-                var cvmIsoFilesystem = new CDReader( streamView, false );
-
-                var directory = ( VirtualDirectory )ConvertEntryRecursively( cvmIsoFilesystem, cvmIsoFilesystem.Root.FullName );
-                directory.Name = Path.GetFileNameWithoutExtension( cvmFile.Name );
-
-                return directory;
-            }
-        }
-
-        private VirtualFile UpdateAndRecompileCvm( VirtualFile cvmFile, VirtualDirectory directory, string hostOutputPath )
-        {
-            // Deserialize cvm
-            Log.Builder.Trace( $"Mounting CVM filesystem: {cvmFile.Name}" );
-            var cvmDirectory = ConvertCvmToVirtualDirectory( cvmFile );
-
-            // Merge contents
-            LogModFilesInDirectory( directory );
-            cvmDirectory.Merge( directory, true );
-
-            // Recompile cvm
-            var cvmModCompiler = new CvmModBuilder();
-
-            Log.Builder.Trace( $"Building new CVM: {cvmFile.Name} to {hostOutputPath}" );
-            return ( VirtualFile )cvmModCompiler.Build( cvmDirectory, hostOutputPath );
-        }
-
-        private void LogModFilesInDirectory(VirtualDirectory directory)
-        {
-            foreach ( var entry in directory )
-            {
-                if ( entry.EntryType == VirtualFileSystemEntryType.File )
-                    Log.Builder.Trace( $"Adding mod file: {entry.FullName}" );
-                else
-                    LogModFilesInDirectory( ( VirtualDirectory )entry );
-            }
-        }
-
-        private void PatchExecutable( string executableFilePath, string cvmFilePath )
-        {
-            Log.Builder.Trace( $"Patching executable for CVM: {cvmFilePath}" );
-
-            var processStartInfo = new ProcessStartInfo( "Dependencies\\PersonaPatcher\\PersonaPatcher.exe",
-                                                         $"\"{executableFilePath}\" \"{cvmFilePath}\"" );
-
-            processStartInfo.UseShellExecute = false;
-            processStartInfo.CreateNoWindow = true;
-
-            try
-            {
-                var process = Process.Start( processStartInfo );
-                if ( process != null && !process.WaitForExit( 2000 ) && !process.HasExited )
-                {
-                    process.Kill();
-                    process.WaitForExit();
-                }
-            }
-            catch (Exception)
-            {
-                // There's a possible condition where between HasExited returning false and Kill() the process might've exited already
-            }
-        }
     }
 
-    [ModBuilder("Persona 3 File Mod Builder", Game = Game.Persona3)]
+    [ ModBuilder( "Persona 3 File Mod Builder", Game = Game.Persona3 ) ]
     public class Persona3FileModBuilder : Persona34FileModBuilder
     {
         protected override Game Game => Game.Persona3;
     }
 
-    [ModBuilder("Persona 4 File Mod Builder", Game = Game.Persona4)]
+    [ ModBuilder( "Persona 4 File Mod Builder", Game = Game.Persona4 ) ]
     public class Persona4FileModBuilder : Persona34FileModBuilder
     {
         protected override Game Game => Game.Persona4;

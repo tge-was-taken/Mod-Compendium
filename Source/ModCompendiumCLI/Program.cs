@@ -1,10 +1,6 @@
 ﻿using System;
-using System.Linq;
-using ModCompendiumLibrary.Configuration;
 using ModCompendiumLibrary.Logging;
-using ModCompendiumLibrary.ModSystem;
 using ModCompendiumLibrary.ModSystem.Builders;
-using ModCompendiumLibrary.ModSystem.Mergers;
 using ModCompendiumLibrary.VirtualFileSystem;
 
 namespace ModCompendiumCLI
@@ -13,7 +9,7 @@ namespace ModCompendiumCLI
     {
         private static void Main( string[] args )
         {
-            Log.MessageBroadcasted += (s, e) =>
+            Log.MessageBroadcasted += ( s, e ) =>
             {
                 var currentColor = Console.ForegroundColor;
 

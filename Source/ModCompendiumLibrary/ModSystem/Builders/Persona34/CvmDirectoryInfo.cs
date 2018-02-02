@@ -10,7 +10,7 @@ namespace ModCompendiumLibrary.ModSystem.Builders
 
         public CvmFileSystemEntry Entry { get; set; }
 
-        public List<CvmFileSystemEntry> Entries { get; set; }
+        public List< CvmFileSystemEntry > Entries { get; set; }
 
         public int DirectoryLBA { get; set; }
 
@@ -39,11 +39,13 @@ namespace ModCompendiumLibrary.ModSystem.Builders
 
             // 0x0C - 0x14
             string tag = string.Empty;
-            for ( int i = 0; i < 8; ++i )
+            for ( var i = 0; i < 8; ++i )
             {
-                var b = reader.ReadByte();
+                byte b = reader.ReadByte();
                 if ( b != 0 )
-                    tag += ( char )b;
+                {
+                    tag += ( char ) b;
+                }
             }
 
             Debug.Assert( tag.Equals( TAG ) );
@@ -52,22 +54,22 @@ namespace ModCompendiumLibrary.ModSystem.Builders
             Debug.Assert( reader.ReadUInt16() == 0 );
 
 #if DEBUG
-            Debug.Assert( ( reader.BaseStream.Position - start ) == 22 );
+            Debug.Assert( reader.BaseStream.Position - start == 22 );
 #endif
 
             // Read children
             Entries.Capacity = entryCount;
-            for ( int i = 0; i < entryCount; i++ )
+            for ( var i = 0; i < entryCount; i++ )
             {
-                var entry = new CvmFileSystemEntry(this);
+                var entry = new CvmFileSystemEntry( this );
                 entry.Read( reader );
 
                 Entries.Add( entry );
             }
 
-            reader.BaseStream.Position = ( reader.BaseStream.Position + 15 ) & ~( 15 );
+            reader.BaseStream.Position = ( reader.BaseStream.Position + 15 ) & ~15;
 
-            for ( int i = 1; i < entryCount; i++ )
+            for ( var i = 1; i < entryCount; i++ )
             {
                 var entry = Entries[ i ];
                 if ( entry.Flags.HasFlag( CvmFileSystemEntryFlags.DirectoryRecord ) )
@@ -90,26 +92,24 @@ namespace ModCompendiumLibrary.ModSystem.Builders
             writer.Write( Entries.Count );
             writer.Write( DirectoryLBA );
 
-            foreach ( var c in TAG )
+            foreach ( char c in TAG )
                 writer.Write( ( byte ) c );
 
             writer.Write( ( short ) 0 );
 
 #if DEBUG
-            Debug.Assert( ( writer.BaseStream.Position - start ) == 22 );
+            Debug.Assert( writer.BaseStream.Position - start == 22 );
 #endif
             foreach ( var entry in Entries )
-            {
                 entry.Write( writer );
-            }
 
-            long alignmentByteCount = ( ( writer.BaseStream.Position + 15 ) & ~( 15 ) ) - writer.BaseStream.Position;
-            for ( int i = 0; i < alignmentByteCount; ++i )
+            long alignmentByteCount = ( ( writer.BaseStream.Position + 15 ) & ~15 ) - writer.BaseStream.Position;
+            for ( var i = 0; i < alignmentByteCount; ++i )
                 writer.Write( ( byte ) 0 );
 
-            for ( int i = 1; i < Entries.Count; ++i )
+            for ( var i = 1; i < Entries.Count; ++i )
             {
-                var entry = Entries[i];
+                var entry = Entries[ i ];
                 if ( entry.Flags.HasFlag( CvmFileSystemEntryFlags.DirectoryRecord ) )
                 {
                     entry.DirectoryInfo.Write( writer );

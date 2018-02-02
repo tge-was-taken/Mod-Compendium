@@ -10,44 +10,55 @@
         <Grid Margin="10,10,10,0">
             <!--2 columns-->
             <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="37*"></ColumnDefinition>
-                <ColumnDefinition Width="99*"></ColumnDefinition>
+                <ColumnDefinition Width="37*" />
+                <ColumnDefinition Width="99*" />
             </Grid.ColumnDefinitions>
 
             <!--6 rows-->
             <Grid.RowDefinitions>
-                <RowDefinition Height="auto"></RowDefinition>
-                <RowDefinition Height="auto"></RowDefinition>
-                <RowDefinition Height="auto"></RowDefinition>
-                <RowDefinition Height="auto"></RowDefinition>
-                <RowDefinition Height="auto"></RowDefinition>
-                <RowDefinition Height="auto"></RowDefinition>
+                <RowDefinition Height="auto" />
+                <RowDefinition Height="auto" />
+                <RowDefinition Height="auto" />
+                <RowDefinition Height="auto" />
+                <RowDefinition Height="auto" />
+                <RowDefinition Height="auto" />
             </Grid.RowDefinitions>
 
             <!--Labels-->
-            <Label Grid.Column="0" Grid.Row="0" Content="Title:"  HorizontalContentAlignment="Right" VerticalAlignment="Center" Height="26" Margin="0,0,0,3"/>
-            <Label Grid.Column="0" Grid.Row="1" Content="Description:" HorizontalContentAlignment="Right"  VerticalAlignment="Center" Height="26" Margin="0,2,0,0"/>
-            <Label Grid.Column="0" Grid.Row="2" Content="Version:" HorizontalContentAlignment="Right"  VerticalAlignment="Center" Height="26" Margin="0,0,0,2"/>
-            <Label Grid.Column="0" Grid.Row="3" Content="Author:" HorizontalContentAlignment="Right"  VerticalAlignment="Center" Height="26" Margin="0,2,0,0"/>
-            <Label Grid.Column="0" Grid.Row="4" Content="URL:" HorizontalContentAlignment="Right"  VerticalAlignment="Center" Height="26" Margin="0,0,0,2"/>
-            <Label Grid.Column="0" Grid.Row="5" Content="Update URL:" HorizontalContentAlignment="Right"  VerticalAlignment="Center" Height="26" Margin="0,2,0,0"/>
+            <Label Grid.Column="0" Grid.Row="0" Content="Title:" HorizontalContentAlignment="Right"
+                   VerticalAlignment="Center" Height="26" Margin="0,0,0,3" />
+            <Label Grid.Column="0" Grid.Row="1" Content="Description:" HorizontalContentAlignment="Right"
+                   VerticalAlignment="Center" Height="26" Margin="0,2,0,0" />
+            <Label Grid.Column="0" Grid.Row="2" Content="Version:" HorizontalContentAlignment="Right"
+                   VerticalAlignment="Center" Height="26" Margin="0,0,0,2" />
+            <Label Grid.Column="0" Grid.Row="3" Content="Author:" HorizontalContentAlignment="Right"
+                   VerticalAlignment="Center" Height="26" Margin="0,2,0,0" />
+            <Label Grid.Column="0" Grid.Row="4" Content="URL:" HorizontalContentAlignment="Right"
+                   VerticalAlignment="Center" Height="26" Margin="0,0,0,2" />
+            <Label Grid.Column="0" Grid.Row="5" Content="Update URL:" HorizontalContentAlignment="Right"
+                   VerticalAlignment="Center" Height="26" Margin="0,2,0,0" />
 
             <!--Text boxes-->
-            <TextBox Name="TitleTextBox" Grid.Column="1" Grid.Row="0" Margin="10,2" VerticalContentAlignment="Center" TextChanged="TitleTextBox_TextChanged"/>
-            <TextBox Name="DescriptionTextBox" Grid.Column="1" Grid.Row="1" Margin="10,2" VerticalContentAlignment="Center" />
+            <TextBox Name="TitleTextBox" Grid.Column="1" Grid.Row="0" Margin="10,2" VerticalContentAlignment="Center"
+                     TextChanged="TitleTextBox_TextChanged" />
+            <TextBox Name="DescriptionTextBox" Grid.Column="1" Grid.Row="1" Margin="10,2"
+                     VerticalContentAlignment="Center" />
             <TextBox Name="VersionTextBox" Grid.Column="1" Grid.Row="2" Margin="10,2" VerticalContentAlignment="Center" />
             <TextBox Name="AuthorTextBox" Grid.Column="1" Grid.Row="3" Margin="10,2" VerticalContentAlignment="Center" />
             <TextBox Name="URLTextBox" Grid.Column="1" Grid.Row="4" Margin="10,2" VerticalContentAlignment="Center" />
-            <TextBox Name="UpdateURLTextBox" Grid.Column="1" Grid.Row="5" Margin="10,2" VerticalContentAlignment="Center" />
+            <TextBox Name="UpdateURLTextBox" Grid.Column="1" Grid.Row="5" Margin="10,2"
+                     VerticalContentAlignment="Center" />
         </Grid>
         <Grid Margin="0,0,0,10" Height="28" VerticalAlignment="Bottom">
             <Grid.ColumnDefinitions>
-                <ColumnDefinition></ColumnDefinition>
-                <ColumnDefinition/>
+                <ColumnDefinition />
+                <ColumnDefinition />
             </Grid.ColumnDefinitions>
 
-            <Button Name="OkButton" IsEnabled="False" Grid.Column="0" Content="OK" Width="54" Height="20" Click="OkButton_Click" Margin="78,4,10,4"/>
-            <Button Grid.Column="1" Content="Cancel" Width="54" Height="20" Click="CancelButton_Click" Margin="10,4,78,4"/>
+            <Button Name="OkButton" IsEnabled="False" Grid.Column="0" Content="OK" Width="54" Height="20"
+                    Click="OkButton_Click" Margin="78,4,10,4" />
+            <Button Grid.Column="1" Content="Cancel" Width="54" Height="20" Click="CancelButton_Click"
+                    Margin="10,4,78,4" />
         </Grid>
     </Grid>
 </Window>
