@@ -104,6 +104,20 @@ namespace ModCompendiumLibrary.VirtualFileSystem
         }
 
         /// <summary>
+        /// Removes the entry from the directory.
+        /// </summary>
+        /// <param name="name"></param>
+        /// <returns>Whether the entry was removed or not.</returns>
+        public bool Remove( string name )
+        {
+            var entry = Find( name );
+            if ( entry != null )
+                return Remove( entry );
+            else
+                return false;
+        }
+
+        /// <summary>
         /// Move the contents of this directory to another directory.
         /// </summary>
         /// <param name="other"></param>

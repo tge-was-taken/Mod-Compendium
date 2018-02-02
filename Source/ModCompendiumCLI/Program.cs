@@ -5,6 +5,7 @@ using ModCompendiumLibrary.Logging;
 using ModCompendiumLibrary.ModSystem;
 using ModCompendiumLibrary.ModSystem.Builders;
 using ModCompendiumLibrary.ModSystem.Mergers;
+using ModCompendiumLibrary.VirtualFileSystem;
 
 namespace ModCompendiumCLI
 {
@@ -40,51 +41,9 @@ namespace ModCompendiumCLI
                 Console.ForegroundColor = currentColor;
             };
 
-            var config = ConfigManager.Get< Persona4GameConfig >();
-            //config.EnableMod( ModDatabase.Mods.Single( x => x.Title == "Picaro Mod" ) );
-
-            var merger = new TopToBottomModMerger();
-            //var merged = merger.Merge( config.EnabledModIds );
-            var builder = GameModBuilder.Get( config.Game );
-            //var task = builder.Build( merged, config.OutputDirectoryPath );
-            foreach ( var mod in ModDatabase.Get(config.Game) )
-            {
-                Console.WriteLine( mod.Title );
-            }
-
-            //var modLoader = new XmlModLoader();
-            //var modCombiner = new TopToBottomModMerger();
-            //ModBuilder modBuilder;
-            //VirtualFileSystemEntry modCompiledFile;
-
-            //var mod = modLoader.Load( "Mods\\ExampleMod" );
-            //var mod2 = modLoader.Load( "Mods\\Persona4PicaroMod" );
-            //var modRoot = modCombiner.Merge( new List<Mod> { mod2, mod } );
-
-            //{
-            //    modBuilder = new PassthroughModBuilder();
-            //    //modCompiledFile = modBuilder.Build( modRoot, "ExampleModPassthroughModCompilerOutput" );
-            //}
-
-            //{
-            //    modBuilder = new Persona5CpkModBuilder();
-            //    //modCompiledFile = modBuilder.Build( modRoot, "ExampleModCpkModCompilerOutput" );
-            //}
-
-            //{
-            //    modBuilder = new Persona4ModBuilder();
-            //    modCompiledFile = modBuilder.Build( modRoot, "ExampleModP4ModCompilerOutput" );
-            //}
-
-            ConfigManager.Save();
-        }
-    }
-
-    class Progress : IProgress< int >
-    {
-        public void Report( int value )
-        {
-            Console.WriteLine( $"Progress: {value}" );
+            var builder = new Ps2IsoModBuilder();
+            var root = VirtualDirectory.FromHostDirectory( @"D:\Games\Sony PS2\temp\New folder" );
+            var output = builder.Build( root, "test.iso" );
         }
     }
 }

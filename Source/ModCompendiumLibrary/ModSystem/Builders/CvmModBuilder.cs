@@ -1,10 +1,12 @@
-﻿using System.IO;
+﻿using System;
+using System.IO;
 using ModCompendiumLibrary.VirtualFileSystem;
 using DiscUtils.Iso9660;
 using ModCompendiumLibrary.Logging;
 
 namespace ModCompendiumLibrary.ModSystem.Builders
 {
+    [ModBuilder("CVM Mod Builder")]
     public class CvmModBuilder : IModBuilder
     {
         private static readonly byte[] sDummyCvmHeader = GenerateDummyCvmHeader();
@@ -12,6 +14,11 @@ namespace ModCompendiumLibrary.ModSystem.Builders
         /// <inheritdoc />
         public VirtualFileSystemEntry Build( VirtualDirectory root, string hostOutputPath = null )
         {
+            if ( root == null )
+            {
+                throw new ArgumentNullException( nameof( root ) );
+            }
+
             Log.Builder.Info( $"Building CVM: {root.Name}" );
 
             // Create temp directory 
@@ -21,7 +28,13 @@ namespace ModCompendiumLibrary.ModSystem.Builders
 
             // Make ISO
             Log.Builder.Info( "Creating ISO filesystem" );
-            var isoBuilder = new CDBuilder();
+            var isoBuilder = new CDBuilder()
+            {
+                UpdateIsolinuxBootTable = false,
+                UseJoliet = false,
+                VolumeIdentifier = "AMICITIA"
+            };
+
             foreach ( var entry in root )
             {
                 AddToBuilderRecursively( isoBuilder, entry, root.FullName );
@@ -34,20 +47,6 @@ namespace ModCompendiumLibrary.ModSystem.Builders
 
             var cvmName = root.Name + ".cvm";
             var cvmPath = hostOutputPath == null ? Path.Combine( tempDirectoryPath, cvmName ) : hostOutputPath;
-
-            /*
-            // Use cvm_tool to convert the ISO to CVM
-            var cvmName = root.Name + ".cvm";
-            var cvmPath = hostOutputPath == null ? Path.Merge( tempDirectoryPath, cvmName ) : hostOutputPath;
-            var hdrPath = Path.Merge( tempDirectoryPath, root.Name + ".hdr" );
-            File.WriteAllBytes( hdrPath, sDummyCvmHeader );
-
-            var processStartInfo = new ProcessStartInfo( "Dependencies\\cvm_tool.exe",
-                                                         $"mkcvm \"{cvmPath}\" \"{isoPath}\" \"{hdrPath}\"" );
-
-            var process = Process.Start( processStartInfo );
-            process.WaitForExit();
-            */
 
             // Write CVM file
             Log.Builder.Info( "Writing CVM" );

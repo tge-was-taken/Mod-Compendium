@@ -5,16 +5,16 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:ModCompendium"
         mc:Ignorable="d"
-        Title="Mod Compendium" Height="667.333" Width="802">
+        Title="Mod Compendium" Height="800" Width="800" MinHeight="600" MinWidth="800">
     <Grid>
         <Grid Margin="10">
             <Grid.RowDefinitions>
-                <RowDefinition Height="2*"></RowDefinition>
-                <RowDefinition Height="21*"></RowDefinition>
+                <RowDefinition Height="42"></RowDefinition>
+                <RowDefinition Height="20*"></RowDefinition>
                 <RowDefinition Height="5"></RowDefinition>
-                <RowDefinition Height="5*"></RowDefinition>
+                <RowDefinition Height="10*"></RowDefinition>
             </Grid.RowDefinitions>
-            <Grid Grid.Row="0" HorizontalAlignment="Left" Height="42" VerticalAlignment="Top" Width="764">
+            <Grid Grid.Row="0" HorizontalAlignment="Left" VerticalAlignment="Stretch" Width="764">
                 <Grid.RowDefinitions>
                 </Grid.RowDefinitions>
                 <Grid.ColumnDefinitions>
@@ -54,7 +54,7 @@
                 <Button Content="↓" HorizontalAlignment="Right" Width="12" Height="24" VerticalAlignment="Center" Margin="0,136,0,106" Click="DownButton_Click"/>
             </Grid>
             <GridSplitter Grid.Row="2" VerticalAlignment="Stretch" HorizontalAlignment="Stretch"></GridSplitter>
-            <RichTextBox Grid.Row="3" Name="LogTextBox" IsReadOnly="True" IsReadOnlyCaretVisible="False" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Height="auto" TextChanged="LogTextBox_TextChanged">
+            <RichTextBox Grid.Row="3" Name="LogTextBox" IsReadOnly="True" IsReadOnlyCaretVisible="False" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Height="auto" TextChanged="LogTextBox_TextChanged" FontFamily="Consolas">
                 <RichTextBox.Resources>
                     <Style TargetType="{x:Type Paragraph}">
                         <Setter Property="Margin" Value="0" />

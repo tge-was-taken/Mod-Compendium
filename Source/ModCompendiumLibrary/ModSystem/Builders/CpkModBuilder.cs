@@ -1,13 +1,15 @@
-﻿using System.Diagnostics;
+﻿using System;
+using System.Diagnostics;
 using System.IO;
 using ModCompendiumLibrary.Logging;
 using ModCompendiumLibrary.VirtualFileSystem;
 
 namespace ModCompendiumLibrary.ModSystem.Builders
 {
+    [ModBuilder("CPK Mod Builder")]
     public class CpkModBuilder : IModBuilder
     {
-        private static readonly string sCsvPath = "cpkmaker.out.csv";
+        private const string CSV_PATH = "cpkmaker.out.csv";
 
         public int Alignment { get; } = 2048;
 
@@ -20,6 +22,11 @@ namespace ModCompendiumLibrary.ModSystem.Builders
         /// <inheritdoc />
         public VirtualFileSystemEntry Build( VirtualDirectory root, string hostOutputPath = null )
         {
+            if ( root == null )
+            {
+                throw new ArgumentNullException( nameof( root ) );
+            }
+
             Log.Builder.Info( $"Building CPK: {root.Name}" );
 
             // SerializeCore files to temporary directory
@@ -55,10 +62,10 @@ namespace ModCompendiumLibrary.ModSystem.Builders
             var process = Process.Start( processStartInfo );
             process.WaitForExit();
 
-            if ( DeleteCsv && File.Exists( sCsvPath ) )
+            if ( DeleteCsv && File.Exists( CSV_PATH ) )
             {
-                Log.Builder.Trace( $"Deleting CSV: {sCsvPath}" );
-                File.Delete( sCsvPath );
+                Log.Builder.Trace( $"Deleting CSV: {CSV_PATH}" );
+                File.Delete( CSV_PATH );
             }
 
             // Create virtual CPK file entry

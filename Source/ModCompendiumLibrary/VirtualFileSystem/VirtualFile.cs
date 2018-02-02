@@ -1,9 +1,10 @@
 ﻿using System;
 using System.IO;
+using ModCompendiumLibrary.IO;
 
 namespace ModCompendiumLibrary.VirtualFileSystem
 {
-    public class VirtualFile : VirtualFileSystemEntry
+    public class VirtualFile : VirtualFileSystemEntry, IDisposable
     {
         private readonly Stream mStream;
 
@@ -25,7 +26,7 @@ namespace ModCompendiumLibrary.VirtualFileSystem
         public Stream Open()
         {
             if ( StoredInMemory )
-                return mStream;
+                return new UncloseableStream( mStream );
             else
                 return File.OpenRead( HostPath );
         }
@@ -43,7 +44,7 @@ namespace ModCompendiumLibrary.VirtualFileSystem
                     mStream.Position = 0;
                 }
             }
-            else
+            else if (!HostPath.Equals(path, StringComparison.InvariantCultureIgnoreCase))
             {
                 File.Copy( HostPath, path, true );
             }
@@ -72,6 +73,12 @@ namespace ModCompendiumLibrary.VirtualFileSystem
         public static VirtualFile FromHostFile( string path, VirtualDirectory parent = null )
         {
             return new VirtualFile( parent, path, Path.GetFileName( path ) );
+        }
+
+        public void Dispose()
+        {
+            if ( StoredInMemory )
+                mStream.Dispose();
         }
     }
 }

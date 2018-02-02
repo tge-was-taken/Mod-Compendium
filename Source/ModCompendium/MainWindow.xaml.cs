@@ -134,33 +134,36 @@ namespace ModCompendium
             Application.Current.Dispatcher.Invoke( () =>
             {
                 SolidColorBrush color;
+                string severityIndicator;
 
                 switch ( e.Severity )
                 {
                     case Severity.Trace:
                         color = Brushes.Gray;
-                        break;
-                    case Severity.Info:
-                        color = Brushes.Black;
+                        severityIndicator = "T";
                         break;
                     case Severity.Warning:
-                        color = Brushes.Yellow;
+                        color = Brushes.Orange;
+                        severityIndicator = "!";
                         break;
                     case Severity.Error:
                         color = Brushes.Red;
+                        severityIndicator = "E";
                         break;
                     case Severity.Fatal:
                         color = Brushes.Magenta;
+                        severityIndicator = "F";
                         break;
 
                     default:
                         color = Brushes.Black;
+                        severityIndicator = "I";
                         break;
                 }
 
                 var textRange = new TextRange( LogTextBox.Document.ContentEnd, LogTextBox.Document.ContentEnd )
                 {
-                    Text = $"[{e.Channel.Name}] {e.Severity}: {e.Message}\n"
+                    Text = $"[{e.Channel.Name}] {severityIndicator}: {e.Message}\n"
                 };
 
                 textRange.ApplyPropertyValue( TextElement.ForegroundProperty, color );
@@ -218,7 +221,9 @@ namespace ModCompendium
 
                 var merger = new TopToBottomModMerger();
                 var merged = merger.Merge( enabledMods );
-                var builder = GameModBuilder.Get( SelectedGame );
+
+                // Todo
+                var builder = ModBuilderManager.GetCompatibleModBuilders( SelectedGame ).First().Create();
 
                 try
                 {
@@ -349,7 +354,7 @@ namespace ModCompendium
                 return;
 
             // Get unique directory
-            string modPath = Path.Combine( ModDatabase.ModDirectory, newMod.Title );
+            string modPath = Path.Combine( ModDatabase.ModDirectory, newMod.ModTitle );
             if ( Directory.Exists( modPath ) )
             {
                 var newModPath = modPath;
@@ -391,6 +396,7 @@ namespace ModCompendium
                                   MessageBoxImage.Exclamation ) == MessageBoxResult.OK )
             {
                 var mod = ( Mod )( ModViewModel )ModGrid.SelectedValue;
+                Log.General.Warning( $"Deleting mod directory: {mod.BaseDirectory}" );
                 Directory.Delete( mod.BaseDirectory, true );
                 RefreshModDatabase();
             }
