@@ -58,16 +58,16 @@ namespace ModCompendiumLibrary.ModSystem.Builders
     {
         public Type Type { get; }
 
-        public string DisplayName { get; }
+        public string FriendlyName { get; }
 
         public Game? Game { get; }
 
         public bool IsGeneric => Game == null;
 
-        internal ModBuilderInfo( Type type, string displayName, Game? game )
+        internal ModBuilderInfo( Type type, string friendlyName, Game? game )
         {
             Type = type;
-            DisplayName = displayName;
+            FriendlyName = friendlyName;
             Game = game;
         }
 

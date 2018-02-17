@@ -79,7 +79,7 @@
     <Compile Include="ModSystem\Builders\CvmModBuilder.cs" />
     <Compile Include="ModSystem\Builders\Persona34\ExecutablePatcher.cs" />
     <Compile Include="ModSystem\Builders\Persona34FileModBuilder.cs" />
-    <Compile Include="ModSystem\Builders\Persona5CpkModBuilder.cs" />
+    <Compile Include="ModSystem\Builders\Persona5ModCpkModBuilder.cs" />
     <Compile Include="Game.cs" />
     <Compile Include="ModSystem\Mergers\IModMerger.cs" />
     <Compile Include="ModSystem\Builders\IModBuilder.cs" />

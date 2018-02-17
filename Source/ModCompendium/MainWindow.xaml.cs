@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
@@ -217,6 +218,20 @@ namespace ModCompendium
                 foreach ( var enabledMod in enabledMods )
                 {
                     Log.General.Info( $"\t{enabledMod.Title}" );
+                }
+
+                // Run prebuild scripts
+                foreach ( var enabledMod in enabledMods )
+                {
+                    var prebuildPath = Path.Combine( enabledMod.BaseDirectory, "prebuild.bat" );
+                    if ( File.Exists( prebuildPath ) )
+                    {
+                        var info = new ProcessStartInfo( Path.GetFullPath(prebuildPath) );
+                        info.WorkingDirectory = Path.GetFullPath( enabledMod.BaseDirectory );
+
+                        var process = Process.Start( info );
+                        process?.WaitForExit();
+                    }
                 }
 
                 var merger = new TopToBottomModMerger();

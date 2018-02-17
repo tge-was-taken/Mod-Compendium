@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:ModCompendium"
         mc:Ignorable="d"
-        Title="Mod Compendium" Height="800" Width="800" MinHeight="600" MinWidth="800">
+        Title="Mod Compendium" Height="800" Width="800" MinHeight="600" MinWidth="800" Icon="Icon.ico">
     <Grid>
         <Grid Margin="10">
             <Grid.RowDefinitions>

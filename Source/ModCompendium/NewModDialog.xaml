@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:ModCompendium"
         mc:Ignorable="d"
-        Title="Create a new mod" Height="260" Width="300" ResizeMode="NoResize">
+        Title="Create a new mod" Height="260" Width="300" ResizeMode="NoResize" Icon="Icon.ico">
     <Grid>
         <Grid Margin="10,10,10,0">
             <!--2 columns-->
