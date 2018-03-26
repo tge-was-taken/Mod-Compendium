@@ -385,7 +385,7 @@ namespace ModCompendium
                 return;
 
             // Get unique directory
-            string modPath = Path.Combine( ModDatabase.ModDirectory, newMod.ModTitle );
+            string modPath = Path.Combine( ModDatabase.ModDirectory, SelectedGame.ToString(), newMod.ModTitle );
             if ( Directory.Exists( modPath ) )
             {
                 var newModPath = modPath;
