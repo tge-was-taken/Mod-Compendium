@@ -297,11 +297,17 @@ namespace ModCompendium
                 var scriptFilePath = Path.Combine( enabledMod.BaseDirectory, scriptFileName );
                 if ( File.Exists( scriptFilePath ) )
                 {
-                    var info = new ProcessStartInfo( Path.GetFullPath( scriptFilePath ) );
-                    info.WorkingDirectory = Path.GetFullPath( enabledMod.BaseDirectory );
+                    try
+                    {
+                        var info = new ProcessStartInfo( Path.GetFullPath( scriptFilePath ) );
+                        info.WorkingDirectory = Path.GetFullPath( enabledMod.BaseDirectory );
 
-                    var process = Process.Start( info );
-                    process?.WaitForExit();
+                        var process = Process.Start( info );
+                        process?.WaitForExit();
+                    }
+                    catch ( Exception )
+                    {
+                    }
                 }
             }
         }
