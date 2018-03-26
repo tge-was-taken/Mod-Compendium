@@ -52,43 +52,55 @@ namespace ModCompendiumLibrary.ModSystem
                 var modLoader = new XmlModLoader();
 
                 foreach ( var directory in Directory.EnumerateDirectories( ModDirectory ) )
-                {
-                    var localDirectoryPath = directory.Remove( 0, ModDirectory.Length );
+                    TryLoadModDirectory( modLoader, directory );
+            }
+        }
 
-                    Mod mod = null;
+        private static void TryLoadModDirectory( XmlModLoader modLoader, string directory )
+        {
+            var localDirectoryPath = directory.Remove( 0, ModDirectory.Length );
 
-                    try
-                    {
-                        mod = modLoader.Load( directory );
-                    }
-                    catch ( ModXmlFileMissingException )
-                    {
-                        Log.ModDatabase.Error( $"Mod directory '{localDirectoryPath}' doesn't contain a Mod.xml file." );
-                    }
-                    catch ( ModXmlFileInvalidException e )
-                    {
-                        Log.ModDatabase.Error( $"Mod directory '{localDirectoryPath}' contains an invalid Mod.xml file: {e.Message}." );
-                    }
-                    catch ( ModDataDirectoryMissingException )
-                    {
-                        Log.ModDatabase.Error( $"Mod directory '{localDirectoryPath}' doesn't have a Data directory." );
-                    }
-                    catch ( Exception e )
-                    {
-                        Log.ModDatabase.Error(
-                            $"Unhandled exception thrown while loading mod directory '{localDirectoryPath}':\n{e.Message}\n{e.StackTrace}" );
+            bool notAModDirectory = false;
+            Mod mod = null;
+
+            try
+            {
+                mod = modLoader.Load( directory );
+            }
+            catch ( ModXmlFileMissingException )
+            {
+                Log.ModDatabase.Warning( $"Mod directory '{localDirectoryPath}' doesn't contain a Mod.xml file." );
+                notAModDirectory = true;
+            }
+            catch ( ModXmlFileInvalidException e )
+            {
+                Log.ModDatabase.Error( $"Mod directory '{localDirectoryPath}' contains an invalid Mod.xml file: {e.Message}." );
+            }
+            catch ( ModDataDirectoryMissingException )
+            {
+                Log.ModDatabase.Error( $"Mod directory '{localDirectoryPath}' doesn't have a Data directory." );
+            }
+            catch ( Exception e )
+            {
+                Log.ModDatabase.Error(
+                    $"Unhandled exception thrown while loading mod directory '{localDirectoryPath}':\n{e.Message}\n{e.StackTrace}" );
 
 #if DEBUG
                         throw;
 #endif
-                    }
+            }
 
-                    if ( mod != null )
-                    {
-                        sModById[mod.Id] = mod;
-                        sModsByGame[mod.Game].Add( mod );
-                    }
-                }
+            if ( mod != null )
+            {
+                sModById[ mod.Id ] = mod;
+                sModsByGame[ mod.Game ].Add( mod );
+            }
+
+            if ( notAModDirectory )
+            {
+                // Recurse
+                foreach ( var subDirectory in Directory.EnumerateDirectories( directory ) )
+                    TryLoadModDirectory( modLoader, subDirectory );
             }
         }
 
