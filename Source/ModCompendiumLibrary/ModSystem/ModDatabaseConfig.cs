@@ -14,14 +14,12 @@ namespace ModCompendiumLibrary.ModSystem
 
         void IConfigurable.Deserialize( XElement element )
         {
-            var modsDirectoryPathElement = element.Element( nameof( ModsDirectoryPath ) );
-            if ( modsDirectoryPathElement != null )
-                ModsDirectoryPath = modsDirectoryPathElement.Value;
+            ModsDirectoryPath = element.GetElementValueOrFallback( nameof( ModsDirectoryPath ), "Mods\\" );
         }
 
         void IConfigurable.Serialize( XElement element )
         {
-            element.Add( new XElement( nameof( ModsDirectoryPath ), ModsDirectoryPath ) );
+            element.Add( nameof( ModsDirectoryPath ), ModsDirectoryPath );
         }
     }
 }

@@ -38,41 +38,41 @@ namespace ModCompendiumLibrary.ModSystem.Builders
                 throw new InvalidOperationException( "Game config is missing." );
             }
 
-            if ( string.IsNullOrWhiteSpace( config.DvdRootPath ) )
+            if ( string.IsNullOrWhiteSpace( config.DvdRootOrIsoPath ) )
             {
                 throw new InvalidConfigException( "Dvd root path/ISO path is not specified." );
             }
 
-            // Get dvd root files
+            // Get files
             VirtualDirectory dvdRootDirectory;
             CDReader isoFileSystem = null;
 
-            Log.Builder.Trace( $"DvdRootPath = {config.DvdRootPath}" );
+            Log.Builder.Trace( $"RootOrIsoPath = {config.DvdRootOrIsoPath}" );
 
-            if ( config.DvdRootPath.EndsWith(".iso") )
+            if ( config.DvdRootOrIsoPath.EndsWith(".iso") )
             {
-                Log.Builder.Info( $"Mounting ISO: {config.DvdRootPath}" );
+                Log.Builder.Info( $"Mounting ISO: {config.DvdRootOrIsoPath}" );
 
-                if ( !File.Exists( config.DvdRootPath ) )
+                if ( !File.Exists( config.DvdRootOrIsoPath ) )
                 {
-                    throw new InvalidConfigException( $"Dvd root path references an ISO file that does not exist: {config.DvdRootPath}." );
+                    throw new InvalidConfigException( $"Dvd root path references an ISO file that does not exist: {config.DvdRootOrIsoPath}." );
                 }
 
                 // Iso file found, convert it to our virtual file system
-                isoFileSystem = new CDReader( File.OpenRead( config.DvdRootPath ), false );
+                isoFileSystem = new CDReader( File.OpenRead( config.DvdRootOrIsoPath ), false );
                 dvdRootDirectory = ( VirtualDirectory ) ConvertEntryRecursively( isoFileSystem, isoFileSystem.Root.FullName );
             }
             else
             {
-                Log.Builder.Info( $"Mounting directory: {config.DvdRootPath}" );
+                Log.Builder.Info( $"Mounting directory: {config.DvdRootOrIsoPath}" );
 
-                if ( !Directory.Exists( config.DvdRootPath ) )
+                if ( !Directory.Exists( config.DvdRootOrIsoPath ) )
                 {
-                    throw new InvalidConfigException( $"Dvd root path references a directory that does not exist: {config.DvdRootPath}." );
+                    throw new InvalidConfigException( $"Dvd root path references a directory that does not exist: {config.DvdRootOrIsoPath}." );
                 }
 
                 // No iso file found, assume files are extracted
-                dvdRootDirectory = VirtualDirectory.FromHostDirectory( config.DvdRootPath );
+                dvdRootDirectory = VirtualDirectory.FromHostDirectory( config.DvdRootOrIsoPath );
                 dvdRootDirectory.Name = string.Empty;
             }
 

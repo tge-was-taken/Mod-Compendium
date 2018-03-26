@@ -57,18 +57,12 @@ namespace ModCompendiumLibrary.IO
 
         public override void Close()
         {
-            //if ( mStream is MemoryStream )
-            //    return;
-
-            //base.Close();
+            // Dummy
         }
 
         public new void Dispose()
         {
-            //if ( mStream is MemoryStream )
-            //    return;
-
-            //base.Dispose();
+            // Dummy
         }
 
         public void ForceDispose()

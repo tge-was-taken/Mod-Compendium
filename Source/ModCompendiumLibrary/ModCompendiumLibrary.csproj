@@ -53,7 +53,7 @@
   <ItemGroup>
     <Compile Include="Configuration\ConfigManager.cs" />
     <Compile Include="Configuration\IConfigurable.cs" />
-    <Compile Include="Configuration\SerializationHelper.cs" />
+    <Compile Include="Configuration\XElementExtensions.cs" />
     <Compile Include="Configuration\GameConfig.cs" />
     <Compile Include="Configuration\GlobalConfig.cs" />
     <Compile Include="Configuration\Persona34GameConfig.cs" />
@@ -66,6 +66,7 @@
     <Compile Include="Logging\LogChannel.cs" />
     <Compile Include="Logging\MessageBroadcastedEventArgs.cs" />
     <Compile Include="Logging\Severity.cs" />
+    <Compile Include="ModSystem\Builders\ModBuilderInfo.cs" />
     <Compile Include="ModSystem\Builders\ModBuilderManager.cs" />
     <Compile Include="ModSystem\Builders\ModBuilderAttribute.cs" />
     <Compile Include="ModSystem\Builders\Exceptions\InvalidConfigException.cs" />

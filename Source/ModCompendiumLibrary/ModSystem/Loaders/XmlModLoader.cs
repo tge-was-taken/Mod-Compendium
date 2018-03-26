@@ -114,9 +114,7 @@ namespace ModCompendiumLibrary.ModSystem.Loaders
             Log.Loader.Trace( $"Saving mod to directory: {mod.BaseDirectory}" );
 
             if ( !Directory.Exists( mod.BaseDirectory ) )
-            {
                 Directory.CreateDirectory( mod.BaseDirectory );
-            }
 
             // Serialize mod xml
             var modXmlPath = Path.Combine( mod.BaseDirectory, "Mod.xml" );
@@ -136,15 +134,15 @@ namespace ModCompendiumLibrary.ModSystem.Loaders
             document.Add( rootElement );
             document.Save( modXmlPath );
 
+            var prebuildScriptPath = Path.Combine( mod.BaseDirectory, "prebuild.bat" );
+            if ( !File.Exists( prebuildScriptPath ) )
+                File.Create( prebuildScriptPath ).Close();
+
             if ( string.IsNullOrWhiteSpace( mod.DataDirectory ) )
-            {
                 mod.DataDirectory = Path.Combine( mod.BaseDirectory, "Data" );
-            }
 
             if ( !Directory.Exists( mod.DataDirectory ) )
-            {
                 Directory.CreateDirectory( mod.DataDirectory );
-            }
         }
     }
 }

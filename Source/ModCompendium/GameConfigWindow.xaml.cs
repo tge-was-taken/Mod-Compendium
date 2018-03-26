@@ -12,12 +12,12 @@ namespace ModCompendium
     /// </summary>
     public partial class GameConfigWindow : Window
     {
-        private GameConfig mConfig;
+        private readonly GameConfig mConfig;
 
         public GameConfigWindow(GameConfig config)
         {
             InitializeComponent();
-            this.DataContext = config;
+            DataContext = config;
             mConfig = config;
 
             // Add game specific settings
@@ -59,7 +59,7 @@ namespace ModCompendium
                         Width = 291,
                     };
 
-                    dvdRootPathTextBox.SetBinding( TextBox.TextProperty, new Binding( "DvdRootPath" ) );
+                    dvdRootPathTextBox.SetBinding( TextBox.TextProperty, new Binding( nameof(Persona34GameConfig.DvdRootOrIsoPath) ) );
 
                     Grid.SetRow( dvdRootPathTextBox, 2 );
                     Grid.SetColumn( dvdRootPathTextBox, 1 );
@@ -78,10 +78,10 @@ namespace ModCompendium
 
                     dvdRootPathTextBoxButton.Click += ( s, e ) =>
                     {
-                        var file = SelectFile();
+                        var file = SelectFile( new CommonFileDialogFilter( "ISO file", ".iso" ) );
                         if ( file != null )
                         {
-                            p34Config.DvdRootPath = file;
+                            p34Config.DvdRootOrIsoPath = file;
                             dvdRootPathTextBox.GetBindingExpression( TextBox.TextProperty ).UpdateTarget();
                         }
                     };
@@ -125,7 +125,7 @@ namespace ModCompendium
 
             return null;
         }
-        private string SelectFile()
+        private string SelectFile( params CommonFileDialogFilter[] filters )
         {
             var dialog = new CommonOpenFileDialog();
             dialog.AllowNonFileSystemItems = true;
@@ -134,6 +134,8 @@ namespace ModCompendium
             dialog.EnsureValidNames = true;
             dialog.DefaultFileName = "Select file";
             dialog.Title = "Select file";
+            foreach ( var filter in filters )
+                dialog.Filters.Add( filter );
 
             if ( dialog.ShowDialog() == CommonFileDialogResult.Ok )
             {

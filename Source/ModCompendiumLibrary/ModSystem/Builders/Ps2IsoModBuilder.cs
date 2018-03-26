@@ -1,7 +1,5 @@
 ﻿using System;
-using System.IO;
 using ModCompendiumLibrary.VirtualFileSystem;
-using System.Linq;
 using ModCompendiumLibrary.FileParsers;
 using DiscUtils.Iso9660;
 
@@ -124,6 +122,7 @@ namespace ModCompendiumLibrary.ModSystem.Builders
         }
     }
 
+    // Todo
     //[ModBuilder("Persona 3 ISO Mod Builder", Game = Game.Persona3)]
     public class Persona3IsoModBuilder : Persona34IsoModBuilder
     {

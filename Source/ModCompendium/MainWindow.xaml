@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:ModCompendium"
         mc:Ignorable="d"
-        Title="Mod Compendium" Height="800" Width="800" MinHeight="600" MinWidth="800" Icon="Icon.ico">
+        Title="Mod Compendium 1.0" Height="800" Width="800" MinHeight="600" MinWidth="800" Icon="Icon.ico">
     <Grid>
         <Grid Margin="10">
             <Grid.RowDefinitions>
@@ -39,6 +39,16 @@
                 <DataGrid Name="ModGrid" AlternatingRowBackground="LightGray" AutoGenerateColumns="False" Margin="0,0,15,0"
                           EnableColumnVirtualization="False" CanUserAddRows="False" CanUserDeleteRows="False" CanUserReorderColumns="True" 
                           CanUserResizeColumns="True" CanUserResizeRows="True" CanUserSortColumns="False" KeyDown="ModGrid_KeyDown">
+                    <DataGrid.ContextMenu>
+                        <ContextMenu>
+                            <MenuItem Header="Open Directory" Click="DataGridContextMenuOpenDirectory_Click"></MenuItem>
+                            <Separator></Separator>
+                            <MenuItem Header="Move Up" Click="DataGridContextMenuMoveUp_Click"></MenuItem>
+                            <MenuItem Header="Move Down" Click="DataGridContextMenuMoveDown_Click"></MenuItem>
+                            <Separator></Separator>
+                            <MenuItem Header="Delete" Click="DataGridContextMenuDelete_Click"></MenuItem>
+                        </ContextMenu>
+                    </DataGrid.ContextMenu>
                     <DataGrid.Columns>
                         <DataGridCheckBoxColumn Header="Enabled" Binding="{Binding Enabled, Mode=TwoWay}"  IsReadOnly="False" Width="52" MinWidth="52" MaxWidth="52"></DataGridCheckBoxColumn>
                         <DataGridTextColumn Header="Title" Binding="{Binding Title, Mode=TwoWay}" IsReadOnly="False"></DataGridTextColumn>

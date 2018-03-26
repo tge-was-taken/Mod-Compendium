@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
@@ -34,6 +35,10 @@ namespace ModCompendium
         public GameConfig GameConfig { get; private set; }
 
         public MainWindowConfig Config { get; private set; }
+
+        public ModViewModel SelectedModViewModel => ( ModViewModel ) ModGrid.SelectedItem;
+
+        public Mod SelectedMod => ( Mod )SelectedModViewModel;
 
         public MainWindow()
         {
@@ -129,10 +134,18 @@ namespace ModCompendium
         }
 
         // Events
+        private static void InvokeOnUIThread( Action action )
+        {
+            Application.Current.Dispatcher.BeginInvoke( action );
+        }
+
         private void Log_MessageBroadcasted( object sender, MessageBroadcastedEventArgs e )
         {
+            if ( e.Severity == Severity.Trace )
+                return;
+
             // Invoke on UI thread
-            Application.Current.Dispatcher.Invoke( () =>
+            InvokeOnUIThread( () =>
             {
                 SolidColorBrush color;
                 string severityIndicator;
@@ -216,23 +229,10 @@ namespace ModCompendium
 
                 Log.General.Info( "Building mods:" );
                 foreach ( var enabledMod in enabledMods )
-                {
                     Log.General.Info( $"\t{enabledMod.Title}" );
-                }
 
                 // Run prebuild scripts
-                foreach ( var enabledMod in enabledMods )
-                {
-                    var prebuildPath = Path.Combine( enabledMod.BaseDirectory, "prebuild.bat" );
-                    if ( File.Exists( prebuildPath ) )
-                    {
-                        var info = new ProcessStartInfo( Path.GetFullPath(prebuildPath) );
-                        info.WorkingDirectory = Path.GetFullPath( enabledMod.BaseDirectory );
-
-                        var process = Process.Start( info );
-                        process?.WaitForExit();
-                    }
-                }
+                RunModScripts( enabledMods, "prebuild.bat" );
 
                 var merger = new TopToBottomModMerger();
                 var merged = merger.Merge( enabledMods );
@@ -248,7 +248,7 @@ namespace ModCompendium
                 }
                 catch ( InvalidConfigException exception )
                 {
-                    Application.Current.Dispatcher.Invoke(
+                    InvokeOnUIThread(
                         () => MessageBox.Show( this, $"SelectedGame configuration is invalid.\n{exception.Message}", "Error",
                                                MessageBoxButton.OK, MessageBoxImage.Error ) );
 
@@ -256,14 +256,14 @@ namespace ModCompendium
                 }
                 catch ( MissingFileException exception )
                 {
-                    Application.Current.Dispatcher.Invoke(
+                    InvokeOnUIThread(
                         () => MessageBox.Show( this, $"A file is missing:\n{exception.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error ) );
 
                     return false;
                 }
                 catch ( Exception exception )
                 {
-                    Application.Current.Dispatcher.Invoke(
+                    InvokeOnUIThread(
                         () => MessageBox.Show(
                             this, $"Unhandled exception occured while building:\n{exception.Message}\n{exception.StackTrace}", "Error",
                             MessageBoxButton.OK, MessageBoxImage.Error ) );
@@ -278,16 +278,32 @@ namespace ModCompendium
                 }
 
                 return true;
-            }, TaskCreationOptions.LongRunning );
+            }, TaskCreationOptions.AttachedToParent );
 
             task.ContinueWith( ( t ) =>
             {
-                Application.Current.Dispatcher.Invoke( () =>
+                InvokeOnUIThread( () =>
                 {
                     if ( t.Result )
                         MessageBox.Show( this, "Done building!", "Done", MessageBoxButton.OK, MessageBoxImage.None );
                 } );
             } );
+        }
+
+        private static void RunModScripts( List<Mod> enabledMods, string scriptFileName )
+        {
+            foreach ( var enabledMod in enabledMods )
+            {
+                var scriptFilePath = Path.Combine( enabledMod.BaseDirectory, scriptFileName );
+                if ( File.Exists( scriptFilePath ) )
+                {
+                    var info = new ProcessStartInfo( Path.GetFullPath( scriptFilePath ) );
+                    info.WorkingDirectory = Path.GetFullPath( enabledMod.BaseDirectory );
+
+                    var process = Process.Start( info );
+                    process?.WaitForExit();
+                }
+            }
         }
 
         private void ModGrid_KeyDown( object sender, KeyEventArgs e )
@@ -316,8 +332,6 @@ namespace ModCompendium
 
         private void UpOrDownButtonClick( bool isUp )
         {
-            var selected = ( ModViewModel )ModGrid.SelectedValue;
-            var selectedMod = ( Mod )selected;
             var selectedIndex = ModGrid.SelectedIndex;
             int targetIndex;
 
@@ -337,12 +351,12 @@ namespace ModCompendium
             var target = ( Mod )( ModViewModel )ModGrid.Items[targetIndex];
 
             // Order
-            Config.ModOrder[selectedMod.Id] = targetIndex;
+            Config.ModOrder[SelectedModViewModel.Id] = targetIndex;
             Config.ModOrder[target.Id] = selectedIndex;
 
             // Gui update
-            Mods.Remove( selected );
-            Mods.Insert( targetIndex, selected );
+            Mods.Remove( SelectedModViewModel );
+            Mods.Insert( targetIndex, SelectedModViewModel );
             ModGrid.Items.Refresh();
             ModGrid.SelectedIndex = targetIndex;
         }
@@ -358,7 +372,7 @@ namespace ModCompendium
             UpdateConfigChangesAndSave();
 
             // Reload
-            ModCompendiumLibrary.Configuration.ConfigManager.Load();
+            ConfigManager.Load();
             RefreshModDatabase();
         }
 
@@ -378,9 +392,7 @@ namespace ModCompendium
                 int i = 0;
 
                 while ( Directory.Exists( newModPath ) )
-                {
                     newModPath = modPath + "_" + i++;
-                }
 
                 modPath = newModPath;
             }
@@ -408,15 +420,39 @@ namespace ModCompendium
 
         private void DeleteButton_Click( object sender, RoutedEventArgs e )
         {
+            DeleteSelectedMod();
+        }
+
+        private void DeleteSelectedMod()
+        {
             if ( MessageBox.Show( this, "Are you sure you want to delete this mod? The data will be lost forever.", "Warning",
                                   MessageBoxButton.OKCancel,
                                   MessageBoxImage.Exclamation ) == MessageBoxResult.OK )
             {
-                var mod = ( Mod )( ModViewModel )ModGrid.SelectedValue;
-                Log.General.Warning( $"Deleting mod directory: {mod.BaseDirectory}" );
-                Directory.Delete( mod.BaseDirectory, true );
+                Log.General.Warning( $"Deleting mod directory: {SelectedMod.BaseDirectory}" );
+                Directory.Delete( SelectedMod.BaseDirectory, true );
                 RefreshModDatabase();
             }
+        }
+
+        private void DataGridContextMenuOpenDirectory_Click( object sender, RoutedEventArgs e )
+        {
+            Process.Start( SelectedMod.BaseDirectory );
+        }
+
+        private void DataGridContextMenuMoveUp_Click( object sender, RoutedEventArgs e )
+        {
+            UpOrDownButtonClick( true );
+        }
+
+        private void DataGridContextMenuMoveDown_Click( object sender, RoutedEventArgs e )
+        {
+            UpOrDownButtonClick( false );
+        }
+
+        private void DataGridContextMenuDelete_Click( object sender, RoutedEventArgs e )
+        {
+            DeleteSelectedMod();
         }
     }
 }
