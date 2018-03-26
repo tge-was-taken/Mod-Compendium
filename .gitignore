@@ -5,6 +5,7 @@
 /.vs
 /Source/.vs
 /Source/ModCompendium/bin/Debug
+/Source/ModCompendium/bin/Release
 /Source/ModCompendium/obj
 /Source/ModCompendiumCLI/bin
 /Source/ModCompendiumCLI/obj
@@ -13,3 +14,4 @@
 /Source/packages
 /Source/ModCompendiumLibrary.sln.DotSettings.user
 *.user
+/Source/ModCompendium/bin/Release/Config
