@@ -19,7 +19,7 @@ namespace ModCompendiumLibrary.ModSystem
 
         void IConfigurable.Serialize( XElement element )
         {
-            element.Add( nameof( ModsDirectoryPath ), ModsDirectoryPath );
+            element.AddNameValuePair( nameof( ModsDirectoryPath ), ModsDirectoryPath );
         }
     }
 }
