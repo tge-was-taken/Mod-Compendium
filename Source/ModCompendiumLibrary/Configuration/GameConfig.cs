@@ -88,7 +88,7 @@ namespace ModCompendiumLibrary.Configuration
 
         void IConfigurable.Serialize( XElement element )
         {
-            element.Add( new XElement( nameof( OutputDirectoryPath ), OutputDirectoryPath ) );
+            element.AddNameValuePair( nameof( OutputDirectoryPath ), OutputDirectoryPath );
             element.Add( SerializeEnabledMods() );
 
             SerializeCore( element );
@@ -99,7 +99,7 @@ namespace ModCompendiumLibrary.Configuration
             var enabledModsElement = new XElement( nameof( EnabledModIds ) );
             foreach ( var modId in EnabledModIds )
             {
-                enabledModsElement.Add( new XElement( "EnabledModId", modId ) );
+                enabledModsElement.AddNameValuePair( "EnabledModId", modId );
             }
 
             return enabledModsElement;
