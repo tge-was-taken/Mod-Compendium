@@ -30,9 +30,9 @@ namespace ModCompendiumLibrary.Configuration
             }
         }
 
-        public static void Add( this XElement element, string name, object content )
+        public static void AddNameValuePair( this XElement element, string name, object value )
         {
-            element.Add( new XElement( name, content ) );
+            element.Add( new XElement( name, value ) );
         }
 
     }
