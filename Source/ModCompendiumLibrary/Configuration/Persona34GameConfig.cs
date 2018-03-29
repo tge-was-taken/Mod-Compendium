@@ -21,7 +21,7 @@ namespace ModCompendiumLibrary.Configuration
 
         protected override void SerializeCore( XElement element )
         {
-            element.Add( nameof( DvdRootOrIsoPath ), DvdRootOrIsoPath );
+            element.Add( new XElement( nameof( DvdRootOrIsoPath ), DvdRootOrIsoPath ) );
         }
     }
 }

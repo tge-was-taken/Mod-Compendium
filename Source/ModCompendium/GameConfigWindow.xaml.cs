@@ -33,6 +33,7 @@ namespace ModCompendium
                     var dvdRootPathLabel = new Label()
                     {
                         Content = "ISO Path",
+                        ToolTip = "Path to an unmodified ISO of " + config.Game.ToString(),
                         HorizontalContentAlignment = HorizontalAlignment.Center,
                         VerticalContentAlignment = VerticalAlignment.Center,
                         HorizontalAlignment = HorizontalAlignment.Center,
@@ -46,7 +47,7 @@ namespace ModCompendium
                     ConfigPropertyGrid.Children.Add( dvdRootPathLabel );
                 }
 
-                // Dvd root directory textg box
+                // Dvd root directory text box
                 TextBox dvdRootPathTextBox;
                 {
                     dvdRootPathTextBox = new TextBox()
@@ -70,6 +71,7 @@ namespace ModCompendium
                 {
                     var dvdRootPathTextBoxButton = new Button()
                     {
+                        Content = "...",
                         HorizontalAlignment = HorizontalAlignment.Right,
                         VerticalAlignment = VerticalAlignment.Center,
                         Width = 20,
@@ -93,12 +95,12 @@ namespace ModCompendium
             }
         }
 
-        private void Button_Click( object sender, RoutedEventArgs e )
+        private void ButtonOk_Click( object sender, RoutedEventArgs e )
         {
             Close();
         }
 
-        private void Button_Click_1( object sender, RoutedEventArgs e )
+        private void ButtonOutputDirectoryPath_Click( object sender, RoutedEventArgs e )
         {
             var directory = SelectDirectory();
             if ( directory != null )
