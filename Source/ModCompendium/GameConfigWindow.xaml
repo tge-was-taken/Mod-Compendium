@@ -5,15 +5,16 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:ModCompendium"
         mc:Ignorable="d"
-        Title="SelectedGame configuration" Height="160" Width="500" ResizeMode="NoResize" Icon="Icon.ico">
+        Title="SelectedGame configuration" Height="190" Width="500" ResizeMode="NoResize" Icon="Icon.ico">
     <Grid>
-        <Grid Name="ConfigPropertyGrid" Width="Auto" Height="Auto" Margin="10,10,10,47">
+        <Grid Name="ConfigPropertyGrid" Width="Auto" Height="100" Margin="10,10,10,0" VerticalAlignment="Top">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="10*"></ColumnDefinition>
                 <ColumnDefinition Width="31*"></ColumnDefinition>
             </Grid.ColumnDefinitions>
-            
+
             <Grid.RowDefinitions>
+                <RowDefinition></RowDefinition>
                 <RowDefinition></RowDefinition>
                 <RowDefinition></RowDefinition>
             </Grid.RowDefinitions>

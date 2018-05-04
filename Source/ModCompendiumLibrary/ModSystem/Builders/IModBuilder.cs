@@ -9,7 +9,8 @@ namespace ModCompendiumLibrary.ModSystem.Builders
         /// </summary>
         /// <param name="root">Virtual directory containing mod file data.</param>
         /// <param name="hostOutputPath">Optional. If specified, the mod builder can be expected to output the built mod file to the location specified.</param>
+        /// <param name="compression">Optional. If compression == "True", the mod builder will compress the resulting cpk.</param>
         /// <returns></returns>
-        VirtualFileSystemEntry Build( VirtualDirectory root, string hostOutputPath = null );
+        VirtualFileSystemEntry Build( VirtualDirectory root, string hostOutputPath = null, string compression = null );
     }
 }

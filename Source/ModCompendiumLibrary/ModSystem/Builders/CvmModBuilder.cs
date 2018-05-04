@@ -12,7 +12,7 @@ namespace ModCompendiumLibrary.ModSystem.Builders
         private static readonly byte[] sDummyCvmHeader = GenerateDummyCvmHeader();
 
         /// <inheritdoc />
-        public VirtualFileSystemEntry Build( VirtualDirectory root, string hostOutputPath = null )
+        public VirtualFileSystemEntry Build( VirtualDirectory root, string hostOutputPath = null, string compression = null)
         {
             if ( root == null )
             {

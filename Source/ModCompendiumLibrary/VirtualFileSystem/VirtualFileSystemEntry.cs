@@ -90,7 +90,7 @@ namespace ModCompendiumLibrary.VirtualFileSystem
 
             if ( directory != null )
             {
-                copy.MoveTo( directory );
+                copy.MoveTo( directory, true );
             }
 
             return copy;

@@ -9,7 +9,7 @@ namespace ModCompendiumLibrary.ModSystem.Builders
     public class Persona5ModCpkModBuilder : IModBuilder
     {
         /// <inheritdoc />
-        public VirtualFileSystemEntry Build( VirtualDirectory root, string hostOutputPath = null )
+        public VirtualFileSystemEntry Build( VirtualDirectory root, string hostOutputPath = null, string csvPath = null )
         {
             if ( root == null )
             {
@@ -69,7 +69,7 @@ namespace ModCompendiumLibrary.ModSystem.Builders
             Log.Builder.Info( "Building mod.cpk" );
             var cpkModCompiler = new CpkModBuilder();
             var cpkFilePath = hostOutputPath != null ? Path.Combine( hostOutputPath, "mod.cpk" ) : null;
-            var cpkFile = cpkModCompiler.Build( modFilesDirectory, cpkFilePath );
+            var cpkFile = cpkModCompiler.Build( modFilesDirectory, cpkFilePath, string.Empty);
 
             Log.Builder.Info( "Done!" );
 
