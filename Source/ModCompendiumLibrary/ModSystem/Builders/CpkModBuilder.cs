@@ -20,7 +20,7 @@ namespace ModCompendiumLibrary.ModSystem.Builders
         public bool DeleteCsv { get; } = true;
 
         /// <inheritdoc />
-        public VirtualFileSystemEntry Build(VirtualDirectory root, string hostOutputPath = null, string compression = null)
+        public VirtualFileSystemEntry Build(VirtualDirectory root, string hostOutputPath = null, string gameName = null, bool useCompression = false)
         {
             if (root == null)
             {
@@ -39,10 +39,10 @@ namespace ModCompendiumLibrary.ModSystem.Builders
 
             //If compression is enabled, make CSV and get CSV path
             string csvPath = string.Empty;
-            if (compression != string.Empty && compression != null)
+            if (useCompression)
             {
                 Log.Builder.Info("Compression enabled: Building new CSV file");
-                csvPath = CsvMaker.NewCsvPath(modDirectoryPath, compression, Path.ChangeExtension(hostOutputPath, null));
+                csvPath = CsvMaker.NewCsvPath(modDirectoryPath, gameName, Path.ChangeExtension(hostOutputPath, null));
             }
 
             // Get meta file info for CPK

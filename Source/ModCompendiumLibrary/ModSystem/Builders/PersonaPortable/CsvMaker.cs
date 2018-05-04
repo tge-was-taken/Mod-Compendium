@@ -15,18 +15,9 @@ namespace ModCompendiumLibrary.ModSystem.Builders
         {
             //Get CSV template from Config folder
             var baseCsv = $"Config\\{game}.csv";
-            if (File.Exists(baseCsv))
+            if (!File.Exists(baseCsv))
             {
-                Log.Config.Trace($"Loading CSV file: {baseCsv}");
-                try
-                {
-
-                }
-                catch (Exception e)
-                {
-                    Log.Config.Error($"Failed to load CSV file: {baseCsv}");
-                    Log.Config.Trace(e.Message);
-                }
+                Log.Config.Error($"Failed to load CSV file: {baseCsv}");
             }
 
             //Create new CSV, delete old one if it eists
@@ -55,7 +46,7 @@ namespace ModCompendiumLibrary.ModSystem.Builders
                         break;
                     }
                 }
-                if (matchFound == false)
+                if (!matchFound)
                 {
                     File.AppendAllText($"{hostOutputPath}\\mod.csv", $"{match},{match},{line},Uncompress" + Environment.NewLine);
                     line++;

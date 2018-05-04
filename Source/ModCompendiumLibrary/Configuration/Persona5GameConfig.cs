@@ -10,10 +10,12 @@ namespace ModCompendiumLibrary.Configuration
 
         protected override void DeserializeCore( XElement element )
         {
+            Compression = element.GetElementValueOrEmpty(nameof(Compression));
         }
 
         protected override void SerializeCore( XElement element )
         {
+            element.AddNameValuePair(nameof(Compression), Compression);
         }
     }
 }

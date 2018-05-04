@@ -17,7 +17,7 @@ namespace ModCompendiumLibrary.ModSystem.Builders
         /// <param name="root"></param>
         /// <param name="hostOutputPath"></param>
         /// <returns>PS2 bootable ISO file.</returns>
-        public VirtualFileSystemEntry Build( VirtualDirectory root, string hostOutputPath = null, string compression = null)
+        public VirtualFileSystemEntry Build( VirtualDirectory root, string hostOutputPath = null, string gameName = null, bool useCompression = false)
         {
             if ( root == null )
             {
@@ -112,10 +112,10 @@ namespace ModCompendiumLibrary.ModSystem.Builders
     {
         protected abstract Persona34FileModBuilder GetFileModBuilder();
 
-        public VirtualFileSystemEntry Build( VirtualDirectory root, string hostOutputPath = null, string compression = null)
+        public VirtualFileSystemEntry Build( VirtualDirectory root, string hostOutputPath = null, string gameName = null, bool useCompression = false)
         {
             var fileModBuilder = GetFileModBuilder();
-            var dvdRootDirectory = fileModBuilder.Build( root);
+            var dvdRootDirectory = fileModBuilder.Build( root );
             var ps2IsoModBuilder = new Ps2IsoModBuilder();
             var ps2IsoFile = ps2IsoModBuilder.Build( ( VirtualDirectory )dvdRootDirectory, hostOutputPath );
             return ps2IsoFile;

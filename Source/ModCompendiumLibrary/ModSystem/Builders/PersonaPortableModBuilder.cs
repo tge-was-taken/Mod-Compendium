@@ -14,8 +14,10 @@ namespace ModCompendiumLibrary.ModSystem.Builders
 
         public bool OutputUnmodifiedFiles { get; } = true;
         /// <inheritdoc />
-        public VirtualFileSystemEntry Build(VirtualDirectory root, string hostOutputPath = null, string compression = null)
+        public VirtualFileSystemEntry Build(VirtualDirectory root, string hostOutputPath = null, string gameName = null, bool useCompression = false)
         {
+            gameName = Game.ToString();
+
             if (root == null)
             {
                 throw new ArgumentNullException(nameof(root));
@@ -42,7 +44,7 @@ namespace ModCompendiumLibrary.ModSystem.Builders
             // Get files from CPK
             VirtualDirectory cpkRootDirectory;
 
-            Log.Builder.Trace($"RootOrCpkPath = {config.CpkRootOrPath}");
+            Log.Builder.Trace($"RootOrCpkPath = {nameof(config.CpkRootOrPath)}");
 
             if (config.CpkRootOrPath.EndsWith(".cpk"))
             {
@@ -53,7 +55,7 @@ namespace ModCompendiumLibrary.ModSystem.Builders
                     throw new InvalidConfigException($"CPK root path references a CPK file that does not exist: {config.CpkRootOrPath}.");
                 }
 
-                string[] args = new string[] { "-x", "-i", config.CpkRootOrPath, "-d", cpkRootDirectoryPath };
+                string[] args = { "-x", "-i", config.CpkRootOrPath, "-d", cpkRootDirectoryPath };
                 Program.CriPakToolsMain(args);
                 // Cpk file found & extracted, convert it to our virtual file system
                 cpkRootDirectory = VirtualDirectory.FromHostDirectory(cpkRootDirectoryPath);
@@ -116,16 +118,12 @@ namespace ModCompendiumLibrary.ModSystem.Builders
                 }
             }
 
-            //If compression is enabled, pass game name to cpk builder
-            if (config.Compression == "True")
-            {
-                compression = Game.ToString();
-            }
+            useCompression = Convert.ToBoolean(config.Compression);
 
             // Build mod cpk
             var cpkModCompiler = new CpkModBuilder();
             var cpkFilePath = hostOutputPath != null ? Path.Combine(hostOutputPath, $"{cpkRootDirectory.Name}.cpk") : null;
-            var cpkFile = cpkModCompiler.Build(cpkRootDirectory, cpkFilePath, compression);
+            var cpkFile = cpkModCompiler.Build(cpkRootDirectory, cpkFilePath, gameName, useCompression);
             Log.Builder.Info("Done!");
             return cpkFile;
         }
