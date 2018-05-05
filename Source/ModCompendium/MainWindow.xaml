@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:ModCompendium"
         mc:Ignorable="d"
-        Title="Mod Compendium 1.0.2" Height="800" Width="800" MinHeight="600" MinWidth="800" Icon="Icon.ico">
+        Title="Mod Compendium 1.0.3" Height="800" Width="800" MinHeight="600" MinWidth="800" Icon="Icon.ico">
     <Grid>
         <Grid Margin="10">
             <Grid.RowDefinitions>
@@ -18,7 +18,7 @@
                 <Grid.RowDefinitions>
                 </Grid.RowDefinitions>
                 <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="105*"></ColumnDefinition>
+                    <ColumnDefinition Width="195*"></ColumnDefinition>
                     <ColumnDefinition Width="105*"></ColumnDefinition>
                     <ColumnDefinition Width="105*"></ColumnDefinition>
                     <ColumnDefinition Width="105*"></ColumnDefinition>
@@ -27,7 +27,7 @@
                     <ColumnDefinition Width="105*"></ColumnDefinition>
                     <ColumnDefinition Width="105*"></ColumnDefinition>
                 </Grid.ColumnDefinitions>
-                <ComboBox Name="GameComboBox" HorizontalAlignment="Center" VerticalAlignment="Center" Width="80" SelectionChanged="GameComboBox_SelectionChanged" Height="20">
+                <ComboBox Name="GameComboBox" HorizontalAlignment="Center" VerticalAlignment="Center" Width="140" SelectionChanged="GameComboBox_SelectionChanged" Height="20">
                 </ComboBox>
                 <Button Content="Settings" HorizontalAlignment="Center" VerticalAlignment="Center" Width="75" Grid.Column="1" Height="20" Click="SettingsButton_Click"/>
                 <Button Name="BuildButton" Content="_Build" HorizontalAlignment="Center" VerticalAlignment="Center" Width="75" Grid.Column="2" Click="BuildButton_Click"/>

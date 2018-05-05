@@ -264,7 +264,8 @@ namespace ModCompendium
                 catch ( Exception exception )
                 {
                     InvokeOnUIThread(
-                        () => MessageBox.Show(
+                        () => 
+                        MessageBox.Show(
                             this, $"Unhandled exception occured while building:\n{exception.Message}\n{exception.StackTrace}", "Error",
                             MessageBoxButton.OK, MessageBoxImage.Error ) );
 

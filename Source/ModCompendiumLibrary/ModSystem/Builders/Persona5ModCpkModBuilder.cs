@@ -2,6 +2,7 @@ using System;
 using System.IO;
 using ModCompendiumLibrary.Logging;
 using ModCompendiumLibrary.VirtualFileSystem;
+using ModCompendiumLibrary.Configuration;
 
 namespace ModCompendiumLibrary.ModSystem.Builders
 {
@@ -9,11 +10,21 @@ namespace ModCompendiumLibrary.ModSystem.Builders
     public class Persona5ModCpkModBuilder : IModBuilder
     {
         /// <inheritdoc />
-        public VirtualFileSystemEntry Build( VirtualDirectory root, string hostOutputPath = null )
+        public VirtualFileSystemEntry Build( VirtualDirectory root, string hostOutputPath = null, string gameName = null, bool useCompression = false)
         {
+            gameName = Game.Persona5.ToString();
+
             if ( root == null )
             {
                 throw new ArgumentNullException( nameof( root ) );
+            }
+
+            //Get game config
+            var config = ConfigManager.Get(Game.Persona5) as Persona5GameConfig;
+            if (config == null)
+            {
+                // Unlikely
+                throw new InvalidOperationException("Game config is missing.");
             }
 
             Log.Builder.Info( "Building Persona 5 Mod" );
@@ -65,11 +76,13 @@ namespace ModCompendiumLibrary.ModSystem.Builders
                 }
             }
 
+            useCompression = Convert.ToBoolean(config.Compression);
+
             // Build mod cpk
             Log.Builder.Info( "Building mod.cpk" );
             var cpkModCompiler = new CpkModBuilder();
             var cpkFilePath = hostOutputPath != null ? Path.Combine( hostOutputPath, "mod.cpk" ) : null;
-            var cpkFile = cpkModCompiler.Build( modFilesDirectory, cpkFilePath );
+            var cpkFile = cpkModCompiler.Build( modFilesDirectory, cpkFilePath, gameName, useCompression);
 
             Log.Builder.Info( "Done!" );
 
