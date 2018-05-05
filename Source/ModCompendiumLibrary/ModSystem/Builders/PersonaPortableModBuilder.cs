@@ -44,7 +44,7 @@ namespace ModCompendiumLibrary.ModSystem.Builders
             // Get files from CPK
             VirtualDirectory cpkRootDirectory;
 
-            Log.Builder.Trace($"RootOrCpkPath = {nameof(config.CpkRootOrPath)}");
+            Log.Builder.Trace($"{nameof(config.CpkRootOrPath)} = {config.CpkRootOrPath}");
 
             if (config.CpkRootOrPath.EndsWith(".cpk"))
             {
