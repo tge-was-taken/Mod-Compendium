@@ -31,20 +31,12 @@
     <DefineConstants>TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="DiscUtils, Version=0.11.0.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>Dependencies\DiscUtils\DiscUtils.dll</HintPath>
-    </Reference>
-    <Reference Include="DiscUtils.Core">
-      <HintPath>..\..\..\DiscUtils\Library\DiscUtils.Iso9660\bin\Debug\net45\DiscUtils.Core.dll</HintPath>
-    </Reference>
-    <Reference Include="DiscUtils.Iso9660">
-      <HintPath>..\..\..\DiscUtils\Library\DiscUtils.Iso9660\bin\Debug\net45\DiscUtils.Iso9660.dll</HintPath>
-    </Reference>
-    <Reference Include="DiscUtils.Streams">
-      <HintPath>..\..\..\DiscUtils\Library\DiscUtils.Iso9660\bin\Debug\net45\DiscUtils.Streams.dll</HintPath>
+      <HintPath>..\..\Dependencies\Source\DiscUtils\DiscUtils.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
@@ -58,9 +50,9 @@
   <ItemGroup>
     <Compile Include="Configuration\ConfigManager.cs" />
     <Compile Include="Configuration\IConfigurable.cs" />
-    <Compile Include="Configuration\Persona4GoldenGameConfig.cs" />
-    <Compile Include="Configuration\Persona4DancingGameConfig.cs" />
     <Compile Include="Configuration\Persona3PortableGameConfig.cs" />
+    <Compile Include="Configuration\Persona4DancingGameConfig.cs" />
+    <Compile Include="Configuration\Persona4GoldenGameConfig.cs" />
     <Compile Include="Configuration\PersonaPortableGameConfig.cs" />
     <Compile Include="Configuration\XElementExtensions.cs" />
     <Compile Include="Configuration\GameConfig.cs" />
@@ -69,10 +61,6 @@
     <Compile Include="Configuration\Persona3GameConfig.cs" />
     <Compile Include="Configuration\Persona4GameConfig.cs" />
     <Compile Include="Configuration\Persona5GameConfig.cs" />
-    <Compile Include="Dependencies\CriPakTools\CPK.cs" />
-    <Compile Include="Dependencies\CriPakTools\Endian.cs" />
-    <Compile Include="Dependencies\CriPakTools\Program.cs" />
-    <Compile Include="Dependencies\CriPakTools\Tools.cs" />
     <Compile Include="IO\StreamView.cs" />
     <Compile Include="IO\UncloseableStream.cs" />
     <Compile Include="Logging\Log.cs" />
@@ -84,6 +72,8 @@
     <Compile Include="ModSystem\Builders\ModBuilderAttribute.cs" />
     <Compile Include="ModSystem\Builders\Exceptions\InvalidConfigException.cs" />
     <Compile Include="ModSystem\Builders\ModBuilderStackExecutor.cs" />
+    <Compile Include="ModSystem\Builders\CDReaderHelper.cs" />
+    <Compile Include="ModSystem\Builders\Persona34Helper.cs" />
     <Compile Include="ModSystem\Builders\PersonaPortableModBuilder.cs" />
     <Compile Include="ModSystem\Builders\PersonaPortable\CsvMaker.cs" />
     <Compile Include="ModSystem\Mergers\BottomToTopModMerger.cs" />
@@ -122,23 +112,23 @@
     <Compile Include="VirtualFileSystem\Exceptions\IOException.cs" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="Dependencies\PersonaPatcher\AtlusLibSharp.dll" />
-    <Content Include="Dependencies\CpkMaker\cpkmakec.exe" />
-    <Content Include="Dependencies\CpkMaker\CpkMaker.DLL" />
-    <Content Include="Dependencies\PersonaPatcher\PersonaPatcher.exe" />
-  </ItemGroup>
-  <ItemGroup>
     <None Include="ILMerge.props" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Resources\" />
   </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\Dependencies\Source\CriPakTools\CriPakTools\CriPakTools.csproj">
+      <Project>{05ec5b1d-df4f-48d6-a17f-c8ab5fd4a015}</Project>
+      <Name>CriPakTools</Name>
+    </ProjectReference>
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
     <PostBuildEvent>if not exist "$(TargetDir)Resources" mkdir "$(TargetDir)Resources"
 if exist "$(TargetDir)Dependencies" rmdir "$(TargetDir)Dependencies" /s
-mkdir "$(TargetDir)Dependencies" 
-xcopy /s /y "$(ProjectDir)Dependencies" "$(TargetDir)Dependencies"
+if not exist "$(TargetDir)Dependencies" mkdir "$(TargetDir)Dependencies" 
+xcopy /s /y "$(ProjectDir)..\..\Dependencies\Binaries" "$(TargetDir)Dependencies"
 if not exist "$(TargetDir)Config" mkdir "$(TargetDir)Config"
 if not exist "$(TargetDir)Output" mkdir "$(TargetDir)Output"
 </PostBuildEvent>

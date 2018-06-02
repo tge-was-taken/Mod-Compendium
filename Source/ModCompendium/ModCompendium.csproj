@@ -137,4 +137,13 @@
     <PostBuildEvent>
     </PostBuildEvent>
   </PropertyGroup>
+  <PropertyGroup>
+    <PreBuildEvent>if not exist "$(TargetDir)Resources" mkdir "$(TargetDir)Resources"
+if exist "$(TargetDir)Dependencies" rmdir "$(TargetDir)Dependencies" /s
+if not exist "$(TargetDir)Dependencies" mkdir "$(TargetDir)Dependencies" 
+xcopy /s /y "$(ProjectDir)..\..\Dependencies\Binaries" "$(TargetDir)Dependencies"
+if not exist "$(TargetDir)Config" mkdir "$(TargetDir)Config"
+if not exist "$(TargetDir)Output" mkdir "$(TargetDir)Output"
+</PreBuildEvent>
+  </PropertyGroup>
 </Project>

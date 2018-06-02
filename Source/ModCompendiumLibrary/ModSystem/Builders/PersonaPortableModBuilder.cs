@@ -56,7 +56,7 @@ namespace ModCompendiumLibrary.ModSystem.Builders
                 }
 
                 string[] args = { "-x", "-i", config.CpkRootOrPath, "-d", cpkRootDirectoryPath };
-                Program.CriPakToolsMain(args);
+                CriPakTools.Program.Main(args);
                 // Cpk file found & extracted, convert it to our virtual file system
                 cpkRootDirectory = VirtualDirectory.FromHostDirectory(cpkRootDirectoryPath);
                 cpkRootDirectory.Name = Path.GetFileNameWithoutExtension(config.CpkRootOrPath);

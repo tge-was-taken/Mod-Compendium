@@ -2,6 +2,7 @@
 using ModCompendiumLibrary.VirtualFileSystem;
 using ModCompendiumLibrary.FileParsers;
 using DiscUtils.Iso9660;
+using ModCompendiumLibrary.Configuration;
 
 namespace ModCompendiumLibrary.ModSystem.Builders
 {
@@ -20,9 +21,7 @@ namespace ModCompendiumLibrary.ModSystem.Builders
         public VirtualFileSystemEntry Build( VirtualDirectory root, string hostOutputPath = null, string gameName = null, bool useCompression = false)
         {
             if ( root == null )
-            {
                 throw new ArgumentNullException( nameof( root ) );
-            }
 
             // Hack: get rid of root's name and restore it later
             // This is so we can use FullName with the builder without having to strip the root's name 
@@ -30,25 +29,14 @@ namespace ModCompendiumLibrary.ModSystem.Builders
             root.Name = string.Empty;
 
             // Find system.cnf first, as we need it to get the executable file path
-            var systemCnfFile = (VirtualFile)root[ "SYSTEM.CNF" ];
-            if ( systemCnfFile == null )
-                throw new MissingFileException( "SYSTEM.CNF is missing." );
+            var systemCnfFile = root[ "SYSTEM.CNF" ] as VirtualFile ?? throw new MissingFileException( "SYSTEM.CNF is missing." );
 
-            string executablePath;
-            using ( var systemCnfStream = systemCnfFile.Open() )
-            {
-                executablePath = Ps2SystemConfig.GetExecutablePath( systemCnfStream, hostOutputPath == null, true );
-                systemCnfStream.Position = 0;
-            }
+            var executablePath = Ps2SystemConfig.GetExecutablePath( systemCnfFile.Open(), false, true ) ??
+                                 throw new MissingFileException(
+                                     "Executable file path is not specified in SYSTEM.CNF; Unable to locate executable file." );
 
-            if ( executablePath == null )
-            {
-                throw new MissingFileException( "Executable file path is not specified in SYSTEM.CNF; Unable to locate executable file." );
-            }
-
-            var executableFile = ( VirtualFile )root[ executablePath ];
-            if ( executableFile == null )
-                throw new MissingFileException( $"Executable file {executablePath} is missing." );
+            var executableFile = root[ executablePath ] as VirtualFile ??
+                                 throw new MissingFileException( $"Executable file {executablePath} is missing." );
 
             var isoBuilder = new CDBuilder
             {
@@ -110,14 +98,28 @@ namespace ModCompendiumLibrary.ModSystem.Builders
 
     public abstract class Persona34IsoModBuilder : IModBuilder
     {
-        protected abstract Persona34FileModBuilder GetFileModBuilder();
+        protected abstract Persona34FileModBuilder CreateFileModBuilder();
+
+        protected abstract Persona34GameConfig GetConfig();
 
         public VirtualFileSystemEntry Build( VirtualDirectory root, string hostOutputPath = null, string gameName = null, bool useCompression = false)
         {
-            var fileModBuilder = GetFileModBuilder();
-            var dvdRootDirectory = fileModBuilder.Build( root );
+            // Build mod files
+            var fileModBuilder = CreateFileModBuilder();
+            var modFilesDirectory = ( VirtualDirectory )fileModBuilder.Build( root );
+
+            // Merge original files with mod files
+            var config = GetConfig();
+            var rootDirectory = Persona34Helper.GetRootDirectory( config, out var isoFileSystem );
+            rootDirectory.Merge( modFilesDirectory, true );
+
+            // Build ISO
             var ps2IsoModBuilder = new Ps2IsoModBuilder();
-            var ps2IsoFile = ps2IsoModBuilder.Build( ( VirtualDirectory )dvdRootDirectory, hostOutputPath );
+            var ps2IsoFile = ps2IsoModBuilder.Build( rootDirectory, hostOutputPath );
+
+            if (hostOutputPath != null)
+                isoFileSystem?.Dispose();
+
             return ps2IsoFile;
         }
     }
@@ -126,18 +128,16 @@ namespace ModCompendiumLibrary.ModSystem.Builders
     //[ModBuilder("Persona 3 ISO Mod Builder", Game = Game.Persona3)]
     public class Persona3IsoModBuilder : Persona34IsoModBuilder
     {
-        protected override Persona34FileModBuilder GetFileModBuilder()
-        {
-            return new Persona3FileModBuilder();
-        }
+        protected override Persona34FileModBuilder CreateFileModBuilder() => new Persona3FileModBuilder();
+
+        protected override Persona34GameConfig GetConfig() => ConfigManager.Get<Persona3GameConfig>();
     }
 
     //[ModBuilder( "Persona 4 ISO Mod Builder", Game = Game.Persona4 )]
     public class Persona4IsoModBuilder : Persona34IsoModBuilder
     {
-        protected override Persona34FileModBuilder GetFileModBuilder()
-        {
-            return new Persona4FileModBuilder();
-        }
+        protected override Persona34FileModBuilder CreateFileModBuilder() => new Persona4FileModBuilder();
+
+        protected override Persona34GameConfig GetConfig() => ConfigManager.Get<Persona4GameConfig>();
     }
 }

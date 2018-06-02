@@ -1,0 +1,3 @@
+[submodule "Dependencies/CriPakTools"]
+	path = Dependencies/CriPakTools
+	url = https://github.com/esperknight/CriPakTools

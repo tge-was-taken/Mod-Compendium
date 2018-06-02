@@ -14,99 +14,45 @@ namespace ModCompendiumLibrary.ModSystem.Builders
     {
         protected abstract Game Game { get; }
 
-        public bool OutputUnmodifiedFiles { get; } = false;
-
         /// <inheritdoc />
         public VirtualFileSystemEntry Build( VirtualDirectory root, string hostOutputPath = null, string gameName = null, bool useCompression = false )
         {
             if ( root == null )
-            {
                 throw new ArgumentNullException( nameof( root ) );
-            }
 
             Log.Builder.Info( $"Building {Game} Mod" );
             if ( hostOutputPath != null )
-            {
                 Log.Builder.Info( $"Output directory: {hostOutputPath}" );
-            }
 
             // Get game config
-            var config = ConfigManager.Get( Game ) as Persona34GameConfig;
-            if ( config == null )
-            {
-                // Unlikely
-                throw new InvalidOperationException( "Game config is missing." );
-            }
+            var config = ConfigManager.Get( Game ) as Persona34GameConfig ?? throw new InvalidOperationException( "Game config is missing." );
 
             if ( string.IsNullOrWhiteSpace( config.DvdRootOrIsoPath ) )
-            {
                 throw new InvalidConfigException( "Dvd root path/ISO path is not specified." );
-            }
 
             // Get files
-            VirtualDirectory dvdRootDirectory;
-            CDReader isoFileSystem = null;
-
-            Log.Builder.Trace( $"RootOrIsoPath = {config.DvdRootOrIsoPath}" );
-
-            if ( config.DvdRootOrIsoPath.EndsWith(".iso") )
-            {
-                Log.Builder.Info( $"Mounting ISO: {config.DvdRootOrIsoPath}" );
-
-                if ( !File.Exists( config.DvdRootOrIsoPath ) )
-                {
-                    throw new InvalidConfigException( $"Dvd root path references an ISO file that does not exist: {config.DvdRootOrIsoPath}." );
-                }
-
-                // Iso file found, convert it to our virtual file system
-                isoFileSystem = new CDReader( File.OpenRead( config.DvdRootOrIsoPath ), false );
-                dvdRootDirectory = ( VirtualDirectory ) ConvertEntryRecursively( isoFileSystem, isoFileSystem.Root.FullName );
-            }
-            else
-            {
-                Log.Builder.Info( $"Mounting directory: {config.DvdRootOrIsoPath}" );
-
-                if ( !Directory.Exists( config.DvdRootOrIsoPath ) )
-                {
-                    throw new InvalidConfigException( $"Dvd root path references a directory that does not exist: {config.DvdRootOrIsoPath}." );
-                }
-
-                // No iso file found, assume files are extracted
-                dvdRootDirectory = VirtualDirectory.FromHostDirectory( config.DvdRootOrIsoPath );
-                dvdRootDirectory.Name = string.Empty;
-            }
+            Log.Builder.Trace( $"DvdRootOrIsoPath = {config.DvdRootOrIsoPath}" );
+            var dvdRootDirectory = Persona34Helper.GetRootDirectory( config, out var isoFileSystem );
 
             // Find system config
-            var systemConfigFile = ( VirtualFile ) dvdRootDirectory[ "SYSTEM.CNF" ];
-            if ( systemConfigFile == null )
-            {
-                throw new MissingFileException( "SYSTEM.CNF is missing from the dvd root file source." );
-            }
+            var systemConfigFile = dvdRootDirectory[ "SYSTEM.CNF" ] as VirtualFile ?? throw new MissingFileException( "SYSTEM.CNF is missing from the file source." );
 
             string executablePath;
             using ( var systemConfigStream = systemConfigFile.Open() )
             {
-                executablePath = Ps2SystemConfig.GetExecutablePath( systemConfigStream, hostOutputPath == null, true );
-                systemConfigStream.Position = 0;
+                bool leaveOpen = isoFileSystem == null;
+                executablePath = Ps2SystemConfig.GetExecutablePath( systemConfigStream, leaveOpen, true );
             }          
 
             if ( executablePath == null )
-            {
                 throw new MissingFileException( "Executable file path is not specified in SYSTEM.CNF; Unable to locate executable file." );
-            }
 
             Log.Builder.Info( $"Executable path: {executablePath}" );
             
-            var executableFile = ( VirtualFile ) dvdRootDirectory[ executablePath ];
-            if ( executableFile == null )
-            {
-                throw new MissingFileException( "The executable file is missing from the dvd root file source." );
-            }
+            var executableFile = ( VirtualFile ) dvdRootDirectory[ executablePath ] ?? throw new MissingFileException( "The executable file is missing from the dvd root file source." );
 
             // Some basic checks have been done, let's start generating the cvms
-            var dvdRootDirectoryPath = hostOutputPath == null
-                ? Path.Combine( Path.GetTempPath(), "Persona34ModCompilerTemp_" + Path.GetRandomFileName() )
-                : hostOutputPath;
+            var dvdRootDirectoryPath = hostOutputPath ?? Path.Combine( Path.GetTempPath(), "Persona34ModCompilerTemp_" + Path.GetRandomFileName() );
 
             Log.Builder.Trace( $"Creating (temp?) output directory: {dvdRootDirectoryPath}" );
             Directory.CreateDirectory( dvdRootDirectoryPath );
@@ -120,66 +66,55 @@ namespace ModCompendiumLibrary.ModSystem.Builders
             var envCvmFile = ( VirtualFile ) dvdRootDirectory[ "ENV.CVM" ];
             var envCvmModified = false;
 
-            var newDvdRootDirectory = OutputUnmodifiedFiles ? dvdRootDirectory : new VirtualDirectory();
-            newDvdRootDirectory.Remove( "ZZZZZ.BIN" ); // large dummy file
+            var newDvdRootDirectory = new VirtualDirectory();
 
             // Process mod files
-            Log.Builder.Info( "Process mod files" );
+            Log.Builder.Info( "Processing mod files" );
             foreach ( var entry in root )
             {
-                if ( entry.EntryType == VirtualFileSystemEntryType.Directory )
-                {
-                    var name = entry.Name.ToLowerInvariant();
-                    var directory = ( VirtualDirectory ) entry;
-
-                    switch ( name )
-                    {
-                        case "bgm":
-                            Log.Builder.Info( "Replacing files in bgm.cvm" );
-                            bgmCvmFile = UpdateAndRecompileCvm( bgmCvmFile, directory, Path.Combine( dvdRootDirectoryPath, "bgm.cvm" ) );
-                            bgmCvmFile.MoveTo( newDvdRootDirectory, true );
-                            bgmCvmModified = true;
-                            break;
-
-                        case "btl":
-                            Log.Builder.Info( "Replacing files in btl.cvm" );
-                            btlCvmFile = UpdateAndRecompileCvm( btlCvmFile, directory, Path.Combine( dvdRootDirectoryPath, "btl.cvm" ) );
-                            btlCvmFile.MoveTo( newDvdRootDirectory, true );
-                            btlCvmModified = true;
-                            break;
-
-                        case "data":
-                            Log.Builder.Info( "Replacing files in data.cvm" );
-                            dataCvmFile = UpdateAndRecompileCvm( dataCvmFile, directory, Path.Combine( dvdRootDirectoryPath, "data.cvm" ) );
-                            dataCvmFile.MoveTo( newDvdRootDirectory, true );
-                            dataCvmModified = true;
-                            break;
-
-                        case "env":
-                            {
-                                Log.Builder.Info( "Replacing files in env.cvm" );
-
-                                if ( envCvmFile == null )
-                                {
-                                    throw new MissingFileException( "Mod replaces files in env.cvm but env.cvm isn't present." );
-                                }
-
-                                envCvmFile = UpdateAndRecompileCvm( envCvmFile, directory, Path.Combine( dvdRootDirectoryPath, "env.cvm" ) );
-                                envCvmFile.MoveTo( newDvdRootDirectory, true );
-                                envCvmModified = true;
-                            }
-                            break;
-
-                        default:
-                            Log.Builder.Info( $"Adding directory {entry.Name} to root directory" );
-                            entry.MoveTo( newDvdRootDirectory, true );
-                            break;
-                    }
-                }
-                else
+                if ( entry.EntryType == VirtualFileSystemEntryType.File )
                 {
                     Log.Builder.Info( $"Adding file {entry.Name} to root directory" );
                     entry.MoveTo( newDvdRootDirectory, true );
+                    continue;
+                }
+
+                var name = entry.Name.ToLowerInvariant();
+                var directory = ( VirtualDirectory )entry;
+
+                switch ( name )
+                {
+                    case "bgm":
+                        UpdateAndRecompileCvm( ref bgmCvmFile, directory, Path.Combine( dvdRootDirectoryPath, "bgm.cvm" ), newDvdRootDirectory );
+                        bgmCvmModified = true;
+                        break;
+
+                    case "btl":
+                        UpdateAndRecompileCvm( ref btlCvmFile, directory, Path.Combine( dvdRootDirectoryPath, "btl.cvm" ), newDvdRootDirectory );
+                        btlCvmModified = true;
+                        break;
+
+                    case "data":
+                        UpdateAndRecompileCvm( ref dataCvmFile, directory, Path.Combine( dvdRootDirectoryPath, "data.cvm" ), newDvdRootDirectory );
+                        dataCvmModified = true;
+                        break;
+
+                    case "env":
+                        {
+                            Log.Builder.Info( "Replacing files in env.cvm" );
+
+                            if ( envCvmFile == null )
+                                throw new MissingFileException( "Mod replaces files in env.cvm but env.cvm isn't present." );
+
+                            UpdateAndRecompileCvm( ref envCvmFile, directory, Path.Combine( dvdRootDirectoryPath, "env.cvm" ), newDvdRootDirectory );
+                            envCvmModified = true;
+                        }
+                        break;
+
+                    default:
+                        Log.Builder.Info( $"Adding directory {entry.Name} to root directory" );
+                        entry.MoveTo( newDvdRootDirectory, true );
+                        break;
                 }
             }
 
@@ -215,45 +150,11 @@ namespace ModCompendiumLibrary.ModSystem.Builders
             }
 
             if ( hostOutputPath != null && isoFileSystem != null )
-            {
                 isoFileSystem.Dispose();
-            }
 
-            Log.Builder.Info($"Done" );
+            Log.Builder.Info( "Done" );
 
             return newDvdRootDirectory;
-        }
-
-        private VirtualFileSystemEntry ConvertEntryRecursively( CDReader isoFileSystem, string path )
-        {
-            if ( isoFileSystem.FileExists( path ) )
-            {
-                var fileName = Path.GetFileName( path );
-                if ( fileName.EndsWith( ";1" ) )
-                {
-                    fileName = fileName.Substring( 0, fileName.Length - 2 );
-                }
-
-                return new VirtualFile( null, isoFileSystem.OpenFile( path, FileMode.Open ), fileName );
-            }
-            else
-            {
-                var directory = new VirtualDirectory( null, Path.GetFileName( path ) );
-
-                foreach ( var file in isoFileSystem.GetFiles( path ) )
-                {
-                    var entry = ConvertEntryRecursively( isoFileSystem, file );
-                    entry.MoveTo( directory );
-                }
-
-                foreach ( var subDirectory in isoFileSystem.GetDirectories( path ) )
-                {
-                    var entry = ConvertEntryRecursively( isoFileSystem, subDirectory );
-                    entry.MoveTo( directory );
-                }
-
-                return directory;
-            }
         }
 
         private VirtualDirectory ConvertCvmToVirtualDirectory( VirtualFile cvmFile )
@@ -263,15 +164,17 @@ namespace ModCompendiumLibrary.ModSystem.Builders
                 var streamView = new StreamView( stream, 0x1800, stream.Length - 0x1800 );
                 var cvmIsoFilesystem = new CDReader( streamView, false );
 
-                var directory = ( VirtualDirectory )ConvertEntryRecursively( cvmIsoFilesystem, cvmIsoFilesystem.Root.FullName );
+                var directory = CDReaderHelper.ToVirtualDirectory( cvmIsoFilesystem );
                 directory.Name = Path.GetFileNameWithoutExtension( cvmFile.Name );
 
                 return directory;
             }
         }
 
-        private VirtualFile UpdateAndRecompileCvm( VirtualFile cvmFile, VirtualDirectory directory, string hostOutputPath )
+        private void UpdateAndRecompileCvm( ref VirtualFile cvmFile, VirtualDirectory directory, string hostOutputPath, VirtualDirectory newDvdRootDirectory )
         {
+            Log.Builder.Info( $"Replacing files in {cvmFile.Name}" );
+
             // Deserialize cvm
             Log.Builder.Trace( $"Mounting CVM filesystem: {cvmFile.Name}" );
             var cvmDirectory = ConvertCvmToVirtualDirectory( cvmFile );
@@ -281,10 +184,11 @@ namespace ModCompendiumLibrary.ModSystem.Builders
             cvmDirectory.Merge( directory, true );
 
             // Recompile cvm
-            var cvmModCompiler = new CvmModBuilder();
-
             Log.Builder.Trace( $"Building new CVM: {cvmFile.Name} to {hostOutputPath}" );
-            return ( VirtualFile )cvmModCompiler.Build( cvmDirectory, hostOutputPath );
+            var cvmModCompiler = new CvmModBuilder();
+            cvmFile = ( VirtualFile )cvmModCompiler.Build( cvmDirectory, hostOutputPath );
+
+            cvmFile.MoveTo( newDvdRootDirectory, true );
         }
 
         private void LogModFilesInDirectory(VirtualDirectory directory)

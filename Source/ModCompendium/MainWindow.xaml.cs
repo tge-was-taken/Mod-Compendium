@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
@@ -45,6 +46,8 @@ namespace ModCompendium
             InitializeComponent();
             InitializeLog();
 
+            var version = Assembly.GetExecutingAssembly().GetName().Version;
+            Title = $"Mod Compendium {version.Major}.{version.Minor}.{version.Revision}";
             Config = ConfigManager.Get<MainWindowConfig>();
             InitializeGameComboBox();
         }

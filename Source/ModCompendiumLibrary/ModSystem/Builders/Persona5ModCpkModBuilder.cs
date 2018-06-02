@@ -20,18 +20,12 @@ namespace ModCompendiumLibrary.ModSystem.Builders
             }
 
             //Get game config
-            var config = ConfigManager.Get(Game.Persona5) as Persona5GameConfig;
-            if (config == null)
-            {
-                // Unlikely
-                throw new InvalidOperationException("Game config is missing.");
-            }
+            var config = ConfigManager.Get<Persona5GameConfig>() ?? throw new InvalidOperationException("Game config is missing.");
 
             Log.Builder.Info( "Building Persona 5 Mod" );
+            Log.Builder.Info( "Processing mod files" );
 
             var modFilesDirectory = new VirtualDirectory( null, "mod" );
-
-            Log.Builder.Info( "Processing mod files" );
             foreach ( var entry in root )
             {
                 if ( entry.EntryType == VirtualFileSystemEntryType.Directory )
@@ -76,7 +70,7 @@ namespace ModCompendiumLibrary.ModSystem.Builders
                 }
             }
 
-            useCompression = Convert.ToBoolean(config.Compression);
+            useCompression = config.Compression == "true";
 
             // Build mod cpk
             Log.Builder.Info( "Building mod.cpk" );
