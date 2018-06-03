@@ -69,7 +69,6 @@ namespace ModCompendiumLibrary.ModSystem
             }
             catch ( ModXmlFileMissingException )
             {
-                Log.ModDatabase.Warning( $"Mod directory '{localDirectoryPath}' doesn't contain a Mod.xml file." );
                 notAModDirectory = true;
             }
             catch ( ModXmlFileInvalidException e )
