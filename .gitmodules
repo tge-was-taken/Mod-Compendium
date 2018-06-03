@@ -1,3 +1,6 @@
 [submodule "Dependencies/CriPakTools"]
 	path = Dependencies/CriPakTools
 	url = https://github.com/esperknight/CriPakTools
+[submodule "Dependencies/Source/DiscUtils"]
+	path = Dependencies/Source/DiscUtils
+	url = https://github.com/TGEnigma/DiscUtils
