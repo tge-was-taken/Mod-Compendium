@@ -2,11 +2,12 @@ namespace ModCompendiumLibrary
 {
     public enum Game
     {
-        Persona3 = 1,
-        Persona4,
-        Persona5,
+        Invalid,
+        Persona3,
         Persona3Portable,
+        Persona4,
         Persona4Golden,
-        Persona4Dancing
+        Persona4Dancing,
+        Persona5,
     }
 }

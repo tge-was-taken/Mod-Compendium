@@ -29,6 +29,16 @@ namespace ModCompendium
     /// </summary>
     public partial class MainWindow : Window
     {
+        private static readonly string[] sGameNames =
+        {
+            "Persona 3",
+            "Persona 3 Portable",
+            "Persona 4",
+            "Persona 4 Golden",
+            "Persona 4 Dancing All Night",
+            "Persona 5",
+        };
+
         public Game SelectedGame { get; private set; }
 
         public List<ModViewModel> Mods { get; private set; }
@@ -59,9 +69,8 @@ namespace ModCompendium
 
         private void InitializeGameComboBox()
         {
-            var enumValues = Enum.GetValues( typeof( Game ) ).Cast<Game>().ToList();
-            GameComboBox.ItemsSource = enumValues;
-            GameComboBox.SelectedIndex = enumValues.IndexOf( Config.SelectedGame );
+            GameComboBox.ItemsSource = sGameNames;
+            GameComboBox.SelectedIndex = Math.Max( 0, ( int ) SelectedGame - 1 );
         }
 
         private void RefreshMods()
@@ -194,7 +203,7 @@ namespace ModCompendium
 
         private void GameComboBox_SelectionChanged( object sender, SelectionChangedEventArgs e )
         {
-            SelectedGame = ( Game )GameComboBox.SelectedValue;
+            SelectedGame = ( Game )( GameComboBox.SelectedIndex + 1 );
             GameConfig = ConfigManager.Get( SelectedGame );
             RefreshMods();
         }
