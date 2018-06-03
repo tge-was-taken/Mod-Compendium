@@ -252,9 +252,12 @@ namespace ModCompendium
 
                 // Todo
                 var builder = ModBuilderManager.GetCompatibleModBuilders( SelectedGame ).First().Create();
-                if ( SelectedGame == Game.Persona3 && UltraISOUtility.Available )
+                if ( UltraISOUtility.Available )
                 {
-                    builder = new Persona3IsoModBuilder();
+                    if ( SelectedGame == Game.Persona3 )
+                        builder = new Persona3IsoModBuilder();
+                    else if ( SelectedGame == Game.Persona4 )
+                        builder = new Persona4IsoModBuilder();
                 }
 
                 Log.General.Info( $"Output path: {GameConfig.OutputDirectoryPath}" );

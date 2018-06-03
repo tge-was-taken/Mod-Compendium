@@ -50,7 +50,7 @@ namespace ModCompendiumLibrary.ModSystem.Builders
     }
 
     // Todo
-    [ModBuilder("Persona 3 ISO Mod Builder", Game = Game.Persona3)]
+    //[ModBuilder("Persona 3 ISO Mod Builder", Game = Game.Persona3)]
     public class Persona3IsoModBuilder : Persona34IsoModBuilder
     {
         protected override Persona34FileModBuilder CreateFileModBuilder() => new Persona3FileModBuilder();
@@ -58,7 +58,7 @@ namespace ModCompendiumLibrary.ModSystem.Builders
         protected override Persona34GameConfig GetConfig() => ConfigManager.Get<Persona3GameConfig>();
     }
 
-    [ModBuilder( "Persona 4 ISO Mod Builder", Game = Game.Persona4 )]
+    //[ModBuilder( "Persona 4 ISO Mod Builder", Game = Game.Persona4 )]
     public class Persona4IsoModBuilder : Persona34IsoModBuilder
     {
         protected override Persona34FileModBuilder CreateFileModBuilder() => new Persona4FileModBuilder();
