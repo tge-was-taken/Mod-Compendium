@@ -134,16 +134,17 @@
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
-    <PostBuildEvent>
-    </PostBuildEvent>
-  </PropertyGroup>
-  <PropertyGroup>
-    <PreBuildEvent>if not exist "$(TargetDir)Resources" mkdir "$(TargetDir)Resources"
+    <PostBuildEvent>if not exist "$(TargetDir)Resources" mkdir "$(TargetDir)Resources"
 if exist "$(TargetDir)Dependencies" rmdir "$(TargetDir)Dependencies" /s
 if not exist "$(TargetDir)Dependencies" mkdir "$(TargetDir)Dependencies" 
 xcopy /s /y "$(ProjectDir)..\..\Dependencies\Binaries" "$(TargetDir)Dependencies"
+if not exist  "$(TargetDir)Dependencies\UltraISO" mkdir "$(TargetDir)Dependencies\UltraISO"
 if not exist "$(TargetDir)Config" mkdir "$(TargetDir)Config"
 if not exist "$(TargetDir)Output" mkdir "$(TargetDir)Output"
-</PreBuildEvent>
+</PostBuildEvent>
+  </PropertyGroup>
+  <PropertyGroup>
+    <PreBuildEvent>
+    </PreBuildEvent>
   </PropertyGroup>
 </Project>

@@ -7,9 +7,25 @@ namespace ModCompendiumLibrary.ModSystem.Builders.Utilities
 {
     public static class UltraISOUtility
     {
-        private const string EXE_PATH = "Dependencies\\UltraISO\\UltraISO.exe";
+        private const string EXE_BASE_PATH = "Dependencies\\UltraISO\\UltraISO";
+        private static readonly string sExePath;
 
-        public static bool Available => File.Exists( EXE_PATH );
+        public static bool Available => sExePath != null;
+
+        static UltraISOUtility()
+        {
+            if ( File.Exists( EXE_BASE_PATH + ".lnk" ) )
+            {
+                sExePath = ShortcutResolver.ResolveShortcut( EXE_BASE_PATH + ".lnk" );
+                if ( !File.Exists( sExePath ) )
+                    sExePath = null;
+            }
+
+            if ( sExePath == null && File.Exists( EXE_BASE_PATH + ".exe" ) )
+            {
+                sExePath = EXE_BASE_PATH + ".exe";
+            }
+        }
 
         public static void ModifyIso( string inIsoPath, string outIsoPath, IEnumerable<string> files )
         {
@@ -27,7 +43,7 @@ namespace ModCompendiumLibrary.ModSystem.Builders.Utilities
                 File.Delete( outIsoPath );
 
             // Set up parameters
-            var processStartInfo = new ProcessStartInfo( EXE_PATH, arguments.ToString() )
+            var processStartInfo = new ProcessStartInfo( sExePath, arguments.ToString() )
             {
                 UseShellExecute = false,
                 CreateNoWindow = true

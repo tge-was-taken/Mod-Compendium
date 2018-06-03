@@ -74,6 +74,7 @@
     <Compile Include="ModSystem\Builders\Persona34\Persona34Common.cs" />
     <Compile Include="ModSystem\Builders\PersonaPortableModBuilder.cs" />
     <Compile Include="ModSystem\Builders\Utilities\CpkCsvMaker.cs" />
+    <Compile Include="ModSystem\Builders\Utilities\ShortcutResolver.cs" />
     <Compile Include="ModSystem\Builders\Utilities\UltraISOUtility.cs" />
     <Compile Include="ModSystem\Mergers\BottomToTopModMerger.cs" />
     <Compile Include="ModSystem\Builders\CpkModBuilder.cs" />
@@ -140,6 +141,7 @@
 if exist "$(TargetDir)Dependencies" rmdir "$(TargetDir)Dependencies" /s
 if not exist "$(TargetDir)Dependencies" mkdir "$(TargetDir)Dependencies" 
 xcopy /s /y "$(ProjectDir)..\..\Dependencies\Binaries" "$(TargetDir)Dependencies"
+if not exist  "$(TargetDir)Dependencies\UltraISO" mkdir "$(TargetDir)Dependencies\UltraISO"
 if not exist "$(TargetDir)Config" mkdir "$(TargetDir)Config"
 if not exist "$(TargetDir)Output" mkdir "$(TargetDir)Output"
 </PostBuildEvent>

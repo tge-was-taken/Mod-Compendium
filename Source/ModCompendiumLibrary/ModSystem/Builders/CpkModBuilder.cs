@@ -2,6 +2,7 @@
 using System.Diagnostics;
 using System.IO;
 using ModCompendiumLibrary.Logging;
+using ModCompendiumLibrary.ModSystem.Builders.Utilities;
 using ModCompendiumLibrary.VirtualFileSystem;
 
 namespace ModCompendiumLibrary.ModSystem.Builders
