@@ -73,7 +73,7 @@
     <Compile Include="ModSystem\Builders\Persona34IsoModBuilder.cs" />
     <Compile Include="ModSystem\Builders\Persona34\Persona34Common.cs" />
     <Compile Include="ModSystem\Builders\PersonaPortableModBuilder.cs" />
-    <Compile Include="ModSystem\Builders\PersonaPortable\CsvMaker.cs" />
+    <Compile Include="ModSystem\Builders\Utilities\CpkCsvMaker.cs" />
     <Compile Include="ModSystem\Builders\Utilities\UltraISOUtility.cs" />
     <Compile Include="ModSystem\Mergers\BottomToTopModMerger.cs" />
     <Compile Include="ModSystem\Builders\CpkModBuilder.cs" />

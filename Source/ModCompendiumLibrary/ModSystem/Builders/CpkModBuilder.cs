@@ -42,7 +42,7 @@ namespace ModCompendiumLibrary.ModSystem.Builders
             if (useCompression)
             {
                 Log.Builder.Info("Compression enabled: Building new CSV file");
-                csvPath = CsvMaker.NewCsvPath(modDirectoryPath, gameName, Path.ChangeExtension(hostOutputPath, null));
+                csvPath = CpkCsvMaker.MakeCsv(modDirectoryPath, gameName, Path.ChangeExtension(hostOutputPath, null));
             }
 
             // Get meta file info for CPK

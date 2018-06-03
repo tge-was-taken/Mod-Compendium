@@ -6,12 +6,11 @@ using System.IO;
 using System.Text;
 using System.Text.RegularExpressions;
 
-namespace ModCompendiumLibrary.ModSystem.Builders
+namespace ModCompendiumLibrary.ModSystem.Builders.Utilities
 {
-    public class CsvMaker
+    public class CpkCsvMaker
     {
-
-        public static string NewCsvPath( string tempDirectory, string game, string hostOutputPath )
+        public static string MakeCsv( string tempDirectory, string game, string hostOutputPath )
         {
             //Get CSV template from Config folder
             var baseCsv = $"Config\\{game}.csv";
