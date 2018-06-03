@@ -15,7 +15,7 @@ namespace ModCompendiumLibrary.ModSystem.Mergers
             foreach ( var mod in mods )
             {
                 var dataDirectory = VirtualDirectory.FromHostDirectory( mod.DataDirectory );
-                fileDirectory.Merge( dataDirectory, false );
+                fileDirectory.Merge( dataDirectory, Operation.AddOnly );
             }
 
             return fileDirectory;

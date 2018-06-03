@@ -149,10 +149,10 @@ namespace ModCompendiumLibrary.VirtualFileSystem
             }
         }
 
-        public void Merge( VirtualDirectory other, bool replaceExisting )
+        public void Merge( VirtualDirectory other, Operation operation )
         {
             foreach ( var entry in other )
-                InternalAddOrReplace( entry, replaceExisting );
+                PerformOperation( entry, operation );
         }
 
         /// <summary>
@@ -179,7 +179,7 @@ namespace ModCompendiumLibrary.VirtualFileSystem
             return directory;
         }
 
-        internal void InternalAddOrReplace( VirtualFileSystemEntry entry, bool replace = false )
+        internal void PerformOperation( VirtualFileSystemEntry entry, Operation operation )
         {
             VirtualFileSystemEntry foundEntry;
 
@@ -188,9 +188,9 @@ namespace ModCompendiumLibrary.VirtualFileSystem
                 if ( foundEntry.EntryType == VirtualFileSystemEntryType.Directory && entry.EntryType == VirtualFileSystemEntryType.Directory )
                 {
                     // Merge directories
-                    ( ( VirtualDirectory )foundEntry ).Merge( ( VirtualDirectory )entry, replace );
+                    ( ( VirtualDirectory )foundEntry ).Merge( ( VirtualDirectory )entry, operation );
                 }
-                else if ( replace )
+                else if ( operation != Operation.AddOnly )
                 {
                     // Replace the found entry with the entry to add
                     Replace( foundEntry, entry );
@@ -200,7 +200,7 @@ namespace ModCompendiumLibrary.VirtualFileSystem
                     // Todo: what now?
                 }
             }
-            else
+            else if ( operation != Operation.ReplaceOnly )
             {
                 if ( entry.Parent != null )
                     entry.Parent.Remove( entry );
@@ -235,7 +235,7 @@ namespace ModCompendiumLibrary.VirtualFileSystem
             if ( isDirectory )
             {
                 // Merge
-                ( ( VirtualDirectory )replacement ).Merge( ( VirtualDirectory )original, false );
+                ( ( VirtualDirectory )replacement ).Merge( ( VirtualDirectory )original, Operation.AddOnly );
             }
         }
 
@@ -255,5 +255,12 @@ namespace ModCompendiumLibrary.VirtualFileSystem
         {
             return GetEnumerator();
         }
+    }
+
+    public enum Operation
+    {
+        AddOnly,
+        AddOrReplace,
+        ReplaceOnly
     }
 }

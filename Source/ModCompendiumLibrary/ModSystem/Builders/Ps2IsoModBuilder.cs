@@ -113,7 +113,7 @@ namespace ModCompendiumLibrary.ModSystem.Builders
             // Merge original files with mod files
             var config = GetConfig();
             var rootDirectory = Persona34Common.GetRootDirectory( config, out var isoFileSystem );
-            rootDirectory.Merge( modFilesDirectory, true );
+            rootDirectory.Merge( modFilesDirectory, Operation.AddOrReplace );
 
             if ( hostOutputPath != null && Directory.Exists( hostOutputPath ) )
                 hostOutputPath = Path.Combine( hostOutputPath, "Amicitia.iso" );

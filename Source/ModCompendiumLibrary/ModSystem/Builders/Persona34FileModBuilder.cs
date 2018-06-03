@@ -177,7 +177,7 @@ namespace ModCompendiumLibrary.ModSystem.Builders
 
             // Merge contents
             LogModFilesInDirectory( directory );
-            cvmDirectory.Merge( directory, true );
+            cvmDirectory.Merge( directory, Operation.ReplaceOnly );
 
             // Recompile cvm
             Log.Builder.Trace( $"Building new CVM: {cvmFile.Name} to {hostOutputPath}" );

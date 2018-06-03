@@ -74,7 +74,7 @@ namespace ModCompendiumLibrary.VirtualFileSystem
 
             if ( directory != null )
             {
-                directory.InternalAddOrReplace( this, replace );
+                directory.PerformOperation( this, replace ? Operation.AddOrReplace : Operation.AddOnly );
             }
         }
 
