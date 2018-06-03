@@ -1,5 +1,4 @@
 ﻿using System;
-using System.IO;
 using ModCompendiumLibrary.VirtualFileSystem;
 using ModCompendiumLibrary.FileParsers;
 using DiscUtils.Iso9660;
@@ -95,56 +94,5 @@ namespace ModCompendiumLibrary.ModSystem.Builders
                 }
             }
         }
-    }
-
-    public abstract class Persona34IsoModBuilder : IModBuilder
-    {
-        protected abstract Persona34FileModBuilder CreateFileModBuilder();
-
-        protected abstract Persona34GameConfig GetConfig();
-
-        public VirtualFileSystemEntry Build( VirtualDirectory root, string hostOutputPath = null, string gameName = null, bool useCompression = false)
-        {
-            // Build mod files
-            var fileModBuilder = CreateFileModBuilder();
-            var modFilesDirectory = ( VirtualDirectory )fileModBuilder.Build( root );
-            var modFilesDirectoryCopy = modFilesDirectory.Copy();
-
-            // Merge original files with mod files
-            var config = GetConfig();
-            var rootDirectory = Persona34Common.GetRootDirectory( config, out var isoFileSystem );
-            rootDirectory.Merge( modFilesDirectory, Operation.AddOrReplace );
-
-            if ( hostOutputPath != null && Directory.Exists( hostOutputPath ) )
-                hostOutputPath = Path.Combine( hostOutputPath, "Amicitia.iso" );
-
-            // Build ISO
-            var ps2IsoModBuilder = new Ps2IsoModBuilder();
-            var ps2IsoFile = ps2IsoModBuilder.Build( rootDirectory, hostOutputPath );
-
-            modFilesDirectoryCopy.Delete();
-
-            if (hostOutputPath != null)
-                isoFileSystem?.Dispose();
-
-            return ps2IsoFile;
-        }
-    }
-
-    // Todo
-    //[ModBuilder("Persona 3 ISO Mod Builder", Game = Game.Persona3)]
-    public class Persona3IsoModBuilder : Persona34IsoModBuilder
-    {
-        protected override Persona34FileModBuilder CreateFileModBuilder() => new Persona3FileModBuilder();
-
-        protected override Persona34GameConfig GetConfig() => ConfigManager.Get<Persona3GameConfig>();
-    }
-
-    //[ModBuilder( "Persona 4 ISO Mod Builder", Game = Game.Persona4 )]
-    public class Persona4IsoModBuilder : Persona34IsoModBuilder
-    {
-        protected override Persona34FileModBuilder CreateFileModBuilder() => new Persona4FileModBuilder();
-
-        protected override Persona34GameConfig GetConfig() => ConfigManager.Get<Persona4GameConfig>();
     }
 }

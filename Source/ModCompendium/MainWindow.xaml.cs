@@ -18,6 +18,7 @@ using ModCompendiumLibrary.Configuration;
 using ModCompendiumLibrary.Logging;
 using ModCompendiumLibrary.ModSystem;
 using ModCompendiumLibrary.ModSystem.Builders;
+using ModCompendiumLibrary.ModSystem.Builders.Utilities;
 using ModCompendiumLibrary.ModSystem.Loaders;
 using ModCompendiumLibrary.ModSystem.Mergers;
 using MessageBox = Xceed.Wpf.Toolkit.MessageBox;
@@ -251,6 +252,10 @@ namespace ModCompendium
 
                 // Todo
                 var builder = ModBuilderManager.GetCompatibleModBuilders( SelectedGame ).First().Create();
+                if ( SelectedGame == Game.Persona3 && UltraISOUtility.Available )
+                {
+                    builder = new Persona3IsoModBuilder();
+                }
 
                 Log.General.Info( $"Output path: {GameConfig.OutputDirectoryPath}" );
 
