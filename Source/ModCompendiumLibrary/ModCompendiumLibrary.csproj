@@ -114,9 +114,7 @@
   <ItemGroup>
     <None Include="ILMerge.props" />
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="Resources\" />
-  </ItemGroup>
+  <ItemGroup />
   <ItemGroup>
     <ProjectReference Include="..\..\Dependencies\Source\CriPakTools\CriPakTools\CriPakTools.csproj">
       <Project>{05ec5b1d-df4f-48d6-a17f-c8ab5fd4a015}</Project>

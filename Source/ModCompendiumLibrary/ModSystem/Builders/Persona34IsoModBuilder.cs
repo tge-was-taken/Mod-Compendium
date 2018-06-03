@@ -2,6 +2,7 @@
 using System.IO;
 using System.Linq;
 using ModCompendiumLibrary.Configuration;
+using ModCompendiumLibrary.Logging;
 using ModCompendiumLibrary.ModSystem.Builders.Utilities;
 using ModCompendiumLibrary.VirtualFileSystem;
 
@@ -37,17 +38,19 @@ namespace ModCompendiumLibrary.ModSystem.Builders
                 throw new NotImplementedException( "This can only be done with an ISO source right now!" );
 
             // Modify & save new ISO
+            Log.Builder.Info( $"Modifying & saving ISO to {hostOutputPath} (this will take a while)" );
             UltraISOUtility.ModifyIso( config.DvdRootOrIsoPath, hostOutputPath, modFilesDirectory.Select( x => x.HostPath ) );
 
             // Delete temp directory
             Directory.Delete( tempDirectory, true );
 
+            // We're done
             return VirtualFile.FromHostFile( hostOutputPath );
         }
     }
 
     // Todo
-    //[ModBuilder("Persona 3 ISO Mod Builder", Game = Game.Persona3)]
+    [ModBuilder("Persona 3 ISO Mod Builder", Game = Game.Persona3)]
     public class Persona3IsoModBuilder : Persona34IsoModBuilder
     {
         protected override Persona34FileModBuilder CreateFileModBuilder() => new Persona3FileModBuilder();
@@ -55,7 +58,7 @@ namespace ModCompendiumLibrary.ModSystem.Builders
         protected override Persona34GameConfig GetConfig() => ConfigManager.Get<Persona3GameConfig>();
     }
 
-    //[ModBuilder( "Persona 4 ISO Mod Builder", Game = Game.Persona4 )]
+    [ModBuilder( "Persona 4 ISO Mod Builder", Game = Game.Persona4 )]
     public class Persona4IsoModBuilder : Persona34IsoModBuilder
     {
         protected override Persona34FileModBuilder CreateFileModBuilder() => new Persona4FileModBuilder();
