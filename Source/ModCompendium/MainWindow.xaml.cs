@@ -245,10 +245,13 @@ namespace ModCompendium
 
                 Log.General.Info( $"Output path: {GameConfig.OutputDirectoryPath}" );
 
+#if !DEBUG
                 try
+#endif
                 {
                     builder.Build( merged, GameConfig.OutputDirectoryPath );
                 }
+ #if !DEBUG
                 catch ( InvalidConfigException exception )
                 {
                     InvokeOnUIThread(
@@ -280,6 +283,7 @@ namespace ModCompendium
                     return false;
 #pragma warning restore 162
                 }
+#endif
 
                 return true;
             }, TaskCreationOptions.AttachedToParent );

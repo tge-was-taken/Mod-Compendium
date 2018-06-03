@@ -7,7 +7,7 @@ namespace ModCompendiumLibrary.VirtualFileSystem
     {
         public VirtualDirectory Parent { get; internal set; }
 
-        public string HostPath { get; }
+        public string HostPath { get; protected set; }
 
         public string Name { get; set; }
 
@@ -55,6 +55,8 @@ namespace ModCompendiumLibrary.VirtualFileSystem
         /// <returns>Returns the path to which the entry was saved.</returns>
         public abstract string SaveToHost( string destinationHostPath );
 
+        public abstract void CopyToMemory( bool deleteHostEntry );
+
         /// <summary>
         /// Moves this entry from it's parent directory to the specified directory.
         /// </summary>
@@ -101,6 +103,8 @@ namespace ModCompendiumLibrary.VirtualFileSystem
         /// </summary>
         /// <returns></returns>
         public abstract VirtualFileSystemEntry Copy();
+
+        public abstract void Delete();
 
         public override string ToString()
         {

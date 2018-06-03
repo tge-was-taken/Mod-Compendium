@@ -42,6 +42,17 @@ namespace ModCompendiumLibrary.VirtualFileSystem
             return path;
         }
 
+        public override void CopyToMemory( bool deleteHostEntry )
+        {
+            foreach ( var entry in this )
+                entry.CopyToMemory( deleteHostEntry );
+
+            if ( deleteHostEntry && HostPath != null )
+                Directory.Delete( HostPath );
+
+            HostPath = null;
+        }
+
         /// <inheritdoc />
         public override VirtualFileSystemEntry Copy()
         {
@@ -53,6 +64,15 @@ namespace ModCompendiumLibrary.VirtualFileSystem
             }
 
             return copy;
+        }
+
+        public override void Delete()
+        {
+            foreach ( var entry in this )
+                entry.Delete();
+
+            if ( HostPath != null && Directory.Exists(HostPath) )
+                Directory.Delete( HostPath );
         }
 
         // Todo: recurse?
@@ -148,7 +168,7 @@ namespace ModCompendiumLibrary.VirtualFileSystem
             {
                 if ( File.Exists( entry ) )
                 {
-                    directory.mEntries.AddLast( VirtualFile.FromHostFile(entry, directory) );
+                    directory.mEntries.AddLast( VirtualFile.FromHostFile(entry, false, directory) );
                 }
                 else
                 {

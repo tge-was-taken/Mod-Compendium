@@ -6,7 +6,7 @@ namespace ModCompendiumLibrary.VirtualFileSystem
 {
     public class VirtualFile : VirtualFileSystemEntry, IDisposable
     {
-        private readonly Stream mStream;
+        private Stream mStream;
 
         public VirtualFile( VirtualDirectory parent, string hostPath, string name ) 
             : base(parent, hostPath, name, VirtualFileSystemEntryType.File)
@@ -56,6 +56,21 @@ namespace ModCompendiumLibrary.VirtualFileSystem
             return path;
         }
 
+        public override void CopyToMemory( bool deleteHostEntry )
+        {
+            if ( HostPath == null )
+                return;
+
+            mStream = new MemoryStream();
+            using ( var fileStream = File.OpenRead( HostPath ) )
+                fileStream.CopyTo( mStream );
+
+            if ( deleteHostEntry )
+                File.Delete( HostPath );
+
+            HostPath = null;
+        }
+
         /// <summary>
         /// Creates a copy of this virtual file. Do not that this is a shallow copy and does not copy the backing store of the file.
         /// </summary>
@@ -68,15 +83,34 @@ namespace ModCompendiumLibrary.VirtualFileSystem
                 return new VirtualFile( null, HostPath, Name );
         }
 
+        public override void Delete()
+        {
+            if ( StoredInMemory )
+                mStream.Dispose();
+            else if ( File.Exists(HostPath ))
+                File.Delete( HostPath );
+        }
+
         /// <summary>
         /// Creates a new virtual file from a file on the host filesystem.
         /// </summary>
         /// <param name="path"></param>
         /// <param name="parent"></param>
         /// <returns></returns>
-        public static VirtualFile FromHostFile( string path, VirtualDirectory parent = null )
+        public static VirtualFile FromHostFile( string path, bool copyToMemory = false, VirtualDirectory parent = null )
         {
-            return new VirtualFile( parent, path, Path.GetFileName( path ) );
+            if ( copyToMemory )
+            {
+                MemoryStream stream = new MemoryStream();
+                using ( var fileStream = File.OpenRead( path ) )
+                    fileStream.CopyTo( fileStream );
+
+                return new VirtualFile( parent, stream, Path.GetFileName( path ) );
+            }
+            else
+            {
+                return new VirtualFile( parent, path, Path.GetFileName( path ) );
+            }
         }
 
         public void Dispose()

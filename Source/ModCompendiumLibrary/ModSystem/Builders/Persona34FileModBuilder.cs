@@ -32,7 +32,7 @@ namespace ModCompendiumLibrary.ModSystem.Builders
 
             // Get files
             Log.Builder.Trace( $"DvdRootOrIsoPath = {config.DvdRootOrIsoPath}" );
-            var dvdRootDirectory = Persona34Helper.GetRootDirectory( config, out var isoFileSystem );
+            var dvdRootDirectory = Persona34Common.GetRootDirectory( config, out var isoFileSystem );
 
             // Find system config
             var systemConfigFile = dvdRootDirectory[ "SYSTEM.CNF" ] as VirtualFile ?? throw new MissingFileException( "SYSTEM.CNF is missing from the file source." );
@@ -144,10 +144,6 @@ namespace ModCompendiumLibrary.ModSystem.Builders
                 Log.Builder.Info( $"Copying files to output directory (might take a while): {hostOutputPath}" );
                 newDvdRootDirectory.SaveToHost( hostOutputPath );
             }
-            else
-            {
-                Directory.Delete( dvdRootDirectoryPath, true );
-            }
 
             if ( hostOutputPath != null && isoFileSystem != null )
                 isoFileSystem.Dispose();
@@ -164,7 +160,7 @@ namespace ModCompendiumLibrary.ModSystem.Builders
                 var streamView = new StreamView( stream, 0x1800, stream.Length - 0x1800 );
                 var cvmIsoFilesystem = new CDReader( streamView, false );
 
-                var directory = CDReaderHelper.ToVirtualDirectory( cvmIsoFilesystem );
+                var directory = cvmIsoFilesystem.ToVirtualDirectory();
                 directory.Name = Path.GetFileNameWithoutExtension( cvmFile.Name );
 
                 return directory;

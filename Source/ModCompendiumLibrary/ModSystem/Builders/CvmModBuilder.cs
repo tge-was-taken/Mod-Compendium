@@ -90,7 +90,7 @@ namespace ModCompendiumLibrary.ModSystem.Builders
         {
             if ( entry.EntryType == VirtualFileSystemEntryType.File )
             {
-                isoBuilder.AddFile( entry.FullName.Remove(0, rootPrefix.Length), ( ( VirtualFile ) entry ).Open() );
+                AddFile( isoBuilder, entry.FullName.Remove( 0, rootPrefix.Length ), ( ( VirtualFile ) entry ) );
             }
             else
             {
@@ -100,6 +100,14 @@ namespace ModCompendiumLibrary.ModSystem.Builders
                     AddToBuilderRecursively( isoBuilder, directoryEntry, rootPrefix );
                 }
             }
+        }
+
+        private static void AddFile( CDBuilder isoBuilder, string name, VirtualFile file )
+        {
+            if ( file.StoredInMemory )
+                isoBuilder.AddFile( name, file.Open() );
+            else
+                isoBuilder.AddFile( name, file.HostPath );
         }
 
         private static byte[] GenerateDummyCvmHeader()

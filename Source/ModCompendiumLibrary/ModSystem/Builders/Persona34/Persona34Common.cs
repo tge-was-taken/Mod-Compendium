@@ -11,7 +11,7 @@ using ModCompendiumLibrary.VirtualFileSystem;
 
 namespace ModCompendiumLibrary.ModSystem.Builders
 {
-    public static class Persona34Helper
+    public static class Persona34Common
     {
         public static VirtualDirectory GetRootDirectory( Persona34GameConfig config, out CDReader isoFileSystem )
         {
@@ -24,7 +24,7 @@ namespace ModCompendiumLibrary.ModSystem.Builders
 
                 // Iso file found, convert it to our virtual file system
                 isoFileSystem = new CDReader( File.OpenRead( config.DvdRootOrIsoPath ), false );
-                return CDReaderHelper.ToVirtualDirectory( isoFileSystem );
+                return isoFileSystem.ToVirtualDirectory();
             }
             else
             {

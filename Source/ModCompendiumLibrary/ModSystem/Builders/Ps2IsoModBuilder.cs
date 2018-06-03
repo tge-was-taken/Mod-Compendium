@@ -1,4 +1,5 @@
 ﻿using System;
+using System.IO;
 using ModCompendiumLibrary.VirtualFileSystem;
 using ModCompendiumLibrary.FileParsers;
 using DiscUtils.Iso9660;
@@ -46,10 +47,10 @@ namespace ModCompendiumLibrary.ModSystem.Builders
             };
 
             // system.cnf first
-            isoBuilder.AddFile( systemCnfFile.Name, systemCnfFile.Open() );
+            isoBuilder.AddFile( systemCnfFile.Name, systemCnfFile );
 
             // executable second
-            isoBuilder.AddFile( executablePath, executableFile.Open() );
+            isoBuilder.AddFile( executablePath, executableFile );
 
             // And then the rest
             AddToIsoBuilderRecursively( isoBuilder, root, executablePath );
@@ -86,7 +87,7 @@ namespace ModCompendiumLibrary.ModSystem.Builders
 
                 if ( entry.EntryType == VirtualFileSystemEntryType.File )
                 {
-                    isoBuilder.AddFile( entry.FullName, ( ( VirtualFile )entry ).Open() );
+                    isoBuilder.AddFile( entry.FullName, ( ( VirtualFile ) entry ) );
                 }
                 else
                 {
@@ -107,15 +108,21 @@ namespace ModCompendiumLibrary.ModSystem.Builders
             // Build mod files
             var fileModBuilder = CreateFileModBuilder();
             var modFilesDirectory = ( VirtualDirectory )fileModBuilder.Build( root );
+            var modFilesDirectoryCopy = modFilesDirectory.Copy();
 
             // Merge original files with mod files
             var config = GetConfig();
-            var rootDirectory = Persona34Helper.GetRootDirectory( config, out var isoFileSystem );
+            var rootDirectory = Persona34Common.GetRootDirectory( config, out var isoFileSystem );
             rootDirectory.Merge( modFilesDirectory, true );
+
+            if ( hostOutputPath != null && Directory.Exists( hostOutputPath ) )
+                hostOutputPath = Path.Combine( hostOutputPath, "Amicitia.iso" );
 
             // Build ISO
             var ps2IsoModBuilder = new Ps2IsoModBuilder();
             var ps2IsoFile = ps2IsoModBuilder.Build( rootDirectory, hostOutputPath );
+
+            modFilesDirectoryCopy.Delete();
 
             if (hostOutputPath != null)
                 isoFileSystem?.Dispose();

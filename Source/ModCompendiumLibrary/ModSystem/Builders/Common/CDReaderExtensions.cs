@@ -9,14 +9,14 @@ using ModCompendiumLibrary.VirtualFileSystem;
 
 namespace ModCompendiumLibrary.ModSystem.Builders
 {
-    public static class CDReaderHelper
+    public static class CDReaderExtensions
     {
-        public static VirtualDirectory ToVirtualDirectory( CDReader isoFileSystem )
+        public static VirtualDirectory ToVirtualDirectory( this CDReader isoFileSystem )
         {
             return ToVirtualFileSystemEntry( isoFileSystem, isoFileSystem.Root.FullName ) as VirtualDirectory;
         }
 
-        public static VirtualFileSystemEntry ToVirtualFileSystemEntry( CDReader isoFileSystem, string path )
+        public static VirtualFileSystemEntry ToVirtualFileSystemEntry( this CDReader isoFileSystem, string path )
         {
             if ( isoFileSystem.FileExists( path ) )
             {

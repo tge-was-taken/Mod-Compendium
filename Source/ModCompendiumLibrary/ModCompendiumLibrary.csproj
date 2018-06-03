@@ -34,10 +34,6 @@
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="DiscUtils, Version=0.11.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\Dependencies\Source\DiscUtils\DiscUtils.dll</HintPath>
-    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Xml.Linq" />
@@ -67,13 +63,14 @@
     <Compile Include="Logging\LogChannel.cs" />
     <Compile Include="Logging\MessageBroadcastedEventArgs.cs" />
     <Compile Include="Logging\Severity.cs" />
+    <Compile Include="ModSystem\Builders\Common\CDBuilderExtensions.cs" />
     <Compile Include="ModSystem\Builders\ModBuilderInfo.cs" />
     <Compile Include="ModSystem\Builders\ModBuilderManager.cs" />
     <Compile Include="ModSystem\Builders\ModBuilderAttribute.cs" />
     <Compile Include="ModSystem\Builders\Exceptions\InvalidConfigException.cs" />
     <Compile Include="ModSystem\Builders\ModBuilderStackExecutor.cs" />
-    <Compile Include="ModSystem\Builders\CDReaderHelper.cs" />
-    <Compile Include="ModSystem\Builders\Persona34Helper.cs" />
+    <Compile Include="ModSystem\Builders\Common\CDReaderExtensions.cs" />
+    <Compile Include="ModSystem\Builders\Persona34\Persona34Common.cs" />
     <Compile Include="ModSystem\Builders\PersonaPortableModBuilder.cs" />
     <Compile Include="ModSystem\Builders\PersonaPortable\CsvMaker.cs" />
     <Compile Include="ModSystem\Mergers\BottomToTopModMerger.cs" />
@@ -121,6 +118,18 @@
     <ProjectReference Include="..\..\Dependencies\Source\CriPakTools\CriPakTools\CriPakTools.csproj">
       <Project>{05ec5b1d-df4f-48d6-a17f-c8ab5fd4a015}</Project>
       <Name>CriPakTools</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\Dependencies\Source\DiscUtils\Library\DiscUtils.Core\DiscUtils.Core.csproj">
+      <Project>{5704102d-0914-4707-a5bf-21794463fb3f}</Project>
+      <Name>DiscUtils.Core</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\Dependencies\Source\DiscUtils\Library\DiscUtils.Iso9660\DiscUtils.Iso9660.csproj">
+      <Project>{bf8f2f1b-524b-4960-bd50-e75eab84f445}</Project>
+      <Name>DiscUtils.Iso9660</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\Dependencies\Source\DiscUtils\Library\DiscUtils.Streams\DiscUtils.Streams.csproj">
+      <Project>{bfbdd386-5715-4481-beaa-8c7fb88a7312}</Project>
+      <Name>DiscUtils.Streams</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
