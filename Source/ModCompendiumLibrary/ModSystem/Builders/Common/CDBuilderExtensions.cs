@@ -7,10 +7,13 @@ namespace ModCompendiumLibrary.ModSystem.Builders
     {
         public static void AddFile( this CDBuilder isoBuilder, string name, VirtualFile file )
         {
+            if ( !name.EndsWith( ";1" ) )
+                name += ";1";
+
             if ( file.StoredInMemory )
-                isoBuilder.AddFile( name + ";1", file.Open() );
+                isoBuilder.AddFile( name, file.Open() );
             else
-                isoBuilder.AddFile( name + ";1", file.HostPath );
+                isoBuilder.AddFile( name, file.HostPath );
         }
     }
 }
