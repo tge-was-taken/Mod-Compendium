@@ -71,7 +71,7 @@ namespace ModCompendium
         private void InitializeGameComboBox()
         {
             GameComboBox.ItemsSource = sGameNames;
-            GameComboBox.SelectedIndex = Math.Max( 0, ( int ) SelectedGame - 1 );
+            GameComboBox.SelectedIndex = Math.Max( 0, ( int ) Config.SelectedGame - 1 );
         }
 
         private void RefreshMods()
