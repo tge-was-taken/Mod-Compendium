@@ -38,6 +38,8 @@ namespace ModCompendium
             "Persona 4 Golden",
             "Persona 4 Dancing All Night",
             "Persona 5",
+            "Persona 3 Dancing Moon Night",
+            "Persona 5 Dancing Star Night"
         };
 
         public Game SelectedGame { get; private set; }
