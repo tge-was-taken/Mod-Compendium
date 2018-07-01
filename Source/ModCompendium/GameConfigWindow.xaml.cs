@@ -93,7 +93,7 @@ namespace ModCompendium
                     ConfigPropertyGrid.Children.Add(dvdRootPathTextBoxButton);
                 }
             }
-            else if (config.Game == Game.Persona3Portable || config.Game == Game.Persona4Golden || config.Game == Game.Persona4Dancing)
+            else if (config.Game == Game.Persona3Portable || config.Game == Game.Persona4Golden || config.Game == Game.Persona4Dancing || config.Game == Game.Persona3Dancing || config.Game == Game.Persona5Dancing)
             {
                 var ppConfig = (PersonaPortableGameConfig)config;
 
@@ -165,7 +165,7 @@ namespace ModCompendium
                     ConfigPropertyGrid.Children.Add(cpkRootPathTextBoxButton);
                 }
             }
-            if (config.Game == Game.Persona3Portable || config.Game == Game.Persona4Golden || config.Game == Game.Persona4Dancing || config.Game == Game.Persona5)
+            if (config.Game == Game.Persona3Portable || config.Game == Game.Persona4Golden || config.Game == Game.Persona4Dancing || config.Game == Game.Persona5 || config.Game == Game.Persona3Dancing || config.Game == Game.Persona5Dancing)
             {
 
                 // Add extra row

@@ -23,7 +23,7 @@ namespace CriPakTools
                 return;
             }
 
-            string cpk_name = args[0];
+            string cpk_name = args[2];
 
             CPK cpk = new CPK(new Tools());
             cpk.ReadCPK(cpk_name);
