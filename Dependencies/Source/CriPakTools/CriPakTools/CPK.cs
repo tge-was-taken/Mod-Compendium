@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.IO;
+using System.Runtime.InteropServices;
+
 
 namespace CriPakTools
 {
@@ -42,8 +44,6 @@ namespace CriPakTools
                 ReadUTFData(br);
 
                 CPK_packet = utf_packet;
-                //Dump CPK
-                //File.WriteAllBytes("U_CPK", CPK_packet);
 
                 FileEntry CPAK_entry = new FileEntry
                 {
@@ -175,20 +175,25 @@ namespace CriPakTools
 
         public bool ReadTOC(EndianReader br, ulong TocOffset, ulong ContentOffset)
         {
+            ulong fTocOffset = TocOffset;
             ulong add_offset = 0;
 
+            if (fTocOffset > (ulong)0x800)
+                fTocOffset = (ulong)0x800;
+
+
             if (ContentOffset < 0)
-                add_offset = TocOffset;
+                add_offset = fTocOffset;
             else
             {
                 if (TocOffset < 0)
                     add_offset = ContentOffset;
                 else
                 {
-                    if (ContentOffset < TocOffset)
+                    if (ContentOffset < fTocOffset)
                         add_offset = ContentOffset;
                     else
-                        add_offset = TocOffset;
+                        add_offset = fTocOffset;
                 }
             }
 
@@ -204,8 +209,6 @@ namespace CriPakTools
 
             // Store unencrypted TOC
             TOC_packet = utf_packet;
-            //Dump TOC
-            //File.WriteAllBytes("U_TOC", TOC_packet);
 
             FileEntry toc_entry = FileTable.Where(x => x.FileName.ToString() == "TOC_HDR").Single();
             toc_entry.Encrypted = isUtfEncrypted;
@@ -266,6 +269,12 @@ namespace CriPakTools
 
             cpk.BaseStream.Seek(0x800 - 6, SeekOrigin.Begin);
             cpk.Write(Encoding.ASCII.GetBytes("(c)CRI"));
+            if ((TocOffset > 0x800) && TocOffset < 0x8000)
+            {
+                //部分cpk是从0x2000开始TOC，所以
+                //需要计算 cpk padding
+                cpk.Write(new byte[TocOffset - 0x800]);
+            }
         }
 
         public void WriteTOC(BinaryWriter cpk)
@@ -278,9 +287,9 @@ namespace CriPakTools
             WritePacket(cpk, "ITOC", ItocOffset, ITOC_packet);
         }
 
-        public void WriteETOC(BinaryWriter cpk)
+        public void WriteETOC(BinaryWriter cpk, ulong currentEtocOffset)
         {
-            WritePacket(cpk, "ETOC", EtocOffset, ETOC_packet);
+            WritePacket(cpk, "ETOC", currentEtocOffset, ETOC_packet);
         }
 
         public void WriteGTOC(BinaryWriter cpk)
@@ -293,9 +302,18 @@ namespace CriPakTools
             if (position != 0xffffffffffffffff)
             {
                 cpk.BaseStream.Seek((long)position, SeekOrigin.Begin);
-                byte[] encrypted = DecryptUTF(packet); // Yes it says decrypt...
+                byte[] encrypted;
+                if (isUtfEncrypted == true)
+                {
+                    encrypted = DecryptUTF(packet); // Yes it says decrypt...
+                }
+                else
+                {
+                    encrypted = packet;
+                }
+
                 cpk.Write(Encoding.ASCII.GetBytes(ID));
-                cpk.Write((Int32)0);
+                cpk.Write((Int32)0xff);
                 cpk.Write((UInt64)encrypted.Length);
                 cpk.Write(encrypted);
             }
@@ -314,8 +332,6 @@ namespace CriPakTools
             ReadUTFData(br);
 
             ITOC_packet = utf_packet;
-            //Dump ITOC
-            //File.WriteAllBytes("U_ITOC", ITOC_packet);
 
             FileEntry itoc_entry = FileTable.Where(x => x.FileName.ToString() == "ITOC_HDR").Single();
             itoc_entry.Encrypted = isUtfEncrypted;
@@ -454,7 +470,7 @@ namespace CriPakTools
                 temp.TOCName = "ITOC";
 
                 temp.DirName = null;
-                temp.FileName = id.ToString("D4");
+                temp.FileName = id.ToString() + ".bin";
 
                 temp.FileSize = value;
                 temp.FileSizePos = SizePosTable[id];
@@ -524,7 +540,14 @@ namespace CriPakTools
                 return false;
             }
 
-            br.BaseStream.Seek(0xC, SeekOrigin.Current); //skip header data
+            //br.BaseStream.Seek(0xC, SeekOrigin.Current); //skip header data
+            ReadUTFData(br);
+
+            GTOC_packet = utf_packet;
+            FileEntry gtoc_entry = FileTable.Where(x => x.FileName.ToString() == "GTOC_HDR").Single();
+            gtoc_entry.Encrypted = isUtfEncrypted;
+            gtoc_entry.FileSize = GTOC_packet.Length;
+
 
             return true;
         }
@@ -544,8 +567,6 @@ namespace CriPakTools
             ReadUTFData(br);
 
             ETOC_packet = utf_packet;
-            //Dump ETOC
-            //File.WriteAllBytes("U_ETOC", ETOC_packet);
 
             FileEntry etoc_entry = FileTable.Where(x => x.FileName.ToString() == "ETOC_HDR").Single();
             etoc_entry.Encrypted = isUtfEncrypted;
@@ -569,6 +590,7 @@ namespace CriPakTools
             for (int i = 0; i < fileEntries.Count; i++)
             {
                 FileTable[i].LocalDir = GetColumnData(files, i, "LocalDir");
+                FileTable[i].UpdateDateTime = (ulong)GetColumnData(files, i, "UpdateDateTime");
             }
 
             return true;
@@ -595,6 +617,133 @@ namespace CriPakTools
             return result;
         }
 
+        unsafe public int CRICompress(byte* dest, int* destLen, byte* src, int srcLen)
+        {
+            int n = srcLen - 1, m = *destLen - 0x1, T = 0, d = 0;
+
+            int p, q = 0, i, j, k;
+            byte* odest = dest;
+            for (; n >= 0x100;)
+            {
+                j = n + 3 + 0x2000;
+                if (j > srcLen) j = srcLen;
+                for (i = n + 3, p = 0; i < j; i++)
+                {
+                    for (k = 0; k <= n - 0x100; k++)
+                    {
+                        if (*(src + n - k) != *(src + i - k)) break;
+                    }
+                    if (k > p)
+                    {
+                        q = i - n - 3;
+                        p = k;
+                    }
+                }
+                if (p < 3)
+                {
+                    d = (d << 9) | (*(src + n--));
+                    T += 9;
+                }
+                else
+                {
+                    d = (((d << 1) | 1) << 13) | q;
+
+                    T += 14; n -= p;
+                    if (p < 6)
+                    {
+                        d = (d << 2) | (p - 3); T += 2;
+                    }
+                    else if (p < 13)
+                    {
+                        d = (((d << 2) | 3) << 3) | (p - 6); T += 5;
+                    }
+                    else if (p < 44)
+                    {
+                        d = (((d << 5) | 0x1f) << 5) | (p - 13); T += 10;
+                    }
+                    else
+                    {
+                        d = ((d << 10) | 0x3ff); T += 10; p -= 44;
+                        for (;;)
+                        {
+                            for (; T >= 8;)
+                            {
+                                *(dest + m--) = (byte)((d >> (T - 8)) & 0xff);
+                                T -= 8; d = d & ((1 << T) - 1);
+                            }
+                            if (p < 255) break;
+                            d = (d << 8) | 0xff; T += 8; p = p - 0xff;
+                        }
+                        d = (d << 8) | p; T += 8;
+                    }
+                }
+                for (; T >= 8;)
+                {
+                    *(dest + m--) = (byte)((d >> (T - 8)) & 0xff);
+                    T -= 8;
+                    d = d & ((1 << T) - 1);
+                }
+            }
+            if (T != 0)
+            {
+                *(dest + m--) = (byte)(d << (8 - T));
+            }
+
+            *(dest + m--) = 0; *(dest + m) = 0;
+            for (;;)
+            {
+                if (((*destLen - m) & 3) == 0) break;
+                *(dest + m--) = 0;
+            }
+
+            *destLen = *destLen - m;
+            dest += m;
+
+            int[] l = { 0x4c495243, 0x414c5941, srcLen - 0x100, *destLen };
+
+            for (j = 0; j < 4; j++)
+            {
+                for (i = 0; i < 4; i++)
+                {
+                    *(odest + i + j * 4) = (byte)(l[j] & 0xff);
+                    l[j] >>= 8;
+                }
+            }
+            for (j = 0, odest += 0x10; j < *destLen; j++)
+            {
+                *(odest++) = *(dest + j);
+            }
+            for (j = 0; j < 0x100; j++)
+            {
+                *(odest++) = *(src + j);
+            }
+            *destLen += 0x110;
+
+            return *destLen;
+        }
+
+        unsafe public byte[] CompressCRILAYLA(byte[] input)
+        {
+
+            unsafe
+            {
+
+                int destLength = (int)input.Length;
+                fixed (byte* src = input)
+                fixed (byte* dest = new byte[input.Length])
+                {
+
+                    destLength = CRICompress(dest, &destLength, src, input.Length);
+                    byte[] arr = new byte[destLength];
+                    Marshal.Copy((IntPtr)dest, arr, 0, destLength);
+
+
+                    return arr;
+                }
+            }
+
+        }
+
         public byte[] DecompressCRILAYLA(byte[] input, int USize)
         {
             byte[] result;// = new byte[USize];
@@ -605,6 +754,7 @@ namespace CriPakTools
             br.BaseStream.Seek(8, SeekOrigin.Begin); // Skip CRILAYLA
             int uncompressed_size = br.ReadInt32();
             int uncompressed_header_offset = br.ReadInt32();
+
             result = new byte[uncompressed_size + 0x100];
 
             // do some error checks here.........
@@ -621,15 +771,15 @@ namespace CriPakTools
 
             while (bytes_output < uncompressed_size)
             {
-                if (get_next_bits(input, ref input_offset, ref  bit_pool, ref bits_left, 1) > 0)
+                if (get_next_bits(input, ref input_offset, ref bit_pool, ref bits_left, 1) > 0)
                 {
-                    int backreference_offset = output_end - bytes_output + get_next_bits(input, ref input_offset, ref  bit_pool, ref bits_left, 13) + 3;
+                    int backreference_offset = output_end - bytes_output + get_next_bits(input, ref input_offset, ref bit_pool, ref bits_left, 13) + 3;
                     int backreference_length = 3;
                     int vle_level;
 
                     for (vle_level = 0; vle_level < vle_lens.Length; vle_level++)
                     {
-                        int this_level = get_next_bits(input, ref input_offset, ref  bit_pool, ref bits_left, vle_lens[vle_level]);
+                        int this_level = get_next_bits(input, ref input_offset, ref bit_pool, ref bits_left, vle_lens[vle_level]);
                         backreference_length += this_level;
                         if (this_level != ((1 << vle_lens[vle_level]) - 1)) break;
                     }
@@ -639,7 +789,7 @@ namespace CriPakTools
                         int this_level;
                         do
                         {
-                            this_level = get_next_bits(input, ref input_offset, ref  bit_pool, ref bits_left, 8);
+                            this_level = get_next_bits(input, ref input_offset, ref bit_pool, ref bits_left, 8);
                             backreference_length += this_level;
                         } while (this_level == 255);
                     }
@@ -653,7 +803,77 @@ namespace CriPakTools
                 else
                 {
                     // verbatim byte
-                    result[output_end - bytes_output] = (byte)get_next_bits(input, ref input_offset, ref  bit_pool, ref bits_left, 8);
+                    result[output_end - bytes_output] = (byte)get_next_bits(input, ref input_offset, ref bit_pool, ref bits_left, 8);
+                    bytes_output++;
+                }
+            }
+
+            br.Close();
+            ms.Close();
+
+            return result;
+        }
+
+        public byte[] DecompressLegacyCRI(byte[] input, int USize)
+        {
+            byte[] result;// = new byte[USize];
+
+            MemoryStream ms = new MemoryStream(input);
+            EndianReader br = new EndianReader(ms, true);
+
+            br.BaseStream.Seek(8, SeekOrigin.Begin); // Skip CRILAYLA
+            int uncompressed_size = br.ReadInt32();
+            int uncompressed_header_offset = br.ReadInt32();
+
+            result = new byte[uncompressed_size + 0x100];
+
+            // do some error checks here.........
+
+            // copy uncompressed 0x100 header to start of file
+            Array.Copy(input, uncompressed_header_offset + 0x10, result, 0, 0x100);
+
+            int input_end = input.Length - 0x100 - 1;
+            int input_offset = input_end;
+            int output_end = 0x100 + uncompressed_size - 1;
+            byte bit_pool = 0;
+            int bits_left = 0, bytes_output = 0;
+            int[] vle_lens = new int[4] { 2, 3, 5, 8 };
+
+            while (bytes_output < uncompressed_size)
+            {
+                if (get_next_bits(input, ref input_offset, ref bit_pool, ref bits_left, 1) > 0)
+                {
+                    int backreference_offset = output_end - bytes_output + get_next_bits(input, ref input_offset, ref bit_pool, ref bits_left, 13) + 3;
+                    int backreference_length = 3;
+                    int vle_level;
+
+                    for (vle_level = 0; vle_level < vle_lens.Length; vle_level++)
+                    {
+                        int this_level = get_next_bits(input, ref input_offset, ref bit_pool, ref bits_left, vle_lens[vle_level]);
+                        backreference_length += this_level;
+                        if (this_level != ((1 << vle_lens[vle_level]) - 1)) break;
+                    }
+
+                    if (vle_level == vle_lens.Length)
+                    {
+                        int this_level;
+                        do
+                        {
+                            this_level = get_next_bits(input, ref input_offset, ref bit_pool, ref bits_left, 8);
+                            backreference_length += this_level;
+                        } while (this_level == 255);
+                    }
+
+                    for (int i = 0; i < backreference_length; i++)
+                    {
+                        result[output_end - bytes_output] = result[backreference_offset--];
+                        bytes_output++;
+                    }
+                }
+                else
+                {
+                    // verbatim byte
+                    result[output_end - bytes_output] = (byte)get_next_bits(input, ref input_offset, ref bit_pool, ref bits_left, 8);
                     bytes_output++;
                 }
             }
@@ -828,9 +1048,12 @@ namespace CriPakTools
                     case "ETOC":
                         updateMe = ETOC_packet;
                         break;
+                    case "GTOC":
+                        updateMe = GTOC_packet;
+                        break;
                     default:
                         throw new Exception("I need to implement this TOC!");
-                        break;
+
                 }
 
 
@@ -844,12 +1067,19 @@ namespace CriPakTools
 
                 //Update FileOffset
                 if (fileEntry.FileOffsetPos > 0)
-                    UpdateValue(ref updateMe, fileEntry.FileOffset - (ulong)((fileEntry.TOCName == "TOC") ? 0x800 : 0), fileEntry.FileOffsetPos, fileEntry.FileOffsetType);
+                    if (fileEntry.TOCName == "TOC")
+                    {
+                        UpdateValue(ref updateMe, fileEntry.FileOffset - (ulong)TocOffset, fileEntry.FileOffsetPos, fileEntry.FileOffsetType);
+                    }
+                    else
+                    {
+                        UpdateValue(ref updateMe, fileEntry.FileOffset, fileEntry.FileOffsetPos, fileEntry.FileOffsetType);
+                    }
 
                 switch (fileEntry.TOCName)
                 {
                     case "CPK":
-                        updateMe = CPK_packet;
+                        CPK_packet = updateMe;
                         break;
                     case "TOC":
                         TOC_packet = updateMe;
@@ -860,9 +1090,12 @@ namespace CriPakTools
                     case "ETOC":
                         updateMe = ETOC_packet;
                         break;
+                    case "GTOC":
+                        updateMe = GTOC_packet;
+                        break;
                     default:
                         throw new Exception("I need to implement this TOC!");
-                        break;
+
                 }
             }
         }
@@ -906,6 +1139,7 @@ namespace CriPakTools
 
             MemoryStream myStream = (MemoryStream)toc.BaseStream;
             packet = myStream.ToArray();
+
         }
 
         public bool isUtfEncrypted { get; set; }
@@ -1159,7 +1393,7 @@ namespace CriPakTools
             }
         }
 
-        public Type GetType()
+        public new Type GetType()
         {
             object result = -1;
 
