@@ -18,7 +18,7 @@ namespace ModCompendiumLibrary.ModSystem.Builders
         /// <param name="root"></param>
         /// <param name="hostOutputPath"></param>
         /// <returns>PS2 bootable ISO file.</returns>
-        public VirtualFileSystemEntry Build( VirtualDirectory root, string hostOutputPath = null, string gameName = null, bool useCompression = false)
+        public VirtualFileSystemEntry Build( VirtualDirectory root, string hostOutputPath = null, string gameName = null, bool useCompression = false, bool useExtracted = false)
         {
             if ( root == null )
                 throw new ArgumentNullException( nameof( root ) );

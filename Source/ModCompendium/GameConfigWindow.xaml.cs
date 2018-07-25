@@ -164,16 +164,56 @@ namespace ModCompendium
                     Grid.SetColumn(cpkRootPathTextBoxButton, 1);
                     ConfigPropertyGrid.Children.Add(cpkRootPathTextBoxButton);
                 }
+
+                // Add extra row
+                ConfigPropertyGrid.RowDefinitions.Add(new RowDefinition());
+
+                // Extraction checkbox label
+                {
+                    var cpkExtractLabel = new Label()
+                    {
+                        Content = "Use Extracted Files",
+                        ToolTip = "Extract the contents of the CPK at the specified CPK Path",
+                        HorizontalContentAlignment = HorizontalAlignment.Center,
+                        VerticalContentAlignment = VerticalAlignment.Center,
+                        HorizontalAlignment = HorizontalAlignment.Center,
+                        VerticalAlignment = VerticalAlignment.Center,
+                        Height = 35,
+                        Width = 120
+                    };
+
+                    Grid.SetRow(cpkExtractLabel, 4);
+                    Grid.SetColumn(cpkExtractLabel, 0);
+                    ConfigPropertyGrid.Children.Add(cpkExtractLabel);
+                }
+
+                // Cpk Extraction checkbox
+                CheckBox cpkExtract;
+                {
+                    cpkExtract = new CheckBox()
+                    {
+                        VerticalContentAlignment = VerticalAlignment.Center,
+                        HorizontalAlignment = HorizontalAlignment.Left,
+                        VerticalAlignment = VerticalAlignment.Center,
+                        Height = 35,
+                    };
+
+                    cpkExtract.SetBinding(CheckBox.IsCheckedProperty, new Binding(nameof(PersonaPortableGameConfig.Extract)));
+
+                    Grid.SetRow(cpkExtract, 4);
+                    Grid.SetColumn(cpkExtract, 1);
+                    ConfigPropertyGrid.Children.Add(cpkExtract);
+                }
+
             }
             if (config.Game == Game.Persona3Portable || config.Game == Game.Persona4Golden || config.Game == Game.Persona4Dancing || config.Game == Game.Persona5 || config.Game == Game.Persona3Dancing || config.Game == Game.Persona5Dancing)
             {
-
                 // Add extra row
                 ConfigPropertyGrid.RowDefinitions.Add(new RowDefinition());
 
                 // Compression checkbox label
                 {
-                    var cpkRootPathLabel = new Label()
+                    var cpkCompressionLabel = new Label()
                     {
                         Content = "Use Compression",
                         ToolTip = "Check if CPK compression is required by " + config.Game.ToString(),
@@ -185,9 +225,9 @@ namespace ModCompendium
                         Width = 120
                     };
 
-                    Grid.SetRow(cpkRootPathLabel, 3);
-                    Grid.SetColumn(cpkRootPathLabel, 0);
-                    ConfigPropertyGrid.Children.Add(cpkRootPathLabel);
+                    Grid.SetRow(cpkCompressionLabel, 3);
+                    Grid.SetColumn(cpkCompressionLabel, 0);
+                    ConfigPropertyGrid.Children.Add(cpkCompressionLabel);
                 }
 
                 // Cpk compression checkbox

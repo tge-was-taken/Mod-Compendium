@@ -11,7 +11,7 @@ namespace ModCompendiumLibrary.ModSystem.Builders
     public class PassthroughModBuilder : IModBuilder
     {
         /// <inheritdoc />
-        public VirtualFileSystemEntry Build( VirtualDirectory root, string hostOutputPath = null, string gameName = null, bool useCompression = false)
+        public VirtualFileSystemEntry Build( VirtualDirectory root, string hostOutputPath = null, string gameName = null, bool useCompression = false, bool useExtracted = false)
         {
             if ( root == null )
                 throw new ArgumentNullException( nameof( root ) );

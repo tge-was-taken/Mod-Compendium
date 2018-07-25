@@ -7,7 +7,8 @@ namespace ModCompendiumLibrary.Configuration
         protected PersonaPortableGameConfig()
         {
             CpkRootOrPath = string.Empty;
-            Compression = string.Empty;
+            Compression = "True";
+            Extract = "True";
         }
 
         /// <summary>
@@ -15,17 +16,20 @@ namespace ModCompendiumLibrary.Configuration
         /// </summary>
         public string CpkRootOrPath { get; set; }
         public string Compression { get; set; }
+        public string Extract { get; set; }
 
-        protected override void DeserializeCore( XElement element )
+        protected override void DeserializeCore(XElement element)
         {
-            CpkRootOrPath = element.GetElementValueOrEmpty( nameof(CpkRootOrPath) );
-            Compression = element.GetElementValueOrEmpty(nameof(Compression) );
+            CpkRootOrPath = element.GetElementValueOrEmpty(nameof(CpkRootOrPath));
+            Compression = element.GetElementValueOrEmpty(nameof(Compression));
+            Extract = element.GetElementValueOrEmpty(nameof(Extract));
         }
 
         protected override void SerializeCore( XElement element )
         {
-            element.AddNameValuePair( nameof(CpkRootOrPath), CpkRootOrPath);
+            element.AddNameValuePair(nameof(CpkRootOrPath), CpkRootOrPath);
             element.AddNameValuePair(nameof(Compression), Compression);
+            element.AddNameValuePair(nameof(Extract), Extract);
         }
     }
 }
