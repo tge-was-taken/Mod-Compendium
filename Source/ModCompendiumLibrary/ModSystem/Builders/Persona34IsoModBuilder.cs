@@ -14,7 +14,7 @@ namespace ModCompendiumLibrary.ModSystem.Builders
 
         protected abstract Persona34GameConfig GetConfig();
 
-        public VirtualFileSystemEntry Build( VirtualDirectory root, string hostOutputPath = null, string gameName = null, bool useCompression = false)
+        public VirtualFileSystemEntry Build( VirtualDirectory root, string hostOutputPath = null, string gameName = null, bool useCompression = false, bool useExtracted = false)
         {
             if ( hostOutputPath == null )
             {

@@ -46,9 +46,11 @@
   <ItemGroup>
     <Compile Include="Configuration\ConfigManager.cs" />
     <Compile Include="Configuration\IConfigurable.cs" />
+    <Compile Include="Configuration\Persona3DancingGameConfig.cs" />
     <Compile Include="Configuration\Persona3PortableGameConfig.cs" />
     <Compile Include="Configuration\Persona4DancingGameConfig.cs" />
     <Compile Include="Configuration\Persona4GoldenGameConfig.cs" />
+    <Compile Include="Configuration\Persona5DancingGameConfig.cs" />
     <Compile Include="Configuration\PersonaPortableGameConfig.cs" />
     <Compile Include="Configuration\XElementExtensions.cs" />
     <Compile Include="Configuration\GameConfig.cs" />

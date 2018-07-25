@@ -14,7 +14,7 @@ namespace ModCompendiumLibrary.ModSystem.Builders
 
         public bool OutputUnmodifiedFiles { get; } = true;
         /// <inheritdoc />
-        public VirtualFileSystemEntry Build(VirtualDirectory root, string hostOutputPath = null, string gameName = null, bool useCompression = false)
+        public VirtualFileSystemEntry Build(VirtualDirectory root, string hostOutputPath = null, string gameName = null, bool useCompression = false, bool useExtracted = false)
         {
             gameName = Game.ToString();
 
@@ -48,15 +48,20 @@ namespace ModCompendiumLibrary.ModSystem.Builders
 
             if (config.CpkRootOrPath.EndsWith(".cpk"))
             {
-                Log.Builder.Info($"Extracting CPK: {config.CpkRootOrPath}");
-
-                if (!File.Exists(config.CpkRootOrPath))
+                // If extraction is enabled, use files from CPK path 
+                useExtracted = Convert.ToBoolean(config.Extract);
+                if (useExtracted)
                 {
-                    throw new InvalidConfigException($"CPK root path references a CPK file that does not exist: {config.CpkRootOrPath}.");
-                }
+                    Log.Builder.Info($"Extracting CPK: {config.CpkRootOrPath}");
 
-                string[] args = { "-x", "-i", config.CpkRootOrPath, "-d", cpkRootDirectoryPath };
-                CriPakTools.Program.Main(args);
+                    if (!File.Exists(config.CpkRootOrPath))
+                    {
+                        throw new InvalidConfigException($"CPK root path references a CPK file that does not exist: {config.CpkRootOrPath}.");
+                    }
+                
+                    string[] args = { "-x", "-i", config.CpkRootOrPath, "-d", cpkRootDirectoryPath };
+                    CriPakTools.Program.Main(args);
+                }
                 // Cpk file found & extracted, convert it to our virtual file system
                 cpkRootDirectory = VirtualDirectory.FromHostDirectory(cpkRootDirectoryPath);
                 cpkRootDirectory.Name = Path.GetFileNameWithoutExtension(config.CpkRootOrPath);

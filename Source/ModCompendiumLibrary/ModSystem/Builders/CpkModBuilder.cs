@@ -21,7 +21,7 @@ namespace ModCompendiumLibrary.ModSystem.Builders
         public bool DeleteCsv { get; } = true;
 
         /// <inheritdoc />
-        public VirtualFileSystemEntry Build(VirtualDirectory root, string hostOutputPath = null, string gameName = null, bool useCompression = false)
+        public VirtualFileSystemEntry Build(VirtualDirectory root, string hostOutputPath = null, string gameName = null, bool useCompression = false, bool useExtracted = false)
         {
             if (root == null)
             {
