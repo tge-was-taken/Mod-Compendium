@@ -87,7 +87,7 @@ namespace ModCompendiumLibrary.Configuration
 
         public int GetNextAvailableModPriority()
         {
-            var usedPriorities = ModConfigs.Select( x => x.Priority ).ToDictionary( x => x );
+            var usedPriorities = ModConfigs.Select( x => x.Priority ).Distinct().ToDictionary( x => x );
             var maxPriority = usedPriorities.Count == 0 ? 0 : usedPriorities.Values.Max();
 
             int priority;
