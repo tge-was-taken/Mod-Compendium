@@ -38,7 +38,7 @@ namespace ModCompendiumLibrary.ModSystem
                 sModsByGame[value] = new List<Mod>();
             }
 
-            var config = ConfigManager.Get<ModDatabaseConfig>();
+            var config = ConfigStore.Get<ModDatabaseConfig>();
             ModDirectory = config.ModsDirectoryPath;
 
             if ( !Directory.Exists( ModDirectory ) )

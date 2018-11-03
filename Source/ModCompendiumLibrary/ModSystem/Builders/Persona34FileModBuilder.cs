@@ -25,7 +25,7 @@ namespace ModCompendiumLibrary.ModSystem.Builders
                 Log.Builder.Info( $"Output directory: {hostOutputPath}" );
 
             // Get game config
-            var config = ConfigManager.Get( Game ) as Persona34GameConfig ?? throw new InvalidOperationException( "Game config is missing." );
+            var config = ConfigStore.Get( Game ) as Persona34GameConfig ?? throw new InvalidOperationException( "Game config is missing." );
 
             if ( string.IsNullOrWhiteSpace( config.DvdRootOrIsoPath ) )
                 throw new InvalidConfigException( "Dvd root path/ISO path is not specified." );

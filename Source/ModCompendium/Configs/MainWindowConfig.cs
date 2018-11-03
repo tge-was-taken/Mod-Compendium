@@ -1,11 +1,9 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Xml.Linq;
 using ModCompendiumLibrary;
 using ModCompendiumLibrary.Configuration;
-using ModCompendiumLibrary.ModSystem;
 
-namespace ModCompendium.GuiConfig
+namespace ModCompendium.Configs
 {
     public class MainWindowConfig : IConfigurable
     {

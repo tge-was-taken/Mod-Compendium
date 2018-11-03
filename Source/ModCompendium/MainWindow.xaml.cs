@@ -11,7 +11,7 @@ using System.Windows.Controls;
 using System.Windows.Documents;
 using System.Windows.Input;
 using System.Windows.Media;
-using ModCompendium.GuiConfig;
+using ModCompendium.Configs;
 using ModCompendium.ViewModels;
 using ModCompendiumLibrary;
 using ModCompendiumLibrary.Configuration;
@@ -61,7 +61,7 @@ namespace ModCompendium
 
             var version = Assembly.GetExecutingAssembly().GetName().Version;
             Title = $"Mod Compendium {version.Major}.{version.Minor}.{version.Revision}";
-            Config = ConfigManager.Get<MainWindowConfig>();
+            Config = ConfigStore.Get<MainWindowConfig>();
             InitializeGameComboBox();
         }
 
@@ -121,7 +121,7 @@ namespace ModCompendium
         {
             UpdateGameConfigEnabledMods();
             UpdateWindowConfig();
-            ConfigManager.Save();
+            ConfigStore.Save();
         }
 
         private void UpdateWindowConfig()
@@ -189,7 +189,7 @@ namespace ModCompendium
         private void GameComboBox_SelectionChanged( object sender, SelectionChangedEventArgs e )
         {
             SelectedGame = ( Game )( GameComboBox.SelectedIndex + 1 );
-            GameConfig = ConfigManager.Get( SelectedGame );
+            GameConfig = ConfigStore.Get( SelectedGame );
             RefreshMods();
         }
 
@@ -390,7 +390,7 @@ namespace ModCompendium
             UpdateConfigChangesAndSave();
 
             // Reload
-            ConfigManager.Load();
+            ConfigStore.Load();
             RefreshModDatabase();
         }
 

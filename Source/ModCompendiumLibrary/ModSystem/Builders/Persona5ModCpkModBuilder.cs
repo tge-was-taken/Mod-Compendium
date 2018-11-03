@@ -20,7 +20,7 @@ namespace ModCompendiumLibrary.ModSystem.Builders
             }
 
             //Get game config
-            var config = ConfigManager.Get<Persona5GameConfig>() ?? throw new InvalidOperationException("Game config is missing.");
+            var config = ConfigStore.Get<Persona5GameConfig>() ?? throw new InvalidOperationException("Game config is missing.");
 
             Log.Builder.Info( "Building Persona 5 Mod" );
             Log.Builder.Info( "Processing mod files" );
