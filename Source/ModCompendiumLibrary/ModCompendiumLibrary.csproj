@@ -46,6 +46,7 @@
   <ItemGroup>
     <Compile Include="Configuration\ConfigManager.cs" />
     <Compile Include="Configuration\IConfigurable.cs" />
+    <Compile Include="Configuration\ModConfig.cs" />
     <Compile Include="Configuration\Persona3DancingGameConfig.cs" />
     <Compile Include="Configuration\Persona3PortableGameConfig.cs" />
     <Compile Include="Configuration\Persona4DancingGameConfig.cs" />

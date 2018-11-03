@@ -78,28 +78,10 @@ namespace ModCompendium
 
         private void RefreshMods()
         {
-            var shouldUpdateOrder = false;
-            var uniqueOrders = new HashSet< int >();
-
             Mods = ModDatabase.Get( SelectedGame )
-                              .OrderBy( x =>
-                              {
-                                  if ( Config.ModOrder.TryGetValue( x.Id, out var order ) )
-                                  {
-                                      shouldUpdateOrder = !uniqueOrders.Add( order ); // duplicate order
-                                      return order;
-                                  }
-                                  else
-                                  {
-                                      shouldUpdateOrder = true; // undefined order
-                                      return Config.ModOrder[x.Id] = 0;
-                                  }
-                              } )
+                              .OrderBy( x => GameConfig.GetModPriority( x.Id ) )
                               .Select( x => new ModViewModel( x ) )
                               .ToList();
-
-            if ( shouldUpdateOrder )
-                UpdateWindowConfigModOrder();
 
             ModGrid.ItemsSource = Mods;
         }
@@ -131,7 +113,7 @@ namespace ModCompendium
             for ( var i = 0; i < Mods.Count; i++ )
             {
                 var mod = Mods[i];
-                Config.ModOrder[mod.Id] = i;
+                GameConfig.SetModPriority( mod.Id, i );
             }
         }
 
@@ -239,7 +221,10 @@ namespace ModCompendium
 
             var task = Task.Factory.StartNew( () =>
             {
-                var enabledMods = GameConfig.EnabledModIds.Select( ModDatabase.Get )
+                var enabledMods = GameConfig.ModConfigs.Where( x => x.Enabled )
+                                            .OrderBy( x => x.Priority )
+                                            .Select( x => x.ModId )
+                                            .Select( x => ModDatabase.Get( x ) )
                                             .ToList();
 
                 Log.General.Info( "Building mods:" );
@@ -384,8 +369,8 @@ namespace ModCompendium
             var target = ( Mod )( ModViewModel )ModGrid.Items[targetIndex];
 
             // Order
-            Config.ModOrder[SelectedModViewModel.Id] = targetIndex;
-            Config.ModOrder[target.Id] = selectedIndex;
+            GameConfig.SetModPriority( SelectedModViewModel.Id, targetIndex );
+            GameConfig.SetModPriority( target.Id, selectedIndex );
 
             // Gui update
             Mods.Remove( SelectedModViewModel );
