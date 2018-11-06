@@ -1,4 +1,0 @@
-D:\Programming\Repos\Mod-Compendium\Dependencies\Source\CriPakTools\CriPakTools\obj\Release\CriPakTools.csprojResolveAssemblyReference.cache
-D:\Programming\Repos\Mod-Compendium\Dependencies\Source\CriPakTools\CriPakTools\obj\Release\CriPakTools.csproj.CoreCompileInputs.cache
-D:\Programming\Repos\Mod-Compendium\Dependencies\Source\CriPakTools\CriPakTools\bin\Release\CriPakTools.dll
-D:\Programming\Repos\Mod-Compendium\Dependencies\Source\CriPakTools\CriPakTools\obj\Release\CriPakTools.dll
