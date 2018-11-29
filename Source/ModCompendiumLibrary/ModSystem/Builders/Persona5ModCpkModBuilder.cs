@@ -70,7 +70,7 @@ namespace ModCompendiumLibrary.ModSystem.Builders
                 }
             }
 
-            useCompression = config.Compression == "true";
+            useCompression = Convert.ToBoolean(config.Compression);
 
             // Build mod cpk
             Log.Builder.Info( "Building mod.cpk" );
