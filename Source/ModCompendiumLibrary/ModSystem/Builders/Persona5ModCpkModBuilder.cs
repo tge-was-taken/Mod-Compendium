@@ -76,11 +76,45 @@ namespace ModCompendiumLibrary.ModSystem.Builders
             Log.Builder.Info( "Building mod.cpk" );
             var cpkModCompiler = new CpkModBuilder();
             var cpkFilePath = hostOutputPath != null ? Path.Combine( hostOutputPath, "mod.cpk" ) : null;
-            var cpkFile = cpkModCompiler.Build( modFilesDirectory, cpkFilePath, gameName, useCompression);
+            var cpkFileBuildPath = hostOutputPath != null ? IsFileInUse( cpkFilePath ) ? Path.Combine( Path.GetTempPath(), "mod.cpk" ) : cpkFilePath : null;
+            var cpkFile = cpkModCompiler.Build( modFilesDirectory, cpkFileBuildPath, gameName, useCompression );
+
+            if ( cpkFileBuildPath != cpkFilePath )
+            {
+                File.Copy( cpkFileBuildPath, cpkFilePath, true );
+                File.Delete( cpkFileBuildPath );
+                cpkFile = VirtualFile.FromHostFile( cpkFilePath );
+            }
 
             Log.Builder.Info( "Done!" );
 
             return cpkFile;
+        }
+
+        private static bool IsFileInUse( string path )
+        {
+            FileStream stream = null;
+
+            try
+            {
+                stream = File.Open( path, FileMode.Open, FileAccess.Read, FileShare.None );
+            }
+            catch ( System.IO.IOException )
+            {
+                //the file is unavailable because it is:
+                //still being written to
+                //or being processed by another thread
+                //or does not exist (has already been processed)
+                return true;
+            }
+            finally
+            {
+                if ( stream != null )
+                    stream.Close();
+            }
+
+            //file is not locked
+            return false;
         }
 
         private void LogModFilesInDirectory( VirtualDirectory directory )
