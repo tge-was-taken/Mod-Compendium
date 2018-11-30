@@ -71,7 +71,7 @@ namespace ModCompendiumLibrary.ModSystem.Builders
                 }
             }
 
-            useCompression = Convert.ToBoolean(config.Compression);
+            bool.TryParse( config.Compression, out useCompression );
 
             // Build mod cpk
             Log.Builder.Info( "Building mod.cpk" );
