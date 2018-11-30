@@ -3,6 +3,7 @@ using System.IO;
 using ModCompendiumLibrary.Logging;
 using ModCompendiumLibrary.VirtualFileSystem;
 using ModCompendiumLibrary.Configuration;
+using ModCompendiumLibrary.IO;
 
 namespace ModCompendiumLibrary.ModSystem.Builders
 {
@@ -70,13 +71,13 @@ namespace ModCompendiumLibrary.ModSystem.Builders
                 }
             }
 
-            useCompression = config.Compression == "true";
+            useCompression = Convert.ToBoolean(config.Compression);
 
             // Build mod cpk
             Log.Builder.Info( "Building mod.cpk" );
             var cpkModCompiler = new CpkModBuilder();
             var cpkFilePath = hostOutputPath != null ? Path.Combine( hostOutputPath, "mod.cpk" ) : null;
-            var cpkFileBuildPath = hostOutputPath != null ? IsFileInUse( cpkFilePath ) ? Path.Combine( Path.GetTempPath(), "mod.cpk" ) : cpkFilePath : null;
+            var cpkFileBuildPath = hostOutputPath != null ? FileHelper.IsFileInUse( cpkFilePath ) ? Path.Combine( Path.GetTempPath(), "mod.cpk" ) : cpkFilePath : null;
             var cpkFile = cpkModCompiler.Build( modFilesDirectory, cpkFileBuildPath, gameName, useCompression );
 
             if ( cpkFileBuildPath != cpkFilePath )
@@ -89,32 +90,6 @@ namespace ModCompendiumLibrary.ModSystem.Builders
             Log.Builder.Info( "Done!" );
 
             return cpkFile;
-        }
-
-        private static bool IsFileInUse( string path )
-        {
-            FileStream stream = null;
-
-            try
-            {
-                stream = File.Open( path, FileMode.Open, FileAccess.Read, FileShare.None );
-            }
-            catch ( System.IO.IOException )
-            {
-                //the file is unavailable because it is:
-                //still being written to
-                //or being processed by another thread
-                //or does not exist (has already been processed)
-                return true;
-            }
-            finally
-            {
-                if ( stream != null )
-                    stream.Close();
-            }
-
-            //file is not locked
-            return false;
         }
 
         private void LogModFilesInDirectory( VirtualDirectory directory )
