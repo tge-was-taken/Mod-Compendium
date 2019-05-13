@@ -41,7 +41,8 @@ namespace ModCompendium
             "Persona 3 Dancing Moon Night",
             "Persona 5 Dancing Star Night",
             "Persona Q",
-            "Persona Q2"
+            "Persona Q2",
+            "Catherine Full Body"
         };
 
         public Game SelectedGame { get; private set; }
@@ -299,7 +300,10 @@ namespace ModCompendium
                 InvokeOnUIThread( () =>
                 {
                     if ( t.Result )
-                        MessageBox.Show( this, "Done building!", "Done", MessageBoxButton.OK, MessageBoxImage.None );
+                    {
+                        MessageBox.Show(this, "Done building!", "Done", MessageBoxButton.OK, MessageBoxImage.None);
+                        RunPostBuildScript( "postbuild.bat" );
+                    }
                 } );
             } );
         }
@@ -326,7 +330,27 @@ namespace ModCompendium
             }
         }
 
-        private void ModGrid_KeyDown( object sender, KeyEventArgs e )
+        private static void RunPostBuildScript(string scriptFileName)
+        {
+            var scriptFilePath = Path.Combine(Directory.GetCurrentDirectory(), scriptFileName);
+            if (File.Exists(scriptFilePath))
+            {
+                try
+                {
+                    var info = new ProcessStartInfo(Path.GetFullPath(scriptFilePath));
+                    info.WorkingDirectory = Path.GetFullPath(Directory.GetCurrentDirectory());
+
+                    var process = Process.Start(info);
+                    process?.WaitForExit();
+                }
+                catch (Exception)
+                {
+                }
+            }
+        }
+    
+
+    private void ModGrid_KeyDown( object sender, KeyEventArgs e )
         {
             if ( e.Key == Key.Down )
             {

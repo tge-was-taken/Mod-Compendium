@@ -45,6 +45,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Configuration\ConfigStore.cs" />
+    <Compile Include="Configuration\GameConfigs\CatherineFullBodyGameConfig.cs" />
     <Compile Include="Configuration\GameConfigs\PersonaQ2GameConfig.cs" />
     <Compile Include="Configuration\GameConfigs\PersonaQGameConfig.cs" />
     <Compile Include="Configuration\IConfigurable.cs" />
@@ -78,6 +79,7 @@
     <Compile Include="ModSystem\Builders\Common\CDReaderExtensions.cs" />
     <Compile Include="ModSystem\Builders\Persona34IsoModBuilder.cs" />
     <Compile Include="ModSystem\Builders\Persona34\Persona34Common.cs" />
+    <Compile Include="ModSystem\Builders\CatherineFullBodyModBuilder.cs" />
     <Compile Include="ModSystem\Builders\PersonaPortableModBuilder.cs" />
     <Compile Include="ModSystem\Builders\Utilities\CpkCsvMaker.cs" />
     <Compile Include="ModSystem\Builders\Utilities\ShortcutResolver.cs" />
