@@ -12,6 +12,7 @@ namespace ModCompendiumLibrary
         Persona3Dancing,
         Persona5Dancing,
         PersonaQ,
-        PersonaQ2
+        PersonaQ2,
+        CatherineFullBody
     }
 }
