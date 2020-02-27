@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using ModCompendiumLibrary.VirtualFileSystem;
 
 namespace ModCompendiumLibrary.ModSystem
@@ -7,7 +8,7 @@ namespace ModCompendiumLibrary.ModSystem
     {
         public Guid Id { get; set; }
 
-        public Game Game { get; set; }
+        public IList<Game> Game { get; set; }
 
         public string Title { get; set; }
 
@@ -27,7 +28,7 @@ namespace ModCompendiumLibrary.ModSystem
 
         public string DataDirectory { get; set; }
 
-        internal Mod( Guid id, Game game, string title, string description, string version, string date, string author, string url, string updateUrl, string baseDirectory, string dataDirectory )
+        internal Mod( Guid id, IList<Game> game, string title, string description, string version, string date, string author, string url, string updateUrl, string baseDirectory, string dataDirectory )
         {
             Id = id;
             Game = game;

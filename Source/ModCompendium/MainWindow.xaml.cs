@@ -83,7 +83,7 @@ namespace ModCompendium
         {
             Mods = ModDatabase.Get( SelectedGame )
                               .OrderBy( x => GameConfig.GetModPriority( x.Id ) )
-                              .Select( x => new ModViewModel( x ) )
+                              .Select( x => new ModViewModel( x, SelectedGame ) )
                               .ToList();
 
             ModGrid.ItemsSource = Mods;

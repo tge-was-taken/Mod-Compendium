@@ -92,7 +92,10 @@ namespace ModCompendiumLibrary.ModSystem
             if ( mod != null )
             {
                 sModById[ mod.Id ] = mod;
-                sModsByGame[ mod.Game ].Add( mod );
+                foreach ( var game in mod.Game )
+                {
+                    sModsByGame[ game ].Add( mod );
+                }
             }
 
             if ( notAModDirectory )

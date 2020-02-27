@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Linq;
+using ModCompendiumLibrary;
 using ModCompendiumLibrary.Configuration;
 using ModCompendiumLibrary.ModSystem;
 
@@ -70,13 +71,11 @@ namespace ModCompendium.ViewModels
 
         public Guid Id => mMod.Id;
 
-        public ModViewModel( Mod model )
+        public ModViewModel( Mod model, Game game )
         {
             mMod = model;
-            mConfig = ConfigStore.Get( model.Game );
+            mConfig = ConfigStore.Get( game );
         }
-
-        public static explicit operator ModViewModel( Mod mod ) => new ModViewModel( mod );
 
         public static explicit operator Mod( ModViewModel viewModel ) => viewModel.mMod;
     }
