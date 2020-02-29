@@ -93,9 +93,9 @@ namespace ModCompendium
                     ConfigPropertyGrid.Children.Add(dvdRootPathTextBoxButton);
                 }
             }
-            else if (config.Game == Game.Persona5)
+            else if (config is ModCpkGameConfig)
             {
-                var ppConfig = (Persona5GameConfig)config;
+                var ppConfig = (ModCpkGameConfig)config;
             }
             else
             {

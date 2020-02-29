@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using ModCompendiumLibrary.VirtualFileSystem;
 
@@ -7,7 +8,7 @@ namespace ModCompendiumLibrary.ModSystem
     public class ModBuilder
     {
         private Guid mId;
-        private Game mGame;
+        private IList<Game> mGame;
         private string mTitle;
         private string mDescription;
         private string mVersion;
@@ -21,7 +22,7 @@ namespace ModCompendiumLibrary.ModSystem
         public ModBuilder()
         {
             mId = Guid.NewGuid();
-            mGame = 0;
+            mGame = new List<Game>();
             mTitle = string.Empty;
             mDescription = string.Empty;
             mVersion = string.Empty;
@@ -41,7 +42,7 @@ namespace ModCompendiumLibrary.ModSystem
 
         public ModBuilder SetGame( Game game )
         {
-            mGame = game;
+            mGame.Add( game );
             return this;
         }
 
@@ -101,7 +102,7 @@ namespace ModCompendiumLibrary.ModSystem
 
         public Mod Build()
         {
-            if ( mGame == 0 )
+            if ( mGame.Count == 0 )
                 throw new InvalidOperationException( "Game isn't set" );
 
             if ( string.IsNullOrWhiteSpace( mTitle ) )
