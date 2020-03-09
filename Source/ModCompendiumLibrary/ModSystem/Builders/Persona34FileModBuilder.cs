@@ -205,16 +205,18 @@ namespace ModCompendiumLibrary.ModSystem.Builders
             var processStartInfo = new ProcessStartInfo( "Dependencies\\PersonaPatcher\\PersonaPatcher.exe",
                                                          $"\"{executableFilePath}\" \"{cvmFilePath}\"" );
 
-            processStartInfo.UseShellExecute = false;
-            processStartInfo.CreateNoWindow = true;
+            processStartInfo.UseShellExecute = false
+                
+                ;
+            processStartInfo.CreateNoWindow = false;
 
             try
             {
                 var process = Process.Start( processStartInfo );
-                if ( process != null && !process.WaitForExit( 2000 ) && !process.HasExited )
+                if ( process != null && !process.HasExited )
                 {
+                    process.WaitForInputIdle();
                     process.Kill();
-                    process.WaitForExit();
                 }
             }
             catch (Exception)
