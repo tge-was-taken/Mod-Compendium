@@ -34,6 +34,9 @@
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="AmicitiaLibrary">
+      <HintPath>..\..\Dependencies\Binaries\PersonaPatcher\AmicitiaLibrary.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Xml.Linq" />
@@ -78,6 +81,7 @@
     <Compile Include="ModSystem\Builders\Persona34IsoModBuilder.cs" />
     <Compile Include="ModSystem\Builders\Persona34\Persona34Common.cs" />
     <Compile Include="ModSystem\Builders\CatherineFullBodyModBuilder.cs" />
+    <Compile Include="ModSystem\Builders\Persona34\PersonaPatcher.cs" />
     <Compile Include="ModSystem\Builders\PersonaPortableModBuilder.cs" />
     <Compile Include="ModSystem\Builders\Utilities\CpkCsvMaker.cs" />
     <Compile Include="ModSystem\Builders\Utilities\ShortcutResolver.cs" />
