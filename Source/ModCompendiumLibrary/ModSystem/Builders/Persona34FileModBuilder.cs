@@ -125,16 +125,16 @@ namespace ModCompendiumLibrary.ModSystem.Builders
             Log.Builder.Trace( $"Executable file path: {executableFilePath}" );
 
             if ( bgmCvmModified )
-                PatchExecutable( executableFilePath, bgmCvmFile.HostPath );
+                Persona34.PersonaPatcher.Patch( executableFilePath, bgmCvmFile.HostPath );
 
             if ( btlCvmModified )
-                PatchExecutable( executableFilePath, btlCvmFile.HostPath );
+                Persona34.PersonaPatcher.Patch( executableFilePath, btlCvmFile.HostPath );
 
             if ( dataCvmModified )
-                PatchExecutable( executableFilePath, dataCvmFile.HostPath );
+                Persona34.PersonaPatcher.Patch( executableFilePath, dataCvmFile.HostPath );
 
             if ( envCvmModified )
-                PatchExecutable( executableFilePath, envCvmFile.HostPath );
+                Persona34.PersonaPatcher.Patch( executableFilePath, envCvmFile.HostPath );
 
             executableFile = VirtualFile.FromHostFile( executableFilePath );
             executableFile.MoveTo( newDvdRootDirectory, true );
