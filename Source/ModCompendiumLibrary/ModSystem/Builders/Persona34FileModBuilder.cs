@@ -7,6 +7,7 @@ using ModCompendiumLibrary.Configuration;
 using ModCompendiumLibrary.FileParsers;
 using ModCompendiumLibrary.Logging;
 using ModCompendiumLibrary.VirtualFileSystem;
+using System.Linq;
 
 namespace ModCompendiumLibrary.ModSystem.Builders
 {
@@ -29,6 +30,18 @@ namespace ModCompendiumLibrary.ModSystem.Builders
 
             if ( string.IsNullOrWhiteSpace( config.DvdRootOrIsoPath ) )
                 throw new InvalidConfigException( "Dvd root path/ISO path is not specified." );
+
+            // If HostFS Mode is enabled, clear contents
+            bool hostFS = Convert.ToBoolean(config.HostFS);
+            if (hostFS)
+            {
+                foreach(var directory in Directory.GetDirectories(hostOutputPath))
+                {
+                    string[] stringArray = { "BGM", "BTL", "DATA", "ENV" };
+                    if (stringArray.Any(Path.GetFileName(directory).ToUpper().Equals))
+                        Directory.Delete(directory, true);
+                }
+            }
 
             // Get files
             Log.Builder.Trace( $"DvdRootOrIsoPath = {config.DvdRootOrIsoPath}" );
@@ -70,74 +83,88 @@ namespace ModCompendiumLibrary.ModSystem.Builders
 
             // Process mod files
             Log.Builder.Info( "Processing mod files" );
-            foreach ( var entry in root )
+            foreach (var entry in root)
             {
-                if ( entry.EntryType == VirtualFileSystemEntryType.File )
+                if (entry.EntryType == VirtualFileSystemEntryType.File)
                 {
-                    Log.Builder.Info( $"Adding file {entry.Name} to root directory" );
-                    entry.MoveTo( newDvdRootDirectory, true );
+                    Log.Builder.Info($"Adding file {entry.Name} to root directory");
+                    entry.MoveTo(newDvdRootDirectory, true);
                     continue;
                 }
 
                 var name = entry.Name.ToLowerInvariant();
-                var directory = ( VirtualDirectory )entry;
-
-                switch ( name )
+                var directory = (VirtualDirectory)entry;
+                
+                // Skip recompiling CVMs if HostFS Mode
+                if (hostFS)
+                    entry.MoveTo(newDvdRootDirectory, true);
+                else
                 {
-                    case "bgm":
-                        UpdateAndRecompileCvm( ref bgmCvmFile, directory, Path.Combine( dvdRootDirectoryPath, "bgm.cvm" ), newDvdRootDirectory );
-                        bgmCvmModified = true;
-                        break;
+                    switch (name)
+                    {
+                        case "bgm":
+                            UpdateAndRecompileCvm(ref bgmCvmFile, directory, Path.Combine(dvdRootDirectoryPath, "bgm.cvm"), newDvdRootDirectory);
+                            bgmCvmModified = true;
+                            break;
 
-                    case "btl":
-                        UpdateAndRecompileCvm( ref btlCvmFile, directory, Path.Combine( dvdRootDirectoryPath, "btl.cvm" ), newDvdRootDirectory );
-                        btlCvmModified = true;
-                        break;
+                        case "btl":
+                            UpdateAndRecompileCvm(ref btlCvmFile, directory, Path.Combine(dvdRootDirectoryPath, "btl.cvm"), newDvdRootDirectory);
+                            btlCvmModified = true;
+                            break;
 
-                    case "data":
-                        UpdateAndRecompileCvm( ref dataCvmFile, directory, Path.Combine( dvdRootDirectoryPath, "data.cvm" ), newDvdRootDirectory );
-                        dataCvmModified = true;
-                        break;
+                        case "data":
+                            UpdateAndRecompileCvm(ref dataCvmFile, directory, Path.Combine(dvdRootDirectoryPath, "data.cvm"), newDvdRootDirectory);
+                            dataCvmModified = true;
+                            break;
 
-                    case "env":
-                        {
-                            Log.Builder.Info( "Replacing files in env.cvm" );
+                        case "env":
+                            {
+                                Log.Builder.Info("Replacing files in env.cvm");
 
-                            if ( envCvmFile == null )
-                                throw new MissingFileException( "Mod replaces files in env.cvm but env.cvm isn't present." );
+                                if (envCvmFile == null)
+                                    throw new MissingFileException("Mod replaces files in env.cvm but env.cvm isn't present.");
 
-                            UpdateAndRecompileCvm( ref envCvmFile, directory, Path.Combine( dvdRootDirectoryPath, "env.cvm" ), newDvdRootDirectory );
-                            envCvmModified = true;
-                        }
-                        break;
+                                UpdateAndRecompileCvm(ref envCvmFile, directory, Path.Combine(dvdRootDirectoryPath, "env.cvm"), newDvdRootDirectory);
+                                envCvmModified = true;
+                            }
+                            break;
 
-                    default:
-                        Log.Builder.Info( $"Adding directory {entry.Name} to root directory" );
-                        entry.MoveTo( newDvdRootDirectory, true );
-                        break;
+                        default:
+                            Log.Builder.Info($"Adding directory {entry.Name} to root directory");
+                            entry.MoveTo(newDvdRootDirectory, true);
+                            break;
+                    }
                 }
             }
 
-            // Patch executable
-            var executableFilePath = executableFile.SaveToHost( dvdRootDirectoryPath );
+            // Patch executable if not using hostFS, otherwise add extension
+            if (!hostFS)
+            {
+                var executableFilePath = executableFile.SaveToHost(dvdRootDirectoryPath);
 
-            Log.Builder.Info( $"Patching executable" );
-            Log.Builder.Trace( $"Executable file path: {executableFilePath}" );
+                Log.Builder.Info($"Patching executable");
+                Log.Builder.Trace($"Executable file path: {executableFilePath}");
 
-            if ( bgmCvmModified )
-                Persona34.PersonaPatcher.Patch( executableFilePath, bgmCvmFile.HostPath );
+                if (bgmCvmModified)
+                    Persona34.PersonaPatcher.Patch(executableFilePath, bgmCvmFile.HostPath);
 
-            if ( btlCvmModified )
-                Persona34.PersonaPatcher.Patch( executableFilePath, btlCvmFile.HostPath );
+                if (btlCvmModified)
+                    Persona34.PersonaPatcher.Patch(executableFilePath, btlCvmFile.HostPath);
 
-            if ( dataCvmModified )
-                Persona34.PersonaPatcher.Patch( executableFilePath, dataCvmFile.HostPath );
+                if (dataCvmModified)
+                    Persona34.PersonaPatcher.Patch(executableFilePath, dataCvmFile.HostPath);
 
-            if ( envCvmModified )
-                Persona34.PersonaPatcher.Patch( executableFilePath, envCvmFile.HostPath );
+                if (envCvmModified)
+                    Persona34.PersonaPatcher.Patch(executableFilePath, envCvmFile.HostPath);
 
-            executableFile = VirtualFile.FromHostFile( executableFilePath );
-            executableFile.MoveTo( newDvdRootDirectory, true );
+                executableFile = VirtualFile.FromHostFile(executableFilePath);
+                executableFile.MoveTo(newDvdRootDirectory, true);
+            }
+            else
+            {
+                executableFile.Name = executableFile.Name + ".ELF";
+                executableFile.SaveToHost(dvdRootDirectoryPath);
+            }
 
             if ( hostOutputPath != null )
             {

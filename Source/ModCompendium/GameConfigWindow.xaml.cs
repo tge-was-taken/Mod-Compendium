@@ -92,6 +92,46 @@ namespace ModCompendium
                     Grid.SetColumn(dvdRootPathTextBoxButton, 1);
                     ConfigPropertyGrid.Children.Add(dvdRootPathTextBoxButton);
                 }
+
+                // Add extra row
+                ConfigPropertyGrid.RowDefinitions.Add(new RowDefinition());
+
+                // HostFS Mode checkbox label
+                {
+                    var hostFSLabel = new Label()
+                    {
+                        Content = "HostFS Mode",
+                        ToolTip = "Outputs files instead of CVMs for use with HostFS Patch",
+                        HorizontalContentAlignment = HorizontalAlignment.Center,
+                        VerticalContentAlignment = VerticalAlignment.Center,
+                        HorizontalAlignment = HorizontalAlignment.Center,
+                        VerticalAlignment = VerticalAlignment.Center,
+                        Height = 35,
+                        Width = 120
+                    };
+
+                    Grid.SetRow(hostFSLabel, 4);
+                    Grid.SetColumn(hostFSLabel, 0);
+                    ConfigPropertyGrid.Children.Add(hostFSLabel);
+                }
+
+                // HostFS Mode Checkbox
+                CheckBox hostFS;
+                {
+                    hostFS = new CheckBox()
+                    {
+                        VerticalContentAlignment = VerticalAlignment.Center,
+                        HorizontalAlignment = HorizontalAlignment.Left,
+                        VerticalAlignment = VerticalAlignment.Center,
+                        Height = 35,
+                    };
+
+                    hostFS.SetBinding(CheckBox.IsCheckedProperty, new Binding(nameof(Persona34GameConfig.HostFS)));
+
+                    Grid.SetRow(hostFS, 4);
+                    Grid.SetColumn(hostFS, 1);
+                    ConfigPropertyGrid.Children.Add(hostFS);
+                }
             }
             else if (config is ModCpkGameConfig)
             {
