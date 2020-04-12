@@ -4,6 +4,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
@@ -66,6 +67,7 @@ namespace ModCompendium
             Title = $"Mod Compendium {version.Major}.{version.Minor}.{version.Revision}";
             Config = ConfigStore.Get<MainWindowConfig>();
             InitializeGameComboBox();
+            InitializeFolderComboBox();
         }
 
         private void InitializeLog()
@@ -77,6 +79,28 @@ namespace ModCompendium
         {
             GameComboBox.ItemsSource = sGameNames;
             GameComboBox.SelectedIndex = Math.Max( 0, ( int ) Config.SelectedGame - 1 );
+        }
+
+        private void InitializeFolderComboBox()
+        {
+            FolderComboBox.SelectedIndex = 0;
+            List<string> sModFolders = new List<string> { "All Folders" };
+            var allModConfigs = GameConfig.ModConfigs.ToList();
+
+            Mods = ModDatabase.Get(SelectedGame)
+                              .OrderBy(x => GameConfig.GetModPriority(x.Id))
+                              .Select(x => new ModViewModel(x, SelectedGame))
+                              .ToList();
+
+            foreach (ModViewModel modViewModel in Mods)
+            {
+                Mod mod = (Mod)modViewModel;
+                string modFolder = Path.GetFileName(Path.GetDirectoryName(mod.BaseDirectory));
+                if (modFolder != "Mods" && !Regex.IsMatch(modFolder, "Persona[^ ]*") && !sModFolders.Contains(modFolder)) //Any folder containing mod that isn't for sorting mods by game
+                    sModFolders.Add(modFolder);
+            }
+
+            FolderComboBox.ItemsSource = sModFolders.ToArray();
         }
 
         private void RefreshMods()
@@ -194,6 +218,23 @@ namespace ModCompendium
             SelectedGame = ( Game )( GameComboBox.SelectedIndex + 1 );
             GameConfig = ConfigStore.Get( SelectedGame );
             RefreshMods();
+            InitializeFolderComboBox();
+        }
+
+        private void FolderComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            var Mods2 = Mods;
+            if (FolderComboBox.SelectedIndex != 0)
+                foreach (ModViewModel modViewModel in Mods)
+                {
+                    Mod mod = (Mod)modViewModel;
+                    string folderName = Path.GetFileName(Path.GetDirectoryName(mod.BaseDirectory));
+                    if (FolderComboBox.SelectedItem.ToString() != folderName)
+                        Mods2 = Mods2.Where(m => m.Id != mod.Id).ToList();
+                }
+
+            ModGrid.ItemsSource = Mods2;
+
         }
 
         private void SettingsButton_Click( object sender, RoutedEventArgs e )
