@@ -25,7 +25,7 @@ namespace ModCompendiumLibrary.ModSystem.Builders
             }
 
             // Get game config
-            var config = ConfigStore.Get(Game) as Persona4GoldenConfig;
+            var config = ConfigStore.Get(Game) as PersonaPortableGameConfig;
             if (config == null)
             {
                 // Unlikely
@@ -41,12 +41,13 @@ namespace ModCompendiumLibrary.ModSystem.Builders
             // If PC Mode is enabled, clear contents
             if (pc)
             {
-                foreach (var directory in Directory.GetDirectories(hostOutputPath))
-                {
-                    string[] stringArray = { "data00000", "data00001", "data00002", "data00003", "data00004", "data00005", "data00006", "movie00000", "movie00001", "movie00002" };
-                    if (stringArray.Any(Path.GetFileName(directory).ToLower().Equals))
-                        Directory.Delete(directory, true);
-                }
+                if (Directory.Exists(hostOutputPath))
+                    foreach (var directory in Directory.GetDirectories(hostOutputPath))
+                    {
+                        string[] stringArray = { "data00000", "data00001", "data00002", "data00003", "data00004", "data00005", "data00006", "movie00000", "movie00001", "movie00002", "SND" };
+                        if (stringArray.Any(Path.GetFileName(directory).ToLower().Equals))
+                            Directory.Delete(directory, true);
+                    }
             }
 
             // Create temp folder
@@ -162,7 +163,9 @@ namespace ModCompendiumLibrary.ModSystem.Builders
             }
             else
             {
+                Directory.CreateDirectory(Path.GetFullPath(hostOutputPath));
                 cpkRootDirectory.SaveToHost(hostOutputPath);
+                Log.Builder.Info("Done!");
                 return cpkRootDirectory;
             }
             

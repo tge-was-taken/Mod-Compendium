@@ -248,48 +248,50 @@ namespace ModCompendium
                     Grid.SetColumn(cpkExtract, 1);
                     ConfigPropertyGrid.Children.Add(cpkExtract);
                 }
+                
+                // Add extra row
+                ConfigPropertyGrid.RowDefinitions.Add(new RowDefinition());
 
+                // PC Mode checkbox label
+                var pcLabel = new Label()
+                {
+                    Content = "PC Mode",
+                    ToolTip = "Outputs files for use with the P4G PC Mod Loader",
+                    HorizontalContentAlignment = HorizontalAlignment.Center,
+                    VerticalContentAlignment = VerticalAlignment.Center,
+                    HorizontalAlignment = HorizontalAlignment.Center,
+                    VerticalAlignment = VerticalAlignment.Center,
+                    Height = 35,
+                    Width = 120,
+                    Visibility = Visibility.Hidden
+                };
+
+                Grid.SetRow(pcLabel, 5);
+                Grid.SetColumn(pcLabel, 0);
+                ConfigPropertyGrid.Children.Add(pcLabel);
+
+                // PC Mode Checkbox
+                CheckBox pc;
+                {
+                    pc = new CheckBox()
+                    {
+                        VerticalContentAlignment = VerticalAlignment.Center,
+                        HorizontalAlignment = HorizontalAlignment.Left,
+                        VerticalAlignment = VerticalAlignment.Center,
+                        Height = 35,
+                        Visibility = Visibility.Hidden
+                    };
+
+                    pc.SetBinding(CheckBox.IsCheckedProperty, new Binding(nameof(PersonaPortableGameConfig.PC)));
+
+                    Grid.SetRow(pc, 5);
+                    Grid.SetColumn(pc, 1);
+                    ConfigPropertyGrid.Children.Add(pc);
+                }
                 if (config.Game == Game.Persona4Golden)
                 {
-                    // Add extra row
-                    ConfigPropertyGrid.RowDefinitions.Add(new RowDefinition());
-
-                    // PC Mode checkbox label
-                    {
-                        var pcLabel = new Label()
-                        {
-                            Content = "PC Mode",
-                            ToolTip = "Outputs files for use with the P4G PC Mod Loader",
-                            HorizontalContentAlignment = HorizontalAlignment.Center,
-                            VerticalContentAlignment = VerticalAlignment.Center,
-                            HorizontalAlignment = HorizontalAlignment.Center,
-                            VerticalAlignment = VerticalAlignment.Center,
-                            Height = 35,
-                            Width = 120
-                        };
-
-                        Grid.SetRow(pcLabel, 5);
-                        Grid.SetColumn(pcLabel, 0);
-                        ConfigPropertyGrid.Children.Add(pcLabel);
-                    }
-
-                    // PC Mode Checkbox
-                    CheckBox pc;
-                    {
-                        pc = new CheckBox()
-                        {
-                            VerticalContentAlignment = VerticalAlignment.Center,
-                            HorizontalAlignment = HorizontalAlignment.Left,
-                            VerticalAlignment = VerticalAlignment.Center,
-                            Height = 35,
-                        };
-
-                        pc.SetBinding(CheckBox.IsCheckedProperty, new Binding(nameof(PersonaPortableGameConfig.PC)));
-
-                        Grid.SetRow(pc, 5);
-                        Grid.SetColumn(pc, 1);
-                        ConfigPropertyGrid.Children.Add(pc);
-                    }
+                    pc.Visibility = Visibility.Visible;
+                    pcLabel.Visibility = Visibility.Visible;
                 }
             }
             if (config.Game != Game.Persona3 && config.Game != Game.Persona4)
