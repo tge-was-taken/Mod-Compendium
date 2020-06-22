@@ -50,6 +50,7 @@
     <Compile Include="Configuration\ConfigStore.cs" />
     <Compile Include="Configuration\GameConfigs\CatherineFullBodyGameConfig.cs" />
     <Compile Include="Configuration\GameConfigs\ModCpkGameConfig.cs" />
+    <Compile Include="Configuration\GameConfigs\Persona4GoldenGameConfig.cs" />
     <Compile Include="Configuration\GameConfigs\PersonaQ2GameConfig.cs" />
     <Compile Include="Configuration\GameConfigs\PersonaQGameConfig.cs" />
     <Compile Include="Configuration\IConfigurable.cs" />
