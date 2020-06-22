@@ -123,10 +123,4 @@ namespace ModCompendiumLibrary.ModSystem.Builders
     {
         protected override Game Game => Game.Persona5;
     }
-
-    [ModBuilder("P4G Mod Builder", Game = Game.Persona4Golden)]
-    public class P4GModCpkBuilder : ModCpkModBuilder
-    {
-        protected override Game Game => Game.Persona4Golden;
-    }
 }

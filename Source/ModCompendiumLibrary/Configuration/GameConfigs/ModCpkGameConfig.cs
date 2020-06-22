@@ -22,11 +22,6 @@ namespace ModCompendiumLibrary.Configuration
         }
     }
 
-    public class Persona4GoldenGameConfig : ModCpkGameConfig
-    {
-        public override Game Game => Game.Persona4Golden;
-    }
-
     public class Persona3DancingConfig : ModCpkGameConfig
     {
         public override Game Game => Game.Persona3Dancing;
