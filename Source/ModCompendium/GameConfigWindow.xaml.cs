@@ -293,6 +293,8 @@ namespace ModCompendium
                     pc.Visibility = Visibility.Visible;
                     pcLabel.Visibility = Visibility.Visible;
                 }
+                else
+                    pc.IsChecked = false;
             }
             if (config.Game != Game.Persona3 && config.Game != Game.Persona4)
             {
