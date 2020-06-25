@@ -44,7 +44,7 @@ namespace ModCompendiumLibrary.ModSystem.Builders
                 if (Directory.Exists(hostOutputPath))
                     foreach (var directory in Directory.GetDirectories(hostOutputPath))
                     {
-                        string[] stringArray = { "data00000", "data00001", "data00002", "data00003", "data00004", "data00005", "data00006", "movie00000", "movie00001", "movie00002", "SND" };
+                        string[] stringArray = { "data00000", "data00001", "data00002", "data00003", "data00004", "data00005", "data00006", "movie00000", "movie00001", "movie00002", "snd" };
                         if (stringArray.Any(Path.GetFileName(directory).ToLower().Equals))
                             Directory.Delete(directory, true);
                     }
