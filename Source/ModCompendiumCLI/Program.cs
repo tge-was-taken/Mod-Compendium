@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using ModCompendiumLibrary.Configuration;
 using ModCompendiumLibrary.Logging;
@@ -43,7 +44,7 @@ namespace ModCompendiumCLI
 
             var builder = new Ps2IsoModBuilder();
             var root = VirtualDirectory.FromHostDirectory( @"D:\Games\Sony PS2\temp\New folder" );
-            var output = builder.Build( root, "test.iso" );
+            var output = builder.Build( root, new List<Mod>(), "test.iso" );
         }
     }
 }
