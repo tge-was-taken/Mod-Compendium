@@ -8,6 +8,7 @@ using ModCompendiumLibrary.FileParsers;
 using ModCompendiumLibrary.Logging;
 using ModCompendiumLibrary.VirtualFileSystem;
 using System.Linq;
+using System.Collections.Generic;
 
 namespace ModCompendiumLibrary.ModSystem.Builders
 {
@@ -16,7 +17,7 @@ namespace ModCompendiumLibrary.ModSystem.Builders
         protected abstract Game Game { get; }
 
         /// <inheritdoc />
-        public VirtualFileSystemEntry Build( VirtualDirectory root, string hostOutputPath = null, string gameName = null, bool useCompression = false, bool useExtracted = false)
+        public VirtualFileSystemEntry Build( VirtualDirectory root, List<Mod> enabledMods, string hostOutputPath = null, string gameName = null, bool useCompression = false, bool useExtracted = false)
         {
             if ( root == null )
                 throw new ArgumentNullException( nameof( root ) );
@@ -209,7 +210,7 @@ namespace ModCompendiumLibrary.ModSystem.Builders
             // Recompile cvm
             Log.Builder.Trace( $"Building new CVM: {cvmFile.Name} to {hostOutputPath}" );
             var cvmModCompiler = new CvmModBuilder();
-            cvmFile = ( VirtualFile )cvmModCompiler.Build( cvmDirectory, hostOutputPath );
+            cvmFile = ( VirtualFile )cvmModCompiler.Build( cvmDirectory, new List<Mod>(), hostOutputPath );
 
             cvmFile.MoveTo( newDvdRootDirectory, true );
         }

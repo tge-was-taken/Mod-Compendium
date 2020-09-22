@@ -4,10 +4,9 @@ using ModCompendiumLibrary.Logging;
 using ModCompendiumLibrary.VirtualFileSystem;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using System.Threading;
 
 namespace ModCompendiumLibrary.ModSystem.Builders
 {
@@ -16,7 +15,7 @@ namespace ModCompendiumLibrary.ModSystem.Builders
         protected abstract Game Game { get; }
 
         /// <inheritdoc />
-        public VirtualFileSystemEntry Build(VirtualDirectory root, string hostOutputPath = null, string gameName = null, bool useCompression = false, bool useExtracted = false)
+        public VirtualFileSystemEntry Build(VirtualDirectory root, List<Mod> enabledMods, string hostOutputPath = null, string gameName = null, bool useCompression = false, bool useExtracted = false)
         {
             gameName = Game.ToString();
 
@@ -72,7 +71,7 @@ namespace ModCompendiumLibrary.ModSystem.Builders
             bool.TryParse(config.Compression, out useCompression);
 
             // Build mod cpk
-            Log.Builder.Info("Building mod.cpk");
+            Log.Builder.Info($"Building mod.cpk");
             var cpkModCompiler = new CpkModBuilder();
 
             if (hostOutputPath != null) Directory.CreateDirectory(hostOutputPath);
@@ -80,7 +79,7 @@ namespace ModCompendiumLibrary.ModSystem.Builders
             var cpkFilePath = hostOutputPath != null ? Path.Combine(hostOutputPath, "mod.cpk") : null;
             var cpkNotWritable = File.Exists(cpkFilePath) && FileHelper.IsFileInUse(cpkFilePath);
             var cpkFileBuildPath = hostOutputPath != null ? cpkNotWritable ? Path.Combine(Path.GetTempPath(), "mod.cpk") : cpkFilePath : null;
-            var cpkFile = cpkModCompiler.Build(modFilesDirectory, cpkFileBuildPath, gameName, useCompression);
+            var cpkFile = cpkModCompiler.Build(modFilesDirectory, enabledMods, cpkFileBuildPath, gameName, useCompression);
 
             if (cpkFileBuildPath != cpkFilePath)
             {

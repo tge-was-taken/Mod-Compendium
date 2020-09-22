@@ -3,6 +3,7 @@ using System.IO;
 using ModCompendiumLibrary.VirtualFileSystem;
 using DiscUtils.Iso9660;
 using ModCompendiumLibrary.Logging;
+using System.Collections.Generic;
 
 namespace ModCompendiumLibrary.ModSystem.Builders
 {
@@ -12,7 +13,7 @@ namespace ModCompendiumLibrary.ModSystem.Builders
         private static readonly byte[] sDummyCvmHeader = GenerateDummyCvmHeader();
 
         /// <inheritdoc />
-        public VirtualFileSystemEntry Build(VirtualDirectory root, string hostOutputPath = null, string gameName = null, bool useCompression = false, bool useExtracted = false)
+        public VirtualFileSystemEntry Build(VirtualDirectory root, List<Mod> enabledMods, string hostOutputPath = null, string gameName = null, bool useCompression = false, bool useExtracted = false)
         {
             if ( root == null )
             {

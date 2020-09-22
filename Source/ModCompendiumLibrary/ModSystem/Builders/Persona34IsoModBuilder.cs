@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using ModCompendiumLibrary.Configuration;
@@ -14,7 +15,7 @@ namespace ModCompendiumLibrary.ModSystem.Builders
 
         protected abstract Persona34GameConfig GetConfig();
 
-        public VirtualFileSystemEntry Build( VirtualDirectory root, string hostOutputPath = null, string gameName = null, bool useCompression = false, bool useExtracted = false)
+        public VirtualFileSystemEntry Build( VirtualDirectory root, List<Mod> enabledMods, string hostOutputPath = null, string gameName = null, bool useCompression = false, bool useExtracted = false)
         {
             if ( hostOutputPath == null )
             {
@@ -31,7 +32,7 @@ namespace ModCompendiumLibrary.ModSystem.Builders
             var fileModBuilder = CreateFileModBuilder();
             var tempDirectory = Path.Combine( Path.GetTempPath(), "Persona34IsoModBuilderTemp_" + Path.GetRandomFileName() );
             Directory.CreateDirectory( tempDirectory );
-            var modFilesDirectory = ( VirtualDirectory )fileModBuilder.Build( root, tempDirectory );
+            var modFilesDirectory = ( VirtualDirectory )fileModBuilder.Build( root, enabledMods, tempDirectory );
 
             var config = GetConfig();
             if ( !config.DvdRootOrIsoPath.EndsWith( ".iso" ) )

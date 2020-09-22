@@ -39,6 +39,7 @@ namespace ModCompendium
             "Persona 4 Golden",
             "Persona 4 Dancing All Night",
             "Persona 5",
+            "Persona 5 Royal",
             "Persona 3 Dancing Moon Night",
             "Persona 5 Dancing Star Night",
             "Persona Q",
@@ -57,6 +58,8 @@ namespace ModCompendium
         public ModViewModel SelectedModViewModel => ( ModViewModel ) ModGrid.SelectedItem;
 
         public Mod SelectedMod => ( Mod )SelectedModViewModel;
+
+        public List<Mod> gEnabledMods;
 
         public MainWindow()
         {
@@ -122,9 +125,9 @@ namespace ModCompendium
         private bool UpdateGameConfigEnabledMods()
         {
             var enabledMods = Mods.Where( x => x.Enabled )
-                                  .Select( x => x.Id )
-                                  .ToList();
-
+                                    .Select( x => x.Id )
+                                    .ToList();
+            
             GameConfig.ClearEnabledMods();
 
             if ( enabledMods.Count == 0 )
@@ -265,21 +268,21 @@ namespace ModCompendium
 
             var task = Task.Factory.StartNew( () =>
             {
-                var enabledMods = GameConfig.ModConfigs.Where( x => x.Enabled )
+                gEnabledMods = GameConfig.ModConfigs.Where( x => x.Enabled )
                                             .OrderBy( x => x.Priority )
                                             .Select( x => x.ModId )
                                             .Select( x => ModDatabase.Get( x ) )
                                             .ToList();
 
                 Log.General.Info( "Building mods:" );
-                foreach ( var enabledMod in enabledMods )
+                foreach ( var enabledMod in gEnabledMods)
                     Log.General.Info( $"\t{enabledMod.Title}" );
 
                 // Run prebuild scripts
-                RunModScripts( enabledMods, "prebuild.bat" );
+                RunModScripts(gEnabledMods, "prebuild.bat" );
 
                 var merger = new TopToBottomModMerger();
-                var merged = merger.Merge( enabledMods );
+                var merged = merger.Merge(gEnabledMods);
 
                 // Todo
                 var builder = ModBuilderManager.GetCompatibleModBuilders( SelectedGame ).First().Create();
@@ -297,7 +300,7 @@ namespace ModCompendium
                 try
 #endif
                 {
-                    builder.Build( merged, GameConfig.OutputDirectoryPath );
+                    builder.Build( merged, gEnabledMods, GameConfig.OutputDirectoryPath);
                 }
  #if !DEBUG
                 catch ( InvalidConfigException exception )
@@ -343,7 +346,7 @@ namespace ModCompendium
                     if ( t.Result )
                     {
                         MessageBox.Show(this, "Done building!", "Done", MessageBoxButton.OK, MessageBoxImage.None);
-                        RunPostBuildScript( "postbuild.bat" );
+                        RunModScripts(gEnabledMods, "postbuild.bat");
                     }
                 } );
             } );
@@ -370,26 +373,6 @@ namespace ModCompendium
                 }
             }
         }
-
-        private static void RunPostBuildScript(string scriptFileName)
-        {
-            var scriptFilePath = Path.Combine(Directory.GetCurrentDirectory(), scriptFileName);
-            if (File.Exists(scriptFilePath))
-            {
-                try
-                {
-                    var info = new ProcessStartInfo(Path.GetFullPath(scriptFilePath));
-                    info.WorkingDirectory = Path.GetFullPath(Directory.GetCurrentDirectory());
-
-                    var process = Process.Start(info);
-                    process?.WaitForExit();
-                }
-                catch (Exception)
-                {
-                }
-            }
-        }
-    
 
     private void ModGrid_KeyDown( object sender, KeyEventArgs e )
         {

@@ -26,7 +26,7 @@ namespace ModCompendiumLibrary.ModSystem.Builders
             {
                 var builderInfo = Stack.Pop();
                 var builder = builderInfo.Create();
-                output = builder.Build( input, hostOutputPath );
+                output = builder.Build(input, new List<Mod>(), hostOutputPath);
                 if ( output.EntryType == VirtualFileSystemEntryType.File && Stack.Count != 0 )
                 {
                     var temp = new VirtualDirectory();

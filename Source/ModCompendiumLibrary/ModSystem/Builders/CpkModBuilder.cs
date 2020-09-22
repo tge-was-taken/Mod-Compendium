@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using ModCompendiumLibrary.Logging;
@@ -21,7 +22,7 @@ namespace ModCompendiumLibrary.ModSystem.Builders
         public bool DeleteCsv { get; } = true;
 
         /// <inheritdoc />
-        public VirtualFileSystemEntry Build(VirtualDirectory root, string hostOutputPath = null, string gameName = null, bool useCompression = false, bool useExtracted = false)
+        public VirtualFileSystemEntry Build(VirtualDirectory root, List<Mod> enabledMods, string hostOutputPath = null, string gameName = null, bool useCompression = false, bool useExtracted = false)
         {
             if (root == null)
             {
@@ -60,14 +61,14 @@ namespace ModCompendiumLibrary.ModSystem.Builders
             }
 
             // Build cpk
-            string arguments;
+            string arguments = "";
             if (csvPath == string.Empty)
             {
                 arguments = $"\"{Path.GetFullPath(modDirectoryPath)}\" \"{Path.GetFullPath(cpkPath)}\" -align={Alignment} -code={CodePage} -mode={Mode}";
             }
             else
             {
-                arguments = $"\"{Path.GetFullPath(csvPath)}\" \"{Path.GetFullPath(cpkPath)}\" -dir=\"{modDirectoryPath}\" -align={Alignment} -mode={Mode}";
+                arguments += $"\"{Path.GetFullPath(csvPath)}\" \"{Path.GetFullPath(cpkPath)}\" -dir=\"{modDirectoryPath}\" -align={Alignment} -mode={Mode}";
                 Log.Builder.Info($"Compressing CPK (this can take a long time, please wait...)");
             }
 

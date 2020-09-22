@@ -137,6 +137,78 @@ namespace ModCompendium
             {
                 var ppConfig = (ModCpkGameConfig)config;
             }
+            else if (config is PKGGameConfig)
+            {
+                var pkgConfig = (PKGGameConfig)config;
+
+                // Add extra row
+                ConfigPropertyGrid.RowDefinitions.Add(new RowDefinition());
+
+                // Cpk root directory path label
+                {
+                    var pkgPathLabel = new Label()
+                    {
+                        Content = "App PKG Path",
+                        ToolTip = $"Path to the unencrypted {config.Game.ToString()} full game PKG",
+                        HorizontalContentAlignment = HorizontalAlignment.Center,
+                        VerticalContentAlignment = VerticalAlignment.Center,
+                        HorizontalAlignment = HorizontalAlignment.Center,
+                        VerticalAlignment = VerticalAlignment.Center,
+                        Height = 25,
+                        Width = 120
+                    };
+
+                    Grid.SetRow(pkgPathLabel, 2);
+                    Grid.SetColumn(pkgPathLabel, 0);
+                    ConfigPropertyGrid.Children.Add(pkgPathLabel);
+                }
+
+                // PKG path  text box
+                TextBox pkgPathTextBox;
+                {
+                    pkgPathTextBox = new TextBox()
+                    {
+                        VerticalContentAlignment = VerticalAlignment.Center,
+                        HorizontalAlignment = HorizontalAlignment.Center,
+                        VerticalAlignment = VerticalAlignment.Center,
+                        Height = 20,
+                        TextWrapping = TextWrapping.Wrap,
+                        Width = 291,
+                    };
+
+                    pkgPathTextBox.SetBinding(TextBox.TextProperty, new Binding(nameof(Persona5RoyalGameConfig.PKGPath)));
+
+                    Grid.SetRow(pkgPathTextBox, 2);
+                    Grid.SetColumn(pkgPathTextBox, 1);
+                    ConfigPropertyGrid.Children.Add(pkgPathTextBox);
+                }
+
+                // PKG Path text box button
+                {
+                    var pkgPathTextBoxButton = new Button()
+                    {
+                        Content = "...",
+                        HorizontalAlignment = HorizontalAlignment.Right,
+                        VerticalAlignment = VerticalAlignment.Center,
+                        Width = 20,
+                        Height = 20
+                    };
+
+                    pkgPathTextBoxButton.Click += (s, e) =>
+                    {
+                        var file = SelectFile(new CommonFileDialogFilter("PKG file", ".pkg"));
+                        if (file != null)
+                        {
+                            pkgConfig.PKGPath = file;
+                            pkgPathTextBox.GetBindingExpression(TextBox.TextProperty).UpdateTarget();
+                        }
+                    };
+
+                    Grid.SetRow(pkgPathTextBoxButton, 2);
+                    Grid.SetColumn(pkgPathTextBoxButton, 1);
+                    ConfigPropertyGrid.Children.Add(pkgPathTextBoxButton);
+                }
+            }
             else
             {
                 var ppConfig = (PersonaPortableGameConfig)config;

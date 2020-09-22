@@ -9,6 +9,7 @@ namespace ModCompendiumLibrary
         Persona4Golden,
         Persona4Dancing,
         Persona5,
+        Persona5Royal,
         Persona3Dancing,
         Persona5Dancing,
         PersonaQ,

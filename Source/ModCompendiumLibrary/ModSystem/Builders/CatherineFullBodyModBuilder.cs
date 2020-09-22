@@ -5,6 +5,7 @@ using ModCompendiumLibrary.VirtualFileSystem;
 using CriPakTools;
 using ModCompendiumLibrary.Configuration;
 using System.Diagnostics;
+using System.Collections.Generic;
 
 namespace ModCompendiumLibrary.ModSystem.Builders
 {
@@ -15,7 +16,7 @@ namespace ModCompendiumLibrary.ModSystem.Builders
 
         public bool OutputUnmodifiedFiles { get; } = true;
         /// <inheritdoc />
-        public VirtualFileSystemEntry Build(VirtualDirectory root, string hostOutputPath = null, string gameName = null, bool useCompression = false, bool useExtracted = false)
+        public VirtualFileSystemEntry Build(VirtualDirectory root, List<Mod> enabledMods, string hostOutputPath = null, string gameName = null, bool useCompression = false, bool useExtracted = false)
         {
             gameName = Game.ToString();
 
@@ -129,7 +130,7 @@ namespace ModCompendiumLibrary.ModSystem.Builders
             // Build mod cpk
             var cpkModCompiler = new CpkModBuilder();
             var cpkFilePath = hostOutputPath != null ? Path.Combine(hostOutputPath, $"{cpkRootDirectory.Name}.cpk") : null;
-            var cpkFile = cpkModCompiler.Build(cpkRootDirectory, cpkFilePath, gameName, useCompression);
+            var cpkFile = cpkModCompiler.Build(cpkRootDirectory, enabledMods, cpkFilePath, gameName, useCompression);
             Log.Builder.Info("Done!");
             return cpkFile;
         }
