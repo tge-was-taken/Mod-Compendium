@@ -111,7 +111,7 @@ namespace ModCompendiumLibrary.ModSystem.Builders
                     mods += $"{mod.Title} v{mod.Version} by {mod.Author}\n";
                 File.WriteAllText($"{programPath}\\Dependencies\\GenGP4\\CUSA08644-patch\\sce_sys\\changeinfo\\changeinfo.xml", $"<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<changeinfo>\n  <changes app_ver=\"01.01\">\n    <![CDATA[\n{mods}\n    ]]>\n  </changes>\n</changeinfo>");
                 //Create GP4
-                RunCMD($"{programPath}\\Dependencies\\GenGP4\\gengp4.exe", "CUSA08644-patch");
+                RunCMD($"{programPath}\\Dependencies\\GenGP4\\gengp4.exe", $"\"{programPath}\\Dependencies\\GenGP4\\CUSA08644-patch\"");
                 //Edit GP4 with path to PKG
                 using (WaitForFile($"{programPath}\\Dependencies\\GenGP4\\CUSA08644-patch.gp4", FileMode.Open, FileAccess.ReadWrite, FileShare.None)) { };
                 string gp4Text = File.ReadAllText($"{programPath}\\Dependencies\\GenGP4\\CUSA08644-patch.gp4").Replace("Dependencies\\GenGP4\\", "").Replace(programPath + "\\", "");
