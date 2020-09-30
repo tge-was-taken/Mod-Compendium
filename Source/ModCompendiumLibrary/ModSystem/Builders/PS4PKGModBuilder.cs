@@ -114,7 +114,7 @@ namespace ModCompendiumLibrary.ModSystem.Builders
                 RunCMD($"{programPath}\\Dependencies\\GenGP4\\gengp4.exe", "CUSA08644-patch");
                 //Edit GP4 with path to PKG
                 using (WaitForFile($"{programPath}\\Dependencies\\GenGP4\\CUSA08644-patch.gp4", FileMode.Open, FileAccess.ReadWrite, FileShare.None)) { };
-                string gp4Text = File.ReadAllText($"{programPath}\\Dependencies\\GenGP4\\CUSA08644-patch.gp4");
+                string gp4Text = File.ReadAllText($"{programPath}\\Dependencies\\GenGP4\\CUSA08644-patch.gp4").Replace("Dependencies\\GenGP4\\", "").Replace(programPath + "\\", "");
                 gp4Text = gp4Text.Replace("JP0005-CUSA08644_00-PERSONA5R0000000-A0100-V0100.pkg", config.PKGPath);
                 File.WriteAllText($"{programPath}\\Dependencies\\GenGP4\\CUSA08644-patch-2.gp4", gp4Text);
                 Thread.Sleep(1000);
@@ -165,10 +165,10 @@ namespace ModCompendiumLibrary.ModSystem.Builders
             ProcessStartInfo start = new ProcessStartInfo();
             start.FileName = "cmd";
             start.WorkingDirectory = Path.GetDirectoryName(filename);
-            start.Arguments = $"/C {filename} {args}";
+            start.Arguments = $"/K {filename} {args}";
             start.UseShellExecute = true;
             start.RedirectStandardOutput = false;
-            start.WindowStyle = ProcessWindowStyle.Hidden;
+            //start.WindowStyle = ProcessWindowStyle.Hidden;
             
             using (Process process = Process.Start(start))
             {
