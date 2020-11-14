@@ -124,6 +124,16 @@ namespace ModCompendiumLibrary.ModSystem.Builders
                             case "vita":
                             case "patch":
                             case "memst":
+                            case "data00000":
+                            case "data00001":
+                            case "data00002":
+                            case "data00003":
+                            case "data00004":
+                            case "data00005":
+                            case "data00006":
+                            case "data_c":
+                            case "data_e":
+                            case "data_k":
                                 {
                                     // Move files in 'cpk' directory to 'mod' directory
                                     LogModFilesInDirectory(directory);

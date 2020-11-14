@@ -135,7 +135,14 @@ namespace ModCompendiumLibrary.ModSystem.Builders
                 //Rename PKG after finished
                 while (!File.Exists(outputPKG) || new FileInfo(outputPKG).Length <= 0) { Thread.Sleep(1000); }
                 using (WaitForFile(outputPKG, FileMode.Open, FileAccess.ReadWrite, FileShare.None)) { };
+                while (true)
+                {
+                    if (File.ReadAllBytes(outputPKG)[0] == 0x7F)
+                        break;
+                }
                 foreach (Process proc in Process.GetProcessesByName("orbis-pub-cmd"))
+                    proc.Kill();
+                foreach (Process proc in Process.GetProcessesByName("cmd"))
                     proc.Kill();
                 string newOutputPKG = outputPKG.Replace("JP0005-CUSA08644_00-PERSONA5R0000000-A0101-V0100", "CUSA08644_00-PERSONA5R-MOD");
                 if (File.Exists(newOutputPKG))
