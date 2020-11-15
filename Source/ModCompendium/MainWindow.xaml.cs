@@ -237,7 +237,6 @@ namespace ModCompendium
                 }
 
             ModGrid.ItemsSource = Mods2;
-
         }
 
         private void SettingsButton_Click( object sender, RoutedEventArgs e )
@@ -442,6 +441,11 @@ namespace ModCompendium
             // Reload
             ConfigStore.Load();
             RefreshModDatabase();
+
+            // Return to Selected Folder
+            int index = FolderComboBox.SelectedIndex;
+            FolderComboBox.SelectedIndex = 0;
+            FolderComboBox.SelectedIndex = index;
         }
 
         private void NewButton_Click( object sender, RoutedEventArgs e )
