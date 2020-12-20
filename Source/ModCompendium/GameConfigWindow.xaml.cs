@@ -410,6 +410,51 @@ namespace ModCompendium
                     ConfigPropertyGrid.Children.Add(cpkCompression);
                 }
             }
+            if (config.Game == Game.Persona5Royal)
+            {
+                // Add extra row
+                ConfigPropertyGrid.RowDefinitions.Add(new RowDefinition());
+
+                // Region label
+                {
+                    var regionLabel = new Label()
+                    {
+                        Content = "Region",
+                        ToolTip = "ID must match your installed version of " + config.Game.ToString(),
+                        HorizontalContentAlignment = HorizontalAlignment.Center,
+                        VerticalContentAlignment = VerticalAlignment.Center,
+                        HorizontalAlignment = HorizontalAlignment.Center,
+                        VerticalAlignment = VerticalAlignment.Center,
+                        Height = 35,
+                        Width = 120
+                    };
+
+                    Grid.SetRow(regionLabel, 4);
+                    Grid.SetColumn(regionLabel, 0);
+                    ConfigPropertyGrid.Children.Add(regionLabel);
+                }
+
+                // Region combobox
+                ComboBox region;
+                {
+                    region = new ComboBox()
+                    {
+                        VerticalContentAlignment = VerticalAlignment.Center,
+                        HorizontalAlignment = HorizontalAlignment.Left,
+                        VerticalAlignment = VerticalAlignment.Center,
+                        Height = 35,
+                    };
+                    region.Items.Add("UP0177-CUSA17416");
+                    region.Items.Add("JP0005-CUSA08644");
+                    //region.Items.Add("HP0177-CUSA17544");
+
+                    region.SetBinding(ComboBox.SelectedValueProperty, new Binding(nameof(Persona5RoyalGameConfig.Region)));
+
+                    Grid.SetRow(region, 4);
+                    Grid.SetColumn(region, 1);
+                    ConfigPropertyGrid.Children.Add(region);
+                }
+            }
         }
 
         private void ButtonOk_Click( object sender, RoutedEventArgs e )

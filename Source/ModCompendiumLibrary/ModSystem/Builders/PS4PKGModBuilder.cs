@@ -92,8 +92,8 @@ namespace ModCompendiumLibrary.ModSystem.Builders
             if (File.Exists(cpkFilePath))
             {
                 string programPath = Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location);
-                string patch1R = $"{programPath}\\Dependencies\\GenGP4\\CUSA08644-patch\\USRDIR\\patch1R.cpk";
-                string outputPKG = $"{programPath}\\Output\\Persona5Royal\\JP0005-CUSA08644_00-PERSONA5R0000000-A0101-V0100.pkg";
+                string patch1R = $"{programPath}\\Dependencies\\GenGP4\\{config.Region.Split('-')[1]}-patch\\USRDIR\\patch1R.cpk";
+                string outputPKG = $"{programPath}\\Output\\Persona5Royal\\{config.Region}_00-PERSONA5R0000000-A0101-V0100.pkg";
 
                 Log.Builder.Info($"Building update .pkg");
                 if (string.IsNullOrWhiteSpace(config.PKGPath))
@@ -109,29 +109,35 @@ namespace ModCompendiumLibrary.ModSystem.Builders
                 string mods = "";
                 foreach (var mod in enabledMods)
                     mods += $"{mod.Title} v{mod.Version} by {mod.Author}\n";
-                File.WriteAllText($"{programPath}\\Dependencies\\GenGP4\\CUSA08644-patch\\sce_sys\\changeinfo\\changeinfo.xml", $"<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<changeinfo>\n  <changes app_ver=\"01.01\">\n    <![CDATA[\n{mods}\n    ]]>\n  </changes>\n</changeinfo>");
+                File.WriteAllText($"{programPath}\\Dependencies\\GenGP4\\{config.Region.Split('-')[1]}-patch\\sce_sys\\changeinfo\\changeinfo.xml", $"<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<changeinfo>\n  <changes app_ver=\"01.01\">\n    <![CDATA[\n{mods}\n    ]]>\n  </changes>\n</changeinfo>");
                 //Create GP4
-                RunCMD($"{programPath}\\Dependencies\\GenGP4\\gengp4.exe", $"\"{programPath}\\Dependencies\\GenGP4\\CUSA08644-patch\"");
+                RunCMD($"{programPath}\\Dependencies\\GenGP4\\gengp4.exe", $"\"{programPath}\\Dependencies\\GenGP4\\{config.Region.Split('-')[1]}-patch\"");
                 //Edit GP4 with path to PKG
-                using (WaitForFile($"{programPath}\\Dependencies\\GenGP4\\CUSA08644-patch.gp4", FileMode.Open, FileAccess.ReadWrite, FileShare.None)) { };
-                string gp4Text = File.ReadAllText($"{programPath}\\Dependencies\\GenGP4\\CUSA08644-patch.gp4").Replace("Dependencies\\GenGP4\\", "").Replace(programPath + "\\", "");
-                gp4Text = gp4Text.Replace("JP0005-CUSA08644_00-PERSONA5R0000000-A0100-V0100.pkg", config.PKGPath);
-                File.WriteAllText($"{programPath}\\Dependencies\\GenGP4\\CUSA08644-patch-2.gp4", gp4Text);
-                Thread.Sleep(1000);
-                using (WaitForFile($"{programPath}\\Dependencies\\GenGP4\\CUSA08644-patch-2.gp4", FileMode.Open, FileAccess.ReadWrite, FileShare.None)) { };
-                if (File.Exists($"{programPath}\\Dependencies\\GenGP4\\CUSA08644-patch-2.gp4"))
+                using (WaitForFile($"{programPath}\\Dependencies\\GenGP4\\{config.Region.Split('-')[1]}-patch.gp4", FileMode.Open, FileAccess.ReadWrite, FileShare.None)) { };
+                string[] gp4Lines = File.ReadAllLines($"{programPath}\\Dependencies\\GenGP4\\{config.Region.Split('-')[1]}-patch.gp4");
+                for (int i = 0; i < gp4Lines.Length; i++)
                 {
-                    if (File.Exists($"{programPath}\\Dependencies\\GenGP4\\CUSA08644-patch.gp4"))
-                        File.Delete($"{programPath}\\Dependencies\\GenGP4\\CUSA08644-patch.gp4");
-                    File.Move($"{programPath}\\Dependencies\\GenGP4\\CUSA08644-patch-2.gp4", $"{programPath}\\Dependencies\\GenGP4\\CUSA08644-patch.gp4");
+                    gp4Lines[i] = gp4Lines[i].Replace("Dependencies\\GenGP4\\", "").Replace(programPath + "\\", "");
+                    if (gp4Lines[i].Contains("package content_id"))
+                        gp4Lines[i] = $"    <package content_id=\"{config.Region}_00-PERSONA5R0000000\" passcode=\"00000000000000000000000000000000\" storage_type=\"digital25\" app_type=\"full\" app_path=\"{config.PKGPath}\"/>";
+                }
+                string gp4Text = string.Join("\n", gp4Lines);
+                File.WriteAllText($"{programPath}\\Dependencies\\GenGP4\\{config.Region.Split('-')[1]}-patch-2.gp4", gp4Text);
+                Thread.Sleep(1000);
+                using (WaitForFile($"{programPath}\\Dependencies\\GenGP4\\{config.Region.Split('-')[1]}-patch-2.gp4", FileMode.Open, FileAccess.ReadWrite, FileShare.None)) { };
+                if (File.Exists($"{programPath}\\Dependencies\\GenGP4\\{config.Region.Split('-')[1]}-patch-2.gp4"))
+                {
+                    if (File.Exists($"{programPath}\\Dependencies\\GenGP4\\{config.Region.Split('-')[1]}-patch.gp4"))
+                        File.Delete($"{programPath}\\Dependencies\\GenGP4\\{config.Region.Split('-')[1]}-patch.gp4");
+                    File.Move($"{programPath}\\Dependencies\\GenGP4\\{config.Region.Split('-')[1]}-patch-2.gp4", $"{programPath}\\Dependencies\\GenGP4\\{config.Region.Split('-')[1]}-patch.gp4");
                 }
                 Thread.Sleep(1000);
-                using (WaitForFile($"{programPath}\\Dependencies\\GenGP4\\CUSA08644-patch.gp4", FileMode.Open, FileAccess.ReadWrite, FileShare.None)) { };
+                using (WaitForFile($"{programPath}\\Dependencies\\GenGP4\\{config.Region.Split('-')[1]}-patch.gp4", FileMode.Open, FileAccess.ReadWrite, FileShare.None)) { };
                 Thread.Sleep(1000);
                 if (File.Exists(outputPKG))
                     File.Delete(outputPKG);
                 //Create PKG from GP4
-                RunCMD($"{programPath}\\Dependencies\\GenGP4\\orbis-pub-cmd.exe", "img_create --oformat pkg --tmp_path ../../Output/Persona5Royal CUSA08644-patch.gp4 ../../Output/Persona5Royal");
+                RunCMD($"{programPath}\\Dependencies\\GenGP4\\orbis-pub-cmd.exe", $"img_create --oformat pkg --tmp_path ../../Output/Persona5Royal {config.Region.Split('-')[1]}-patch.gp4 ../../Output/Persona5Royal");
                 //Rename PKG after finished
                 while (!File.Exists(outputPKG) || new FileInfo(outputPKG).Length <= 0) { Thread.Sleep(1000); }
                 using (WaitForFile(outputPKG, FileMode.Open, FileAccess.ReadWrite, FileShare.None)) { };
@@ -144,7 +150,7 @@ namespace ModCompendiumLibrary.ModSystem.Builders
                     proc.Kill();
                 foreach (Process proc in Process.GetProcessesByName("cmd"))
                     proc.Kill();
-                string newOutputPKG = outputPKG.Replace("JP0005-CUSA08644_00-PERSONA5R0000000-A0101-V0100", "CUSA08644_00-PERSONA5R-MOD");
+                string newOutputPKG = outputPKG.Replace($"{config.Region}_00-PERSONA5R0000000-A0101-V0100", $"{config.Region.Split('-')[1]}_00-PERSONA5R-MOD");
                 if (File.Exists(newOutputPKG))
                     File.Delete(newOutputPKG);
                 File.Move(outputPKG, newOutputPKG);
