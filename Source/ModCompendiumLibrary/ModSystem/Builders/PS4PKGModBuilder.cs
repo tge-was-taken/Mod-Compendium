@@ -178,7 +178,7 @@ namespace ModCompendiumLibrary.ModSystem.Builders
             ProcessStartInfo start = new ProcessStartInfo();
             start.FileName = "cmd";
             start.WorkingDirectory = Path.GetDirectoryName(filename);
-            start.Arguments = $"/K {filename} {args}";
+            start.Arguments = $"/K {Path.GetFileName(filename)} {args}";
             start.UseShellExecute = true;
             start.RedirectStandardOutput = false;
             //start.WindowStyle = ProcessWindowStyle.Hidden;
