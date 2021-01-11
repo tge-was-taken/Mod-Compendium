@@ -445,6 +445,7 @@ namespace ModCompendium
                         Height = 35,
                     };
                     region.Items.Add("UP0177-CUSA17416");
+                    region.Items.Add("EP0177-CUSA17419");
                     region.Items.Add("JP0005-CUSA08644");
                     //region.Items.Add("HP0177-CUSA17544");
 

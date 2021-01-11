@@ -26,11 +26,17 @@ namespace ModCompendiumLibrary.ModSystem.Builders
 
             //Get game config
             var config = ConfigStore.Get(Game) as PKGGameConfig ?? throw new InvalidOperationException("Game config is missing.");
+            //Set cpk name
+            string cpkName = "patch1R";
+            if (config.Region.Split('-')[1] == "CUSA17416")
+            {
+                cpkName = "mod";
+            }
 
             Log.Builder.Info($"Building {gameName} Mod");
             Log.Builder.Info("Processing mod files");
 
-            var modFilesDirectory = new VirtualDirectory(null, "patch1R");
+            var modFilesDirectory = new VirtualDirectory(null, cpkName);
             foreach (var entry in root)
             {
                 if (entry.EntryType == VirtualFileSystemEntryType.Directory)
@@ -55,7 +61,7 @@ namespace ModCompendiumLibrary.ModSystem.Builders
 
                         default:
                             // Move directory to 'mod' directory
-                            Log.Builder.Trace($"Adding directory {entry.FullName} to patch1R.cpk");
+                            Log.Builder.Trace($"Adding directory {entry.FullName} to {cpkName}.cpk");
                             entry.CopyTo(modFilesDirectory);
                             break;
                     }
@@ -63,7 +69,7 @@ namespace ModCompendiumLibrary.ModSystem.Builders
                 else
                 {
                     // Move file to 'mod' directory
-                    Log.Builder.Trace($"Adding file {entry.FullName} to patch1R.cpk");
+                    Log.Builder.Trace($"Adding file {entry.FullName} to {cpkName}.cpk");
                     entry.CopyTo(modFilesDirectory);
                 }
             }
@@ -71,14 +77,14 @@ namespace ModCompendiumLibrary.ModSystem.Builders
             bool.TryParse(config.Compression, out useCompression);
 
             // Build mod cpk
-            Log.Builder.Info($"Building patch1R.cpk");
+            Log.Builder.Info($"Building {cpkName}.cpk");
             var cpkModCompiler = new CpkModBuilder();
 
             if (hostOutputPath != null) Directory.CreateDirectory(hostOutputPath);
 
-            var cpkFilePath = hostOutputPath != null ? Path.Combine(hostOutputPath, "patch1R.cpk") : null;
+            var cpkFilePath = hostOutputPath != null ? Path.Combine(hostOutputPath, $"{cpkName}.cpk") : null;
             var cpkNotWritable = File.Exists(cpkFilePath) && FileHelper.IsFileInUse(cpkFilePath);
-            var cpkFileBuildPath = hostOutputPath != null ? cpkNotWritable ? Path.Combine(Path.GetTempPath(), "patch1R.cpk") : cpkFilePath : null;
+            var cpkFileBuildPath = hostOutputPath != null ? cpkNotWritable ? Path.Combine(Path.GetTempPath(), $"{cpkName}.cpk") : cpkFilePath : null;
             var cpkFile = cpkModCompiler.Build(modFilesDirectory, enabledMods, cpkFileBuildPath, gameName, useCompression);
 
             if (cpkFileBuildPath != cpkFilePath)
@@ -92,7 +98,7 @@ namespace ModCompendiumLibrary.ModSystem.Builders
             if (File.Exists(cpkFilePath))
             {
                 string programPath = Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location);
-                string patch1R = $"{programPath}\\Dependencies\\GenGP4\\{config.Region.Split('-')[1]}-patch\\USRDIR\\patch1R.cpk";
+                string moddedCpk = $"{programPath}\\Dependencies\\GenGP4\\{config.Region.Split('-')[1]}-patch\\USRDIR\\{cpkName}.cpk";
                 string outputPKG = $"{programPath}\\Output\\Persona5Royal\\{config.Region}_00-PERSONA5R0000000-A0101-V0100.pkg";
 
                 Log.Builder.Info($"Building update .pkg");
@@ -101,10 +107,10 @@ namespace ModCompendiumLibrary.ModSystem.Builders
                 if (!File.Exists(config.PKGPath))
                     throw new InvalidConfigException("Original game .pkg not found at specified location.");
                 //Copy to patch folder
-                if (File.Exists(patch1R))
-                    File.Delete(patch1R);
-                File.Copy(cpkFilePath, patch1R);
-                using (WaitForFile(patch1R, FileMode.Open, FileAccess.ReadWrite, FileShare.None)) { };
+                if (File.Exists(moddedCpk))
+                    File.Delete(moddedCpk);
+                File.Copy(cpkFilePath, moddedCpk);
+                using (WaitForFile(moddedCpk, FileMode.Open, FileAccess.ReadWrite, FileShare.None)) { };
                 //Edit XML/SFO
                 string mods = "";
                 foreach (var mod in enabledMods)
