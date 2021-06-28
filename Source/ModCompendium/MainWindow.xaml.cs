@@ -457,7 +457,13 @@ namespace ModCompendium
                 return;
 
             // Get unique directory
-            string modPath = Path.Combine( ModDatabase.ModDirectory, SelectedGame.ToString(), newMod.ModTitle );
+            string folderPath = Path.Combine( ModDatabase.ModDirectory, SelectedGame.ToString() );
+            string[] gamePath = Directory.GetDirectories( folderPath, "*", SearchOption.AllDirectories );
+            if ( FolderComboBox.SelectedItem.ToString() != "All Folders" )
+                foreach ( string folder in gamePath )
+                    if ( Path.GetFileName(folder) == FolderComboBox.SelectedItem.ToString() )
+                        folderPath = folder;
+            string modPath = Path.Combine( folderPath, newMod.ModTitle );
             if ( Directory.Exists( modPath ) )
             {
                 var newModPath = modPath;
@@ -488,6 +494,7 @@ namespace ModCompendium
 
             // Reload
             RefreshModDatabase();
+            RefreshMods();
         }
 
         private void DeleteButton_Click( object sender, RoutedEventArgs e )

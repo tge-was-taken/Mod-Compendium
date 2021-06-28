@@ -136,78 +136,54 @@ namespace ModCompendium
             else if (config is ModCpkGameConfig)
             {
                 var ppConfig = (ModCpkGameConfig)config;
-            }
-            else if (config is PKGGameConfig)
-            {
-                var pkgConfig = (PKGGameConfig)config;
 
                 // Add extra row
                 ConfigPropertyGrid.RowDefinitions.Add(new RowDefinition());
 
-                // Cpk root directory path label
+                // PC Mode checkbox label
+                var pcLabel = new Label()
                 {
-                    var pkgPathLabel = new Label()
-                    {
-                        Content = "App PKG Path",
-                        ToolTip = $"Path to the unencrypted {config.Game.ToString()} full game PKG",
-                        HorizontalContentAlignment = HorizontalAlignment.Center,
-                        VerticalContentAlignment = VerticalAlignment.Center,
-                        HorizontalAlignment = HorizontalAlignment.Center,
-                        VerticalAlignment = VerticalAlignment.Center,
-                        Height = 25,
-                        Width = 120
-                    };
+                    Content = "PC Mode",
+                    ToolTip = "Outputs files for use with the P4G PC Mod Loader",
+                    HorizontalContentAlignment = HorizontalAlignment.Center,
+                    VerticalContentAlignment = VerticalAlignment.Center,
+                    HorizontalAlignment = HorizontalAlignment.Center,
+                    VerticalAlignment = VerticalAlignment.Center,
+                    Height = 35,
+                    Width = 120,
+                    Visibility = Visibility.Hidden
+                };
+                Grid.SetRow(pcLabel, 2);
+                Grid.SetColumn(pcLabel, 0);
+                ConfigPropertyGrid.Children.Add(pcLabel);
 
-                    Grid.SetRow(pkgPathLabel, 2);
-                    Grid.SetColumn(pkgPathLabel, 0);
-                    ConfigPropertyGrid.Children.Add(pkgPathLabel);
-                }
-
-                // PKG path  text box
-                TextBox pkgPathTextBox;
+                // PC Mode Checkbox
+                CheckBox pc;
                 {
-                    pkgPathTextBox = new TextBox()
+                    pc = new CheckBox()
                     {
                         VerticalContentAlignment = VerticalAlignment.Center,
-                        HorizontalAlignment = HorizontalAlignment.Center,
+                        HorizontalAlignment = HorizontalAlignment.Left,
                         VerticalAlignment = VerticalAlignment.Center,
-                        Height = 20,
-                        TextWrapping = TextWrapping.Wrap,
-                        Width = 291,
+                        Height = 35,
+                        Visibility = Visibility.Hidden
                     };
-
-                    pkgPathTextBox.SetBinding(TextBox.TextProperty, new Binding(nameof(Persona5RoyalGameConfig.PKGPath)));
-
-                    Grid.SetRow(pkgPathTextBox, 2);
-                    Grid.SetColumn(pkgPathTextBox, 1);
-                    ConfigPropertyGrid.Children.Add(pkgPathTextBox);
+                    Grid.SetRow(pc, 2);
+                    Grid.SetColumn(pc, 1);
+                    ConfigPropertyGrid.Children.Add(pc);
                 }
 
-                // PKG Path text box button
+                if (config.Game == Game.Persona4Golden)
                 {
-                    var pkgPathTextBoxButton = new Button()
-                    {
-                        Content = "...",
-                        HorizontalAlignment = HorizontalAlignment.Right,
-                        VerticalAlignment = VerticalAlignment.Center,
-                        Width = 20,
-                        Height = 20
-                    };
-
-                    pkgPathTextBoxButton.Click += (s, e) =>
-                    {
-                        var file = SelectFile(new CommonFileDialogFilter("PKG file", ".pkg"));
-                        if (file != null)
-                        {
-                            pkgConfig.PKGPath = file;
-                            pkgPathTextBox.GetBindingExpression(TextBox.TextProperty).UpdateTarget();
-                        }
-                    };
-
-                    Grid.SetRow(pkgPathTextBoxButton, 2);
-                    Grid.SetColumn(pkgPathTextBoxButton, 1);
-                    ConfigPropertyGrid.Children.Add(pkgPathTextBoxButton);
+                    pc.Visibility = Visibility.Visible;
+                    pcLabel.Visibility = Visibility.Visible;
                 }
+                else
+                {
+                    pc.IsChecked = false;
+                }
+
+                pc.SetBinding(CheckBox.IsCheckedProperty, new Binding(nameof(ModCpkGameConfig.PC)));
             }
             else
             {
@@ -320,53 +296,6 @@ namespace ModCompendium
                     Grid.SetColumn(cpkExtract, 1);
                     ConfigPropertyGrid.Children.Add(cpkExtract);
                 }
-                
-                // Add extra row
-                ConfigPropertyGrid.RowDefinitions.Add(new RowDefinition());
-
-                // PC Mode checkbox label
-                var pcLabel = new Label()
-                {
-                    Content = "PC Mode",
-                    ToolTip = "Outputs files for use with the P4G PC Mod Loader",
-                    HorizontalContentAlignment = HorizontalAlignment.Center,
-                    VerticalContentAlignment = VerticalAlignment.Center,
-                    HorizontalAlignment = HorizontalAlignment.Center,
-                    VerticalAlignment = VerticalAlignment.Center,
-                    Height = 35,
-                    Width = 120,
-                    Visibility = Visibility.Hidden
-                };
-
-                Grid.SetRow(pcLabel, 5);
-                Grid.SetColumn(pcLabel, 0);
-                ConfigPropertyGrid.Children.Add(pcLabel);
-
-                // PC Mode Checkbox
-                CheckBox pc;
-                {
-                    pc = new CheckBox()
-                    {
-                        VerticalContentAlignment = VerticalAlignment.Center,
-                        HorizontalAlignment = HorizontalAlignment.Left,
-                        VerticalAlignment = VerticalAlignment.Center,
-                        Height = 35,
-                        Visibility = Visibility.Hidden
-                    };
-
-                    pc.SetBinding(CheckBox.IsCheckedProperty, new Binding(nameof(PersonaPortableGameConfig.PC)));
-
-                    Grid.SetRow(pc, 5);
-                    Grid.SetColumn(pc, 1);
-                    ConfigPropertyGrid.Children.Add(pc);
-                }
-                if (config.Game == Game.Persona4Golden)
-                {
-                    pc.Visibility = Visibility.Visible;
-                    pcLabel.Visibility = Visibility.Visible;
-                }
-                else
-                    pc.IsChecked = false;
             }
             if (config.Game != Game.Persona3 && config.Game != Game.Persona4)
             {
@@ -408,52 +337,6 @@ namespace ModCompendium
                     Grid.SetRow(cpkCompression, 3);
                     Grid.SetColumn(cpkCompression, 1);
                     ConfigPropertyGrid.Children.Add(cpkCompression);
-                }
-            }
-            if (config.Game == Game.Persona5Royal)
-            {
-                // Add extra row
-                ConfigPropertyGrid.RowDefinitions.Add(new RowDefinition());
-
-                // Region label
-                {
-                    var regionLabel = new Label()
-                    {
-                        Content = "Region",
-                        ToolTip = "ID must match your installed version of " + config.Game.ToString(),
-                        HorizontalContentAlignment = HorizontalAlignment.Center,
-                        VerticalContentAlignment = VerticalAlignment.Center,
-                        HorizontalAlignment = HorizontalAlignment.Center,
-                        VerticalAlignment = VerticalAlignment.Center,
-                        Height = 35,
-                        Width = 120
-                    };
-
-                    Grid.SetRow(regionLabel, 4);
-                    Grid.SetColumn(regionLabel, 0);
-                    ConfigPropertyGrid.Children.Add(regionLabel);
-                }
-
-                // Region combobox
-                ComboBox region;
-                {
-                    region = new ComboBox()
-                    {
-                        VerticalContentAlignment = VerticalAlignment.Center,
-                        HorizontalAlignment = HorizontalAlignment.Left,
-                        VerticalAlignment = VerticalAlignment.Center,
-                        Height = 35,
-                    };
-                    region.Items.Add("UP0177-CUSA17416");
-                    region.Items.Add("EP0177-CUSA17419");
-                    region.Items.Add("JP0005-CUSA08644");
-                    //region.Items.Add("HP0177-CUSA17544");
-
-                    region.SetBinding(ComboBox.SelectedValueProperty, new Binding(nameof(Persona5RoyalGameConfig.Region)));
-
-                    Grid.SetRow(region, 4);
-                    Grid.SetColumn(region, 1);
-                    ConfigPropertyGrid.Children.Add(region);
                 }
             }
         }

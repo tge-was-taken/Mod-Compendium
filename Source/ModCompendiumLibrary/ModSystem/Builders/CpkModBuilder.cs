@@ -106,9 +106,11 @@ namespace ModCompendiumLibrary.ModSystem.Builders
                 cpkFile = new VirtualFile(null, cpkPath, cpkName);
             }
 
-            // Delete temp directory
+            // Delete temp directories
             Log.Builder.Trace($"Deleting temp directory: {tempDirectoryPath}");
             Directory.Delete(tempDirectoryPath, true);
+            Log.Builder.Trace($"Deleting csv directory: {Path.GetDirectoryName(csvPath)}");
+            Directory.Delete(Path.GetDirectoryName(csvPath), true);
 
             return cpkFile;
         }

@@ -6,6 +6,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
+using System.Linq;
 using System.Threading;
 
 namespace ModCompendiumLibrary.ModSystem.Builders
@@ -30,7 +31,13 @@ namespace ModCompendiumLibrary.ModSystem.Builders
             Log.Builder.Info($"Building {gameName} Mod");
             Log.Builder.Info("Processing mod files");
 
-            var modFilesDirectory = new VirtualDirectory(null, "mod");
+            bool pc = Convert.ToBoolean(config.PC);
+            var modFilesDirectory = new VirtualDirectory();
+            if (!pc)
+                modFilesDirectory = new VirtualDirectory(null, "mod");
+            else
+                modFilesDirectory = new VirtualDirectory(null, "");
+
             foreach (var entry in root)
             {
                 if (entry.EntryType == VirtualFileSystemEntryType.Directory)
@@ -70,27 +77,47 @@ namespace ModCompendiumLibrary.ModSystem.Builders
 
             bool.TryParse(config.Compression, out useCompression);
 
-            // Build mod cpk
-            Log.Builder.Info($"Building mod.cpk");
-            var cpkModCompiler = new CpkModBuilder();
-
-            if (hostOutputPath != null) Directory.CreateDirectory(hostOutputPath);
-
-            var cpkFilePath = hostOutputPath != null ? Path.Combine(hostOutputPath, "mod.cpk") : null;
-            var cpkNotWritable = File.Exists(cpkFilePath) && FileHelper.IsFileInUse(cpkFilePath);
-            var cpkFileBuildPath = hostOutputPath != null ? cpkNotWritable ? Path.Combine(Path.GetTempPath(), "mod.cpk") : cpkFilePath : null;
-            var cpkFile = cpkModCompiler.Build(modFilesDirectory, enabledMods, cpkFileBuildPath, gameName, useCompression);
-
-            if (cpkFileBuildPath != cpkFilePath)
+            // If PC Mode is enabled, clear and replace contents
+            if (pc)
             {
-                File.Copy(cpkFileBuildPath, cpkFilePath, true);
-                File.Delete(cpkFileBuildPath);
-                cpkFile = VirtualFile.FromHostFile(cpkFilePath);
+                if (Directory.Exists(hostOutputPath)) 
+                {
+                    foreach (var directory in Directory.GetDirectories(hostOutputPath))
+                    {
+                        Log.Builder.Info($"Replacing Output Path contents");
+                        string[] stringArray = { "data00000", "data00001", "data00002", "data00003", "data00004", "data00005", "data00006", "movie00000", "movie00001", "movie00002", "snd", "data_e" };
+                        if (stringArray.Any(Path.GetFileName(directory).ToLower().Equals))
+                            Directory.Delete(directory, true);
+                    }
+                }
+
+                Directory.CreateDirectory(Path.GetFullPath(hostOutputPath));
+                modFilesDirectory.SaveToHost(hostOutputPath);
+                Log.Builder.Info("Done!");
+                return modFilesDirectory;
             }
+            else
+            {
+                // Build mod cpk
+                Log.Builder.Info($"Building mod.cpk");
+                var cpkModCompiler = new CpkModBuilder();
 
-            Log.Builder.Info("Done!");
+                if (hostOutputPath != null) Directory.CreateDirectory(hostOutputPath);
 
-            return cpkFile;
+                var cpkFilePath = hostOutputPath != null ? Path.Combine(hostOutputPath, "mod.cpk") : null;
+                var cpkNotWritable = File.Exists(cpkFilePath) && FileHelper.IsFileInUse(cpkFilePath);
+                var cpkFileBuildPath = hostOutputPath != null ? cpkNotWritable ? Path.Combine(Path.GetTempPath(), "mod.cpk") : cpkFilePath : null;
+                var cpkFile = cpkModCompiler.Build(modFilesDirectory, enabledMods, cpkFileBuildPath, gameName, useCompression);
+
+                if (cpkFileBuildPath != cpkFilePath)
+                {
+                    File.Copy(cpkFileBuildPath, cpkFilePath, true);
+                    File.Delete(cpkFileBuildPath);
+                    cpkFile = VirtualFile.FromHostFile(cpkFilePath);
+                }
+                Log.Builder.Info("Done!");
+                return cpkFile;
+            }
         }
 
         private void LogModFilesInDirectory(VirtualDirectory directory)
@@ -121,5 +148,17 @@ namespace ModCompendiumLibrary.ModSystem.Builders
     public class P5ModCpkBuilder : ModCpkModBuilder
     {
         protected override Game Game => Game.Persona5;
+    }
+
+    [ModBuilder("P5R Mod Builder", Game = Game.Persona5Royal)]
+    public class P5RModCpkBuilder : ModCpkModBuilder
+    {
+        protected override Game Game => Game.Persona5Royal;
+    }
+
+    [ModBuilder("P4G Mod Builder", Game = Game.Persona4Golden)]
+    public class P4GModCpkBuilder : ModCpkModBuilder
+    {
+        protected override Game Game => Game.Persona4Golden;
     }
 }

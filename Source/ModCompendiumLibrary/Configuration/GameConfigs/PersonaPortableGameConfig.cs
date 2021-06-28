@@ -9,7 +9,6 @@ namespace ModCompendiumLibrary.Configuration
             CpkRootOrPath = string.Empty;
             Compression = "True";
             Extract = "True";
-            PC = "False";
         }
 
         /// <summary>
@@ -18,14 +17,12 @@ namespace ModCompendiumLibrary.Configuration
         public string CpkRootOrPath { get; set; }
         public string Compression { get; set; }
         public string Extract { get; set; }
-        public string PC { get; set; }
 
         protected override void DeserializeCore(XElement element)
         {
             CpkRootOrPath = element.GetElementValueOrEmpty(nameof(CpkRootOrPath));
             Compression = element.GetElementValueOrEmpty(nameof(Compression));
             Extract = element.GetElementValueOrEmpty(nameof(Extract));
-            PC = element.GetElementValueOrEmpty(nameof(PC));
         }
 
         protected override void SerializeCore( XElement element )
@@ -33,7 +30,6 @@ namespace ModCompendiumLibrary.Configuration
             element.AddNameValuePair(nameof(CpkRootOrPath), CpkRootOrPath);
             element.AddNameValuePair(nameof(Compression), Compression);
             element.AddNameValuePair(nameof(Extract), Extract);
-            element.AddNameValuePair(nameof(PC), PC);
         }
     }
 }

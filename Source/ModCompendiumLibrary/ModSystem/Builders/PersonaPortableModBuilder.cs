@@ -33,24 +33,6 @@ namespace ModCompendiumLibrary.ModSystem.Builders
                 throw new InvalidOperationException("Game config is missing.");
             }
 
-            bool pc = Convert.ToBoolean(config.PC);
-            if (!pc && string.IsNullOrWhiteSpace(config.CpkRootOrPath))
-            {
-                throw new InvalidConfigException("CPK path is not specified.");
-            }
-
-            // If PC Mode is enabled, clear contents
-            if (pc)
-            {
-                if (Directory.Exists(hostOutputPath))
-                    foreach (var directory in Directory.GetDirectories(hostOutputPath))
-                    {
-                        string[] stringArray = { "data00000", "data00001", "data00002", "data00003", "data00004", "data00005", "data00006", "movie00000", "movie00001", "movie00002", "snd" };
-                        if (stringArray.Any(Path.GetFileName(directory).ToLower().Equals))
-                            Directory.Delete(directory, true);
-                    }
-            }
-
             // Create temp folder
             var cpkRootDirectoryPath = Path.Combine(Path.GetTempPath(), $"{Game}ModCompilerTemp_" + Path.GetRandomFileName());
             Log.Builder.Trace($"Creating temp output directory: {cpkRootDirectoryPath}");
@@ -60,48 +42,40 @@ namespace ModCompendiumLibrary.ModSystem.Builders
             VirtualDirectory cpkRootDirectory;
 
             Log.Builder.Trace($"{nameof(config.CpkRootOrPath)} = {config.CpkRootOrPath}");
-
-            if (!pc)
+            if (config.CpkRootOrPath.EndsWith(".cpk"))
             {
-                if (config.CpkRootOrPath.EndsWith(".cpk"))
+                // If extraction is enabled, use files from CPK path 
+                useExtracted = Convert.ToBoolean(config.Extract);
+                if (useExtracted)
                 {
-                    // If extraction is enabled, use files from CPK path 
-                    useExtracted = Convert.ToBoolean(config.Extract);
-                    if (useExtracted)
+                    Log.Builder.Info($"Extracting CPK: {config.CpkRootOrPath}");
+
+                    if (!File.Exists(config.CpkRootOrPath))
                     {
-                        Log.Builder.Info($"Extracting CPK: {config.CpkRootOrPath}");
-
-                        if (!File.Exists(config.CpkRootOrPath))
-                        {
-                            throw new InvalidConfigException($"CPK root path references a CPK file that does not exist: {config.CpkRootOrPath}.");
-                        }
-
-                        string[] args = { "-x", "-i", config.CpkRootOrPath, "-d", cpkRootDirectoryPath };
-                        CriPakTools.Program.Main(args);
-                    }
-                    // Cpk file found & extracted, convert it to our virtual file system
-                    cpkRootDirectory = VirtualDirectory.FromHostDirectory(cpkRootDirectoryPath);
-                    cpkRootDirectory.Name = Path.GetFileNameWithoutExtension(config.CpkRootOrPath);
-                }
-                else
-                {
-                    Log.Builder.Info($"Mounting directory: {config.CpkRootOrPath}");
-
-                    if (!Directory.Exists(config.CpkRootOrPath))
-                    {
-                        throw new InvalidConfigException($"CPK root path references a directory that does not exist: {config.CpkRootOrPath}.");
+                        throw new InvalidConfigException($"CPK root path references a CPK file that does not exist: {config.CpkRootOrPath}.");
                     }
 
-                    // No CPK file found, assume files are extracted
-                    cpkRootDirectory = VirtualDirectory.FromHostDirectory(config.CpkRootOrPath);
-                    cpkRootDirectory.Name = Path.GetDirectoryName(config.CpkRootOrPath);
+                    string[] args = { "-x", "-i", config.CpkRootOrPath, "-d", cpkRootDirectoryPath };
+                    CriPakTools.Program.Main(args);
                 }
+                // Cpk file found & extracted, convert it to our virtual file system
+                cpkRootDirectory = VirtualDirectory.FromHostDirectory(cpkRootDirectoryPath);
+                cpkRootDirectory.Name = Path.GetFileNameWithoutExtension(config.CpkRootOrPath);
             }
             else
             {
-                cpkRootDirectory = new VirtualDirectory();
-            }
+                Log.Builder.Info($"Mounting directory: {config.CpkRootOrPath}");
 
+                if (!Directory.Exists(config.CpkRootOrPath))
+                {
+                    throw new InvalidConfigException($"CPK root path references a directory that does not exist: {config.CpkRootOrPath}.");
+                }
+
+                // No CPK file found, assume files are extracted
+                cpkRootDirectory = VirtualDirectory.FromHostDirectory(config.CpkRootOrPath);
+                cpkRootDirectory.Name = Path.GetDirectoryName(config.CpkRootOrPath);
+            }
+            
             Log.Builder.Info("Processing mod files");
             foreach (var entry in root)
             {
@@ -110,47 +84,41 @@ namespace ModCompendiumLibrary.ModSystem.Builders
                     var directory = (VirtualDirectory)entry;
                     var name = directory.Name.ToLowerInvariant();
 
-                    // Skip recompiling CVMs if HostFS Mode
-                    if (pc)
-                        entry.MoveTo(cpkRootDirectory, true);
-                    else
+                    switch (name)
                     {
-                        switch (name)
-                        {
-                            case "mod":
-                            case "cache":
-                            case "umd0":
-                            case "umd1":
-                            case "vita":
-                            case "patch":
-                            case "memst":
-                            case "data00000":
-                            case "data00001":
-                            case "data00002":
-                            case "data00003":
-                            case "data00004":
-                            case "data00005":
-                            case "data00006":
-                            case "data_c":
-                            case "data_e":
-                            case "data_k":
+                        case "mod":
+                        case "cache":
+                        case "umd0":
+                        case "umd1":
+                        case "vita":
+                        case "patch":
+                        case "memst":
+                        case "data00000":
+                        case "data00001":
+                        case "data00002":
+                        case "data00003":
+                        case "data00004":
+                        case "data00005":
+                        case "data00006":
+                        case "data_c":
+                        case "data_e":
+                        case "data_k":
+                            {
+                                // Move files in 'cpk' directory to 'mod' directory
+                                LogModFilesInDirectory(directory);
+
+                                foreach (var modFileEntry in directory)
                                 {
-                                    // Move files in 'cpk' directory to 'mod' directory
-                                    LogModFilesInDirectory(directory);
-
-                                    foreach (var modFileEntry in directory)
-                                    {
-                                        modFileEntry.CopyTo(cpkRootDirectory);
-                                    }
+                                    modFileEntry.CopyTo(cpkRootDirectory);
                                 }
-                                break;
+                            }
+                            break;
 
-                            default:
-                                // Move directory to 'mod' directory
-                                Log.Builder.Trace($"Adding directory {entry.FullName} to {cpkRootDirectory.Name}.cpk");
-                                entry.CopyTo(cpkRootDirectory);
-                                break;
-                        }
+                        default:
+                            // Move directory to 'mod' directory
+                            Log.Builder.Trace($"Adding directory {entry.FullName} to {cpkRootDirectory.Name}.cpk");
+                            entry.CopyTo(cpkRootDirectory);
+                            break;
                     }
                 }
                 else
@@ -164,22 +132,11 @@ namespace ModCompendiumLibrary.ModSystem.Builders
             useCompression = Convert.ToBoolean(config.Compression);
 
             // Build mod cpk
-            if (!pc) 
-            {
-                var cpkModCompiler = new CpkModBuilder();
-                var cpkFilePath = hostOutputPath != null ? Path.Combine(hostOutputPath, $"{cpkRootDirectory.Name}.cpk") : null;
-                var cpkFile = cpkModCompiler.Build(cpkRootDirectory, enabledMods, cpkFilePath, gameName, useCompression);
-                Log.Builder.Info("Done!");
-                return cpkFile;
-            }
-            else
-            {
-                Directory.CreateDirectory(Path.GetFullPath(hostOutputPath));
-                cpkRootDirectory.SaveToHost(hostOutputPath);
-                Log.Builder.Info("Done!");
-                return cpkRootDirectory;
-            }
-            
+            var cpkModCompiler = new CpkModBuilder();
+            var cpkFilePath = hostOutputPath != null ? Path.Combine(hostOutputPath, $"{cpkRootDirectory.Name}.cpk") : null;
+            var cpkFile = cpkModCompiler.Build(cpkRootDirectory, enabledMods, cpkFilePath, gameName, useCompression);
+            Log.Builder.Info("Done!");
+            return cpkFile;
         }
 
         private void LogModFilesInDirectory(VirtualDirectory directory)
