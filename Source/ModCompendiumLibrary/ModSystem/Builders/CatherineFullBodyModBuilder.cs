@@ -131,6 +131,10 @@ namespace ModCompendiumLibrary.ModSystem.Builders
             var cpkModCompiler = new CpkModBuilder();
             var cpkFilePath = hostOutputPath != null ? Path.Combine(hostOutputPath, $"{cpkRootDirectory.Name}.cpk") : null;
             var cpkFile = cpkModCompiler.Build(cpkRootDirectory, enabledMods, cpkFilePath, gameName, useCompression);
+
+            if (Directory.Exists(cpkRootDirectoryPath))
+                Directory.Delete(cpkRootDirectoryPath, true);
+
             Log.Builder.Info("Done!");
             return cpkFile;
         }
