@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
@@ -109,8 +109,12 @@ namespace ModCompendiumLibrary.ModSystem.Builders
             // Delete temp directories
             Log.Builder.Trace($"Deleting temp directory: {tempDirectoryPath}");
             Directory.Delete(tempDirectoryPath, true);
-            Log.Builder.Trace($"Deleting csv directory: {Path.GetDirectoryName(csvPath)}");
-            Directory.Delete(Path.GetDirectoryName(csvPath), true);
+            if (csvPath != string.Empty)
+            {
+                Log.Builder.Trace($"Deleting csv directory: {Path.GetDirectoryName(csvPath)}");
+                Directory.Delete(Path.GetDirectoryName(csvPath), true);
+            }
+
 
             return cpkFile;
         }
