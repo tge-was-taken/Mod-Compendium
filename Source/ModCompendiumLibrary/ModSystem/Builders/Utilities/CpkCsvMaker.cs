@@ -13,7 +13,7 @@ namespace ModCompendiumLibrary.ModSystem.Builders.Utilities
         public static string MakeCsv( string tempDirectory, string game, string hostOutputPath )
         {
             //Get CSV template from Config folder
-            var baseCsv = $"Config\\{game}.csv";
+            var baseCsv = $"Dependencies\\Compression\\{game}.csv";
             if (!File.Exists(baseCsv))
                 Log.Config.Error($"Failed to load CSV file: {baseCsv}");
             else
