@@ -1,6 +1,6 @@
 ﻿namespace ModCompendiumLibrary.Configuration
 {
-    public class PersonaQGameConfig : PersonaPortableGameConfig
+    public class PersonaQGameConfig : ModCpkGameConfig
     {
         public override Game Game => Game.PersonaQ;
     }

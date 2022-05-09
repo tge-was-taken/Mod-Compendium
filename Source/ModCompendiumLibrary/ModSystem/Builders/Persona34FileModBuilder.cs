@@ -24,7 +24,10 @@ namespace ModCompendiumLibrary.ModSystem.Builders
 
             Log.Builder.Info( $"Building {Game} Mod" );
             if ( hostOutputPath != null )
-                Log.Builder.Info( $"Output directory: {hostOutputPath}" );
+            {
+                Log.Builder.Info($"Output directory: {hostOutputPath}");
+                Directory.CreateDirectory(hostOutputPath);
+            }
 
             // Get game config
             var config = ConfigStore.Get( Game ) as Persona34GameConfig ?? throw new InvalidOperationException( "Game config is missing." );

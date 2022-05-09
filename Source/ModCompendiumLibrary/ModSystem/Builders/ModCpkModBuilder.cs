@@ -161,4 +161,16 @@ namespace ModCompendiumLibrary.ModSystem.Builders
     {
         protected override Game Game => Game.Persona4Golden;
     }
+
+    [ModBuilder("Persona Q Mod Builder", Game = Game.PersonaQ)]
+    public class PersonaQModBuilder : ModCpkModBuilder
+    {
+        protected override Game Game => Game.PersonaQ;
+    }
+
+    [ModBuilder("Persona Q2 Mod Builder", Game = Game.PersonaQ2)]
+    public class PersonaQ2ModBuilder : ModCpkModBuilder
+    {
+        protected override Game Game => Game.PersonaQ2;
+    }
 }

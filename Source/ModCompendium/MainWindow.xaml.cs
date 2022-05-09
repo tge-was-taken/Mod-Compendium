@@ -35,13 +35,13 @@ namespace ModCompendium
         {
             "Persona 3",
             "Persona 3 Portable",
+            "Persona 3 Dancing",
             "Persona 4",
             "Persona 4 Golden",
-            "Persona 4 Dancing All Night",
+            "Persona 4 Dancing",
             "Persona 5",
             "Persona 5 Royal",
-            "Persona 3 Dancing Moon Night",
-            "Persona 5 Dancing Star Night",
+            "Persona 5 Dancing",
             "Persona Q",
             "Persona Q2",
             "Catherine Full Body"
