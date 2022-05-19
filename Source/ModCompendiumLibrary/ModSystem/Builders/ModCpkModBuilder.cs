@@ -48,9 +48,8 @@ namespace ModCompendiumLibrary.ModSystem.Builders
                     switch (name)
                     {
                         case "mod":
-                        case "data":
                             {
-                                // Move files in 'cpk' directory to 'mod' directory
+                                // Move files in 'mod' directory to root of output directory
                                 LogModFilesInDirectory(directory);
 
                                 foreach (var modFileEntry in directory)
@@ -59,7 +58,6 @@ namespace ModCompendiumLibrary.ModSystem.Builders
                                 }
                             }
                             break;
-
                         default:
                             // Move directory to 'mod' directory
                             Log.Builder.Trace($"Adding directory {entry.FullName} to mod.cpk");
