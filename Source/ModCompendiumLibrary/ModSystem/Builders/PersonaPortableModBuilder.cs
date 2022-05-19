@@ -154,12 +154,6 @@ namespace ModCompendiumLibrary.ModSystem.Builders
         }
     }
 
-    [ModBuilder("Persona 3 Portable Mod Builder", Game = Game.Persona3Portable)]
-    public class Persona3PortableModBuilder : PersonaPortableModBuilder
-    {
-        protected override Game Game => Game.Persona3Portable;
-    }
-
     [ModBuilder("Persona 4 Dancing Mod Builder", Game = Game.Persona4Dancing)]
     public class Persona4DancingModBuilder : PersonaPortableModBuilder
     {

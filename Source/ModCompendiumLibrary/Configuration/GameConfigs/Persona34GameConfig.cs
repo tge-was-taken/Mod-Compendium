@@ -27,5 +27,15 @@ namespace ModCompendiumLibrary.Configuration
             element.AddNameValuePair( nameof( DvdRootOrIsoPath ), DvdRootOrIsoPath );
             element.AddNameValuePair(nameof(HostFS), HostFS);
         }
+
+        public class Persona4GameConfig : Persona34GameConfig
+        {
+            public override Game Game => Game.Persona4;
+        }
+
+        public class Persona3GameConfig : Persona34GameConfig
+        {
+            public override Game Game => Game.Persona3;
+        }
     }
 }

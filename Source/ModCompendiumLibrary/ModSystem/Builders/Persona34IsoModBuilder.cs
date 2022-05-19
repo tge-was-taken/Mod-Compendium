@@ -56,7 +56,7 @@ namespace ModCompendiumLibrary.ModSystem.Builders
     {
         protected override Persona34FileModBuilder CreateFileModBuilder() => new Persona3FileModBuilder();
 
-        protected override Persona34GameConfig GetConfig() => ConfigStore.Get<Persona3GameConfig>();
+        protected override Persona34GameConfig GetConfig() => ConfigStore.Get<Persona34GameConfig>();
     }
 
     //[ModBuilder( "Persona 4 ISO Mod Builder", Game = Game.Persona4 )]
@@ -64,6 +64,6 @@ namespace ModCompendiumLibrary.ModSystem.Builders
     {
         protected override Persona34FileModBuilder CreateFileModBuilder() => new Persona4FileModBuilder();
 
-        protected override Persona34GameConfig GetConfig() => ConfigStore.Get<Persona4GameConfig>();
+        protected override Persona34GameConfig GetConfig() => ConfigStore.Get<Persona34GameConfig>();
     }
 }

@@ -36,6 +36,16 @@ namespace ModCompendiumLibrary.Configuration
         public override Game Game => Game.Persona3Dancing;
     }
 
+    public class Persona3PortableConfig : ModCpkGameConfig
+    {
+        public override Game Game => Game.Persona3Portable;
+    }
+
+    public class Persona4GoldenGameConfig : ModCpkGameConfig
+    {
+        public override Game Game => Game.Persona4Golden;
+    }
+
     public class Persona5DancingConfig : ModCpkGameConfig
     {
         public override Game Game => Game.Persona5Dancing;
@@ -51,8 +61,13 @@ namespace ModCompendiumLibrary.Configuration
         public override Game Game => Game.Persona5Royal;
     }
 
-    public class Persona4GoldenGameConfig : ModCpkGameConfig
+    public class PersonaQ2Config : ModCpkGameConfig
     {
-        public override Game Game => Game.Persona4Golden;
+        public override Game Game => Game.PersonaQ2;
+    }
+
+    public class PersonaQConfig : ModCpkGameConfig
+    {
+        public override Game Game => Game.PersonaQ;
     }
 }

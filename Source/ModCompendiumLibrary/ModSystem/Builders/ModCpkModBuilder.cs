@@ -132,16 +132,22 @@ namespace ModCompendiumLibrary.ModSystem.Builders
         }
     }
 
-    [ModBuilder("P5D Mod Builder", Game = Game.Persona5Dancing)]
-    public class P5DModCpkBuilder : ModCpkModBuilder
+    [ModBuilder("P3P Mod Builder", Game = Game.Persona3Portable)]
+    public class P3PModCpkBuilder : ModCpkModBuilder
     {
-        protected override Game Game => Game.Persona5Dancing;
+        protected override Game Game => Game.Persona3Portable;
     }
 
     [ModBuilder("P3D Mod Builder", Game = Game.Persona3Dancing)]
     public class P3DModCpkBuilder : ModCpkModBuilder
     {
         protected override Game Game => Game.Persona3Dancing;
+    }
+
+    [ModBuilder("P4G Mod Builder", Game = Game.Persona4Golden)]
+    public class P4GModCpkBuilder : ModCpkModBuilder
+    {
+        protected override Game Game => Game.Persona4Golden;
     }
 
     [ModBuilder("P5 Mod Builder", Game = Game.Persona5)]
@@ -156,10 +162,10 @@ namespace ModCompendiumLibrary.ModSystem.Builders
         protected override Game Game => Game.Persona5Royal;
     }
 
-    [ModBuilder("P4G Mod Builder", Game = Game.Persona4Golden)]
-    public class P4GModCpkBuilder : ModCpkModBuilder
+    [ModBuilder("P5D Mod Builder", Game = Game.Persona5Dancing)]
+    public class P5DModCpkBuilder : ModCpkModBuilder
     {
-        protected override Game Game => Game.Persona4Golden;
+        protected override Game Game => Game.Persona5Dancing;
     }
 
     [ModBuilder("Persona Q Mod Builder", Game = Game.PersonaQ)]

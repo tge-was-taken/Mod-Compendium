@@ -26,7 +26,7 @@ namespace ModCompendiumLibrary.ModSystem.Builders
             }
 
             // Get game config
-            var config = ConfigStore.Get(Game) as CatherineFullBodyGameConfig;
+            var config = ConfigStore.Get(Game) as PersonaPortableGameConfig;
             if (config == null)
             {
                 // Unlikely

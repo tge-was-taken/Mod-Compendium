@@ -31,5 +31,15 @@ namespace ModCompendiumLibrary.Configuration
             element.AddNameValuePair(nameof(Compression), Compression);
             element.AddNameValuePair(nameof(Extract), Extract);
         }
+
+        public class Persona4DancingConfig : PersonaPortableGameConfig
+        {
+            public override Game Game => Game.Persona4Dancing;
+        }
+
+        public class CatherineFullBodyGameConfig : PersonaPortableGameConfig
+        {
+            public override Game Game => Game.CatherineFullBody;
+        }
     }
 }
