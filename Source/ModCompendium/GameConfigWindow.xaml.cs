@@ -178,6 +178,13 @@ namespace ModCompendium
                     pc.Visibility = Visibility.Visible;
                     pcLabel.Visibility = Visibility.Visible;
                 }
+                else if (config.Game == Game.Persona3Portable || config.Game == Game.Persona3Dancing || config.Game == Game.Persona5Dancing || config.Game == Game.Persona5Royal)
+                {
+                    pc.Visibility = Visibility.Visible;
+                    pcLabel.Visibility = Visibility.Visible;
+                    pcLabel.Content = "Bind Mode";
+                    pcLabel.ToolTip = "Outputs files for use with an FTP HostFS patch (PS4 and PSP only).";
+                }
                 else
                 {
                     pc.IsChecked = false;

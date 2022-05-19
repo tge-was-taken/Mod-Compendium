@@ -82,13 +82,9 @@ namespace ModCompendiumLibrary.ModSystem.Builders
             {
                 if (Directory.Exists(hostOutputPath)) 
                 {
+                    Log.Builder.Info($"Replacing Output Path contents");
                     foreach (var directory in Directory.GetDirectories(hostOutputPath))
-                    {
-                        Log.Builder.Info($"Replacing Output Path contents");
-                        string[] stringArray = { "data00000", "data00001", "data00002", "data00003", "data00004", "data00005", "data00006", "movie00000", "movie00001", "movie00002", "snd", "data_e" };
-                        if (stringArray.Any(Path.GetFileName(directory).ToLower().Equals))
-                            Directory.Delete(directory, true);
-                    }
+                        Directory.Delete(directory, true);
                 }
 
                 Directory.CreateDirectory(Path.GetFullPath(hostOutputPath));
